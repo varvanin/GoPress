@@ -997,7 +997,7 @@ func SettingsPage(site, csrf, tab string, value store.Settings, mail service.Mai
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = AdminSelect("admin-language", "language", value.Language, i18n.T(ctx, "Язык административной панели"), []selectcomp.ItemData{{Value: "ru", Label: i18n.T(ctx, "Русский")}, {Value: "en", Label: "English"}, {Value: "pl", Label: "Polski"}}, nil).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = AdminSelect("admin-language", "language", value.Language, i18n.T(ctx, "Язык административной панели"), []selectcomp.ItemData{{Value: "ru", Label: "Русский"}, {Value: "en", Label: "English"}, {Value: "pl", Label: "Polski"}, {Value: "de", Label: "Deutsch"}, {Value: "uk", Label: "Українська"}, {Value: "it", Label: "Italiano"}, {Value: "es", Label: "Español"}, {Value: "cs", Label: "Čeština"}}, nil).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

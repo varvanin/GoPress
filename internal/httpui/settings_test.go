@@ -76,13 +76,13 @@ func TestSettingsHomepageAndLanguage(t *testing.T) {
 	if _, err = app.Service.Save(ctx, store.Page{Title: "Настройки", Slug: "user-owned-title", Document: document}, true); err != nil {
 		t.Fatal(err)
 	}
-	for _, language := range []string{"en", "pl", "ru"} {
+	for _, language := range []string{"en", "pl", "ru", "de", "uk", "it", "es", "cs"} {
 		settings, _ = s.Settings()
 		fields = url.Values{"version": {fmt.Sprint(settings.Version)}, "language": {language}}
 		status(t, adminHTML(b, "POST", "/admin/settings/language", fields, true, false, true), 204)
 		response = adminHTML(b, "GET", "/admin/settings?tab=general", nil, false, false, false)
 		status(t, response, 200)
-		expected := map[string]string{"en": "General settings", "pl": "Ustawienia ogólne", "ru": "Общие настройки"}[language]
+		expected := map[string]string{"en": "General settings", "pl": "Ustawienia ogólne", "ru": "Общие настройки", "de": "Allgemeine Einstellungen", "uk": "Загальні налаштування", "it": "Impostazioni generali", "es": "Configuración general", "cs": "Obecná nastavení"}[language]
 		if !strings.Contains(response.Body.String(), expected) || !strings.Contains(response.Body.String(), `lang="`+language+`"`) {
 			t.Fatal("language not applied", language)
 		}
@@ -97,7 +97,7 @@ func TestSettingsHomepageAndLanguage(t *testing.T) {
 		}
 		scripts := b.request("GET", "/admin/translations.js", "", "", false)
 		status(t, scripts, 200)
-		if !strings.Contains(scripts.Body.String(), "GoPressTranslations=") {
+		if !strings.Contains(scripts.Body.String(), "GoPressTranslations=") || language != "ru" && !strings.Contains(scripts.Body.String(), i18n.T(i18n.WithLanguage(context.Background(), language), "Настройки")) {
 			t.Fatal("missing JS catalog")
 		}
 	}
@@ -131,13 +131,13 @@ func TestSettingsMailNeverEchoesSecrets(t *testing.T) {
 }
 
 func TestTranslatedButtonLabelsRemainVisible(t *testing.T) {
-	for _, language := range []string{"ru", "en", "pl"} {
+	for _, language := range []string{"ru", "en", "pl", "de", "uk", "it", "es", "cs"} {
 		var out strings.Builder
 		ctx := i18n.WithLanguage(context.Background(), language)
 		if err := Pages("Site", "token", []store.Page{{ID: 1, Title: "User content", Slug: "user", Kind: "page"}}, ContentList{Kind: "page", Total: 1}).Render(ctx, &out); err != nil {
 			t.Fatal(err)
 		}
-		newPage := map[string]string{"ru": "Новая страница", "en": "New page", "pl": "Nowa strona"}[language]
+		newPage := i18n.T(ctx, "Новая страница")
 		if !strings.Contains(out.String(), "<span>"+newPage+"</span>") {
 			t.Fatal("new page label swallowed by icon", language)
 		}
@@ -145,9 +145,21 @@ func TestTranslatedButtonLabelsRemainVisible(t *testing.T) {
 		if err := Forms("Site", "token", nil, false, store.Settings{FormRetentionDays: 90}).Render(ctx, &out); err != nil {
 			t.Fatal(err)
 		}
-		create := map[string]string{"ru": "Создать форму", "en": "Create form", "pl": "Utwórz formularz"}[language]
+		create := i18n.T(ctx, "Создать форму")
 		if !strings.Contains(out.String(), "<span>"+create+"</span>") {
 			t.Fatal("create form label swallowed by icon", language)
+		}
+	}
+}
+
+func TestAdminSectionForEveryLanguage(t *testing.T) {
+	for _, language := range []string{"ru", "en", "pl", "de", "uk", "it", "es", "cs"} {
+		ctx := i18n.WithLanguage(context.Background(), language)
+		for title, want := range map[string]string{"Пользователи": "/admin/users", "Мой профиль": "/admin/account", "Шаблоны": "/admin/themes", "Модули": "/admin/modules", "Инструменты": "/admin/tools", "Настройки": "/admin/settings", "Формы": "/admin/forms", "Медиатека": "/admin/media", "Меню": "/admin/menus", "Категории и теги": "/admin/posts/terms", "Записи": "/admin/posts", "Страницы": "/admin/pages"} {
+			translated := i18n.T(ctx, title)
+			if got := adminSection(translated); got != want {
+				t.Fatalf("%s: %s (%s): %s != %s", language, title, translated, got, want)
+			}
 		}
 	}
 }

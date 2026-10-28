@@ -125,6 +125,9 @@ func adminSection(title string) string {
 	if title == "Мой профиль" {
 		return "/admin/account"
 	}
+	if title == "Модули" {
+		return "/admin/modules"
+	}
 	if title == "Шаблоны" {
 		return "/admin/themes"
 	}

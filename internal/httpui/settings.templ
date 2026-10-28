@@ -133,7 +133,7 @@ templ SettingsPage(site, csrf, tab string, value store.Settings, mail service.Ma
 									<h2>{ i18n.T(ctx,"Язык интерфейса") }</h2>
 									<label>
 										{ i18n.T(ctx,"Язык административной панели") }
-										@AdminSelect("admin-language", "language", value.Language, i18n.T(ctx, "Язык административной панели"), []selectcomp.ItemData{{Value: "ru", Label: i18n.T(ctx, "Русский")}, {Value: "en", Label: "English"}, {Value: "pl", Label: "Polski"}}, nil)
+										@AdminSelect("admin-language", "language", value.Language, i18n.T(ctx, "Язык административной панели"), []selectcomp.ItemData{{Value: "ru", Label: "Русский"}, {Value: "en", Label: "English"}, {Value: "pl", Label: "Polski"}, {Value:"de",Label:"Deutsch"}, {Value:"uk",Label:"Українська"}, {Value:"it",Label:"Italiano"}, {Value:"es",Label:"Español"}, {Value:"cs",Label:"Čeština"}}, nil)
 									</label>
 									<p class="field-help">{ i18n.T(ctx,"Настройка применяется ко всей админке и странице входа. Язык опубликованного контента и шаблона сайта не меняется.") }</p>
 							}

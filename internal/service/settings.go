@@ -7,6 +7,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"gopress/internal/i18n"
 	"gopress/internal/store"
 )
 
@@ -21,7 +22,7 @@ func (v *Service) SaveSettings(ctx context.Context, value store.Settings) error 
 	if _, err = time.LoadLocation(value.Site.Timezone); err != nil {
 		return ErrInvalid
 	}
-	if value.Language != "ru" && value.Language != "en" && value.Language != "pl" {
+	if !i18n.Supported(value.Language) {
 		return ErrInvalid
 	}
 	if value.PostsPerPage < 1 || value.PostsPerPage > 100 || (value.HomeMode != "posts" && value.HomeMode != "page") || value.HomePageID < 0 || value.HomeMode == "page" && value.HomePageID < 1 {

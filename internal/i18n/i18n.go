@@ -15,7 +15,7 @@ var sources = map[string]string{}
 type languageKey struct{}
 
 func init() {
-	for _, language := range []string{"en", "pl"} {
+	for _, language := range []string{"en", "pl", "de", "uk", "it", "es", "cs"} {
 		raw, err := files.ReadFile("locales/" + language + ".json")
 		if err != nil {
 			panic(err)
@@ -34,7 +34,7 @@ func WithLanguage(ctx context.Context, language string) context.Context {
 	return context.WithValue(ctx, languageKey{}, language)
 }
 func Language(ctx context.Context) string {
-	if language, _ := ctx.Value(languageKey{}).(string); language == "en" || language == "pl" {
+	if language, _ := ctx.Value(languageKey{}).(string); Supported(language) {
 		return language
 	}
 	return "ru"
@@ -55,3 +55,11 @@ func Source(text string) string {
 	return text
 }
 func Catalog(language string) map[string]string { return catalogs[language] }
+
+func Supported(language string) bool {
+	if language == "ru" {
+		return true
+	}
+	_, ok := catalogs[language]
+	return ok
+}

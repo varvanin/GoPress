@@ -191,7 +191,7 @@ function start() {
     const detail=event.detail;
     const hasNotice=/class="[^"]*\bnotice\b/.test(detail.xhr.responseText||'');
     if(!hasNotice&&!detail.xhr.getResponseHeader('HX-Redirect')){
-      if(detail.failed)toast('Не удалось выполнить действие. Проверьте соединение и повторите попытку.','error');
+      if(detail.failed)toast(t('Не удалось выполнить действие. Правки сохранены на экране; проверьте соединение или обновите версию материала.'),'error');
       else if(detail.successful&&detail.requestConfig?.verb?.toLowerCase()==='post')toast(actionMessage(detail.elt,detail.requestConfig.parameters));
     }
     if (['seo-panel','template-file-editor','media-inspector'].includes(event.detail.target?.id)){notice('');return;}
