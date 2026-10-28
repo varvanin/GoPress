@@ -1,0 +1,14 @@
+package httpui
+
+import "gopress/internal/i18n"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/icon"
+
+templ MaintenancePage(retry string) {
+ @AuthLayout("Технические работы") {
+ <p class="maintenance-description" role="status">{ i18n.T(ctx,"Сайт временно недоступен. Проводим технические работы — пожалуйста, зайдите немного позже.") }</p>
+ @button.Button(button.Props{Href:retry,Size:button.SizeSm,Variant:button.VariantOutline,Class:"maintenance-refresh"}) {
+ @icon.Icon("rotate-ccw")(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Обновить страницу") }</span>
+ }
+ }
+}

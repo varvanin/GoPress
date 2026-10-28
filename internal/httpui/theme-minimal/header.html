@@ -1,0 +1,7 @@
+<header class="minimal-sidebar">
+<a class="minimal-brand" href="/" aria-label="{{.Site.Title}} — главная"><span class="minimal-mark" aria-hidden="true">{{firstLetter .Site.Title}}</span><span class="minimal-wordmark">{{.Site.Title}}</span></a>
+<p class="minimal-site-note">Записи, идеи и наблюдения.<br>Место для главного.</p>
+<nav class="minimal-desktop-nav" aria-label="Основная навигация">{{template "minimal-links" .}}</nav>
+<div class="minimal-sidebar-meta"><a href="/search">{{template "minimal-search"}}<span>Поиск по сайту</span></a>{{if .SEO.RSS}}<a href="/rss.xml">{{template "minimal-rss"}}<span>Читать через RSS</span></a>{{end}}</div>
+<details class="minimal-mobile"><summary aria-label="Открыть меню">{{template "minimal-menu-icon"}}</summary><nav aria-label="Мобильная навигация">{{template "minimal-links" .}}<div class="minimal-mobile-utilities"><a href="/search">Поиск</a>{{if .SEO.RSS}}<a href="/rss.xml">RSS</a>{{end}}</div></nav></details>
+</header>

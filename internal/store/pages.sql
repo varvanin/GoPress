@@ -1,0 +1,13 @@
+ALTER TABLE pages ADD COLUMN parent_id INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE pages ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE pages ADD COLUMN template TEXT NOT NULL DEFAULT 'page.html';
+ALTER TABLE pages ADD COLUMN published_parent_id INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE pages ADD COLUMN published_sort_order INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE pages ADD COLUMN published_template TEXT NOT NULL DEFAULT 'page.html';
+ALTER TABLE revisions ADD COLUMN parent_id INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE revisions ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE revisions ADD COLUMN template TEXT NOT NULL DEFAULT 'page.html';
+ALTER TABLE routes ADD COLUMN redirect INTEGER NOT NULL DEFAULT 0;
+CREATE INDEX pages_parent ON pages(parent_id);
+CREATE INDEX pages_published_parent ON pages(published_parent_id);
+PRAGMA user_version=11;

@@ -1,0 +1,162 @@
+# GoPress
+
+GoPress is a self-hosted CMS for one site per installation, built with Go, Echo, SQLite, templ, HTMX and Tiptap. It runs without a separate database server, CDN, Redis or cloud account. Project code is Apache-2.0; bundled components retain their own licenses.
+
+**Development build, not a stable public release.** Automated Go, SQLite, HTTP and frontend checks are available. Browser/device acceptance, a real Docker/CI run, external SMTP delivery and production-domain verification remain separate release requirements. Cross-compilation alone does not establish platform support.
+
+<!-- admin-preview:start -->
+## Admin interface
+
+[Open the English admin preview](docs/admin-preview.html). The preview uses an isolated demonstration site, not production data.
+<!-- admin-preview:end -->
+
+## Quick start
+
+Development uses Go 1.27.1 and Node.js 24.14.1/npm. The compiled binary embeds the admin, public templates, CSS/JavaScript, developer references, license notices and timezone database. An installed site does not need Go or Node.js.
+
+```sh
+make build
+./bin/gopress serve --data ./data --addr 127.0.0.1:8080
+```
+
+Open `http://127.0.0.1:8080/install`. Enter the random installation token printed in this process's console, a site name, the base URL `http://127.0.0.1:8080`, an IANA timezone such as `Europe/Warsaw`, your email and a password of 12–72 bytes. Then sign in at `/login`.
+
+There is no fixed administrator account. Installation is transactional and cannot be repeated. Restarting an incomplete installation produces a new token; completed installations do not expose another token. An existing corrupt or unsupported database is never treated as a fresh site.
+
+The base URL is an origin without a path, query or fragment. Use the same origin for installation and sign-in. HTTPS enables Secure cookies. Proxy headers are trusted only when explicitly configured; see [operations](docs/OPERATIONS.md).
+
+Flags override environment values:
+
+| Flag | Environment | Default |
+| --- | --- | --- |
+| `--data` | `GOPRESS_DATA` | `./data` |
+| `--addr` | `GOPRESS_ADDR` | `127.0.0.1:8080` |
+
+Keep data on a local persistent disk, not NFS/SMB or a public web directory. Only one process may hold the site's directory lock. Shutdown with Ctrl+C/SIGTERM drains requests and closes SQLite. `/healthz` checks the process; `/readyz` checks the database, including before installation.
+
+The current local verification platform is macOS amd64. Linux amd64/arm64 packages can be built; deployment acceptance is still required. The filesystem lock currently makes Windows unsupported.
+
+## Build and verify
+
+```sh
+npm ci
+go install github.com/a-h/templ/cmd/templ@v0.3.1070
+make release TEMPL="$(go env GOPATH)/bin/templ"
+make test
+make check
+```
+
+- `make generate` checks the exact templ version and regenerates Go templates.
+- `npm run build:css` builds Tailwind; `npm run build:editor` bundles the editors, admin runtime and dependency license notices.
+- `npm run build` builds both frontend parts. Dependencies are pinned by `package-lock.json`.
+- `make release` builds assets, generates templ and compiles Go. `make build` compiles using the existing embedded assets.
+- `make check` checks formatting, frontend tests, `go vet` and Go race tests. Node tests are not browser acceptance.
+
+After rebuilding, stop the old process yourself and restart it with the same `--data` directory. Refreshing a browser cannot replace CSS/JS/templ embedded in an already running binary.
+
+Restricted development environments may need an alternate writable `GOCACHE`, such as `/tmp/gopress-go-cache`. Such a cache is not part of the project or a normal installation requirement. Do not mistake offline dependency checks for a completed online vulnerability or checksum-database audit.
+
+## Features
+
+### Content and publishing
+
+Pages and posts have drafts, published snapshots, version checks, revisions, autosave, previews, scheduling, trash and bulk actions. Pages support parents, ordering, custom templates, nested URLs and permanent redirects after published address changes. Posts support categories and tags.
+
+The Tiptap editor supports headings, lists, quotes, links, inline/code blocks, image captions and alt text, alignment, common text marks, undo/redo and search. Autosave serializes requests after a 1.5-second pause. Conflicts or expired sessions stop retries without replacing local text. Unsaved navigation is guarded. There is no browser-disk offline draft store.
+
+Publishing is atomic. Saving a newer draft does not change the published body, URL, cover or SEO. Scheduled publishing pins a particular revision; later draft edits cannot replace it. Times are entered in the site's timezone. The worker catches up after downtime and checks every 15 seconds; ambiguous or nonexistent local times are rejected. Each due job is isolated. A parent/URL conflict stops that job, preserves its draft and pinned revision, and reports the failure in the editor and action log; fix the conflict and schedule it again.
+
+Documents use a strict shared JSON schema, not arbitrary client HTML: up to 1 MiB, 10,000 nodes and depth 32. Links are restricted to supported schemes and local/anchor URLs. Inline images must reference existing uploads.
+
+### Media and menus
+
+The media library and editor picker support search and pagination. PNG/JPEG uploads are checked before decoding, limited to 8 MiB and 16 million pixels, re-encoded and stored under random names. Existing references in drafts, publications and revisions protect used media from deletion. File details include title, alt text and caption, with revision checks against concurrent edits. Used-file protection also covers SEO images, site SEO settings and module settings, including same-origin URLs with query strings.
+
+Header and footer menus support ordered links and up to three levels. Removing a parent preserves its children. Menus use explicit links; review a menu link when changing the linked page's URL.
+
+### Templates and the file editor
+
+Journal, Minimal and Studio are distinct built-in templates. Install custom template ZIPs, preview without activation and switch without changing content. The catalog clearly identifies the active template. Built-in previews are design illustrations rather than browser screenshots.
+
+The in-app reference documents template selection, shared parts, variables, functions and conditions. The CodeMirror file editor supports HTML/CSS/JS, Go directives, line numbers, search, wrapping and Ctrl/Cmd+S. Built-ins are read-only until copied. Saves validate the HTML template set, check the file hash and atomically replace a file; the previous version can be restored.
+
+[Template guide](docs/THEMES.md) · [Developer reference](internal/httpui/starter/TEMPLATE_REFERENCE.md) · [Journal](docs/JOURNAL_DESIGN.md) · [Minimal](docs/MINIMAL_DESIGN.md)
+
+### Forms and modules
+
+Build forms with text, email, phone, textarea, select and checkbox fields. Insert `[form id=1]` as a separate paragraph in a page or post, or use `/forms/1`. Disabled forms do not accept submissions.
+
+Submissions are saved before email delivery. Background notifications use bounded retries and submission deduplication. Admin tools provide delivery status, retry, CSV export, bulk deletion and retention. SMTP delivery is at least once: an acknowledgement failure after delivery may produce another email.
+
+Modules include the built-in FAQ: question groups, ordering and native expandable answers, embedded using `[faq id=1]`. Custom modules are configurable HTML/CSS ZIP packages with settings and optional previews; insert `[module id="contact-card"]`. Multiple modules can be enabled, and disabling preserves their settings. They do not execute arbitrary Go/PHP server code.
+
+[Module format and starter](docs/MODULES.md)
+
+### Search and SEO
+
+Public search at `/search` reads published FTS snapshots only. Rebuild the index with the CLI when required.
+
+SEO has five sections: search title rules and descriptions, indexing/canonical/robots directives, Open Graph and X/Twitter cards, JSON-LD and ownership verification, and sitemap/robots.txt/RSS controls. Individual metadata belongs to the published content snapshot. The sitemap excludes non-indexable content and supports explicit exclusions and chunking; XML responses support ETag/304.
+
+[SEO settings and priorities](docs/SEO.md)
+
+### Administration and appearance
+
+Administrators manage users and the site; editors manage content and media; authors work with their own posts/media without publishing. Server-side permissions do not rely on hidden buttons. Blocking, password changes and access recovery revoke sessions; the last active administrator is protected.
+
+General, home-page, mail and language settings are separate. The admin and sign-in support English, Russian and Polish; changing the interface language does not translate user content or public templates.
+
+The admin has dark and gray/white light appearances, with blue active navigation in light mode. Switch at the bottom of the sidebar or on system pages. The browser remembers the choice; public templates remain independent. See [design rules](docs/ADMIN_STYLE.md) and [contributor instructions](AGENTS.md).
+
+## Mail configuration
+
+Configure SMTP under Settings → Mail, then send a test message. A blank password keeps the existing password; removal is explicit. File settings are stored atomically in `<data>/mail.json` with mode `0600`, never returned in HTML and excluded from standard backups.
+
+Server environment overrides admin mail settings:
+
+```sh
+export GOPRESS_SMTP_HOST=smtp.example.com
+export GOPRESS_SMTP_PORT=587
+export GOPRESS_SMTP_FROM=website@example.com
+export GOPRESS_SMTP_USER=website@example.com
+export GOPRESS_SMTP_PASSWORD='your-smtp-password'
+./bin/gopress serve
+```
+
+Port 587 requires STARTTLS; port 465 uses TLS from connection start. Certificates are verified. Omit username/password for a relay that does not require authentication. Each form has its own recipient. Restore SMTP configuration separately after moving a site.
+
+## Backups, maintenance and recovery
+
+The admin Tools section manages backup creation, import, verification, download, deletion, restoration, diagnostics, maintenance and the action log. Maintenance serves a system-styled 503 page with `Retry-After`, `no-store` and `noindex`; sign-in and tools remain available.
+
+For offline directory backups, stop the server first. Parent directories must exist; the destination must not already exist and must be outside the live data directory.
+
+```sh
+mkdir -p ../gopress-backups
+./bin/gopress backup create --data ./data --output ../gopress-backups/site-001
+./bin/gopress backup verify --source ../gopress-backups/site-001
+./bin/gopress backup restore --source ../gopress-backups/site-001 --data ./restored-data
+./bin/gopress serve --data ./restored-data --addr 127.0.0.1:8080
+```
+
+Backups include a consistent SQLite snapshot, uploads, installed templates/editor history and SHA-256 manifests. Module packages/settings are in SQLite. Secrets and environment settings are separate. Restore revokes sessions. Interrupted replacement fails closed; do not remove recovery markers blindly.
+
+[Operations, trusted proxies, recovery and release checks](docs/OPERATIONS.md)
+
+## Internal HTTP interface
+
+These are implementation endpoints, not a stable external SDK. Mutations require a session, CSRF and applicable role/object permissions. A token is available from authenticated `GET /admin/csrf`; setup/sign-in forms contain a hidden `csrf`. GET never mutates state.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /admin/pages`, `/admin/posts` | Paginated metadata, `q`, `page`, `trash`, term filters; HTML or JSON |
+| `GET /admin/pages/{id}` | Full working document |
+| `POST /admin/pages/save` | Browser save/publish/autosave with optimistic version |
+| `POST /admin/pages`, `/admin/pages/{id}` | Internal JSON content writes |
+| `POST /admin/media` | Raw PNG/JPEG bytes, not multipart; returns the stored name |
+| `GET /admin/pages/{id}/preview` | Authorized, non-cacheable draft preview |
+| `POST /admin/pages/{id}/publish`, `/schedule`, `/state` | Versioned publication and lifecycle changes |
+| `POST /admin/content/bulk` | Bulk content actions |
+| `POST /logout` | Revoke the current session |
+
+HTMX preserves the sidebar and replaces the relevant main/panel fragment. History, errors and unsaved changes must remain safe. See the implementation and tests for the complete route set.

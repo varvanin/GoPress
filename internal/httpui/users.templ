@@ -1,0 +1,204 @@
+package httpui
+
+import "strconv"
+import "gopress/internal/i18n"
+import "gopress/internal/store"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/card"
+import "gopress/internal/ui/components/input"
+import "gopress/internal/ui/components/table"
+import "gopress/internal/ui/components/icon"
+import selectcomp "gopress/internal/ui/components/select"
+
+templ Users(site, csrf string, users []store.User, total, page int) {
+	@AdminLayout(site, i18n.T(ctx, "Пользователи"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, "Пользователи"), total) {
+			@button.Button(button.Props{Href: "/admin/users/new", Size: button.SizeSm}) {
+				{ i18n.T(ctx,"Создать пользователя") }
+			}
+		}
+		<div class="management-workspace">
+			<div>
+				<div class="content-table users-table">
+					@table.Table() {
+						@table.Header() {
+							@table.Row() {
+								@table.Head() {
+									{ i18n.T(ctx,"Пользователь") }
+								}
+								@table.Head() {
+									{ i18n.T(ctx,"Роль") }
+								}
+								@table.Head() {
+									{ i18n.T(ctx,"Состояние") }
+								}
+								@table.Head(table.HeadProps{Class: "text-right"}) {
+									<span class="sr-only">{ i18n.T(ctx,"Действия") }</span>
+								}
+							}
+						}
+						@table.Body() {
+							for _,u:=range users {
+								@table.Row() {
+									@table.Cell() {
+										<div class="page-cell">
+											<span class="document-icon">@icon.Icon("users")(icon.Props{Class: "size-4"})</span>
+											<div class="user-identity">
+												<a class="page-title" href={ templ.SafeURL("/admin/users/" + strconv.FormatInt(u.ID, 10) + "/edit") }>{ u.Email }</a>
+												if currentUser(ctx,u.ID) {
+													<span class="user-self">{ i18n.T(ctx,"Вы") }</span>
+												}
+												if u.Name!="" {
+													<span class="field-help">{ u.Name }</span>
+												}
+											</div>
+										</div>
+									}
+									@table.Cell() {
+										<span class="user-role">{ i18n.T(ctx,roleLabel(u.Role)) }</span>
+									}
+									@table.Cell() {
+										<span class="user-status" data-blocked={ strconv.FormatBool(u.Blocked) }>
+											if u.Blocked {
+												{ i18n.T(ctx,"Заблокирован") }
+											} else {
+												{ i18n.T(ctx,"Активен") }
+											}
+										</span>
+									}
+									@table.Cell() {
+										<div class="content-row-actions">
+											@button.Button(button.Props{Href: "/admin/users/" + strconv.FormatInt(u.ID, 10) + "/edit", Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Редактировать"), "title": i18n.T(ctx, "Редактировать")}}) {
+												@icon.PenLine(icon.Props{Class: "size-4"})
+											}
+										</div>
+									}
+								}
+							}
+						}
+					}
+				</div>
+				<nav class="content-pagination" aria-label={ i18n.T(ctx, "Страницы пользователей") }>
+					<span></span>
+					<div class="flex gap-2">
+						if page>1 {
+							@button.Button(button.Props{Href: "/admin/users?page=" + strconv.Itoa(page-1), Variant: button.VariantOutline, Size: button.SizeSm}) {
+								{ i18n.T(ctx,"Назад") }
+							}
+						}
+						if page*25<total {
+							@button.Button(button.Props{Href: "/admin/users?page=" + strconv.Itoa(page+1), Variant: button.VariantOutline, Size: button.SizeSm}) {
+								{ i18n.T(ctx,"Далее") }
+							}
+						}
+					</div>
+				</nav>
+			</div>
+			<aside class="management-context">
+				@UserRoleGuide()
+			</aside>
+		</div>
+	}
+}
+
+templ UserEditor(site, csrf string, u store.User, message string, failed bool) {
+	@AdminLayout(site, i18n.T(ctx, "Пользователи"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, "Пользователь"), -1) {
+			@button.Button(button.Props{Href: "/admin/users", Variant: button.VariantOutline, Size: button.SizeSm}) {
+				{ i18n.T(ctx,"Назад") }
+			}
+			@button.Button(button.Props{Type: button.TypeSubmit, Form: "user-form", Size: button.SizeSm}) {
+				{ i18n.T(ctx,"Сохранить") }
+			}
+		}
+		if message!="" {
+			<p class="notice notice-error" role="alert">{ i18n.T(ctx,message) }</p>
+		}
+		<div class="management-workspace">
+			<div>
+				<form id="user-form" action="/admin/users/save" method="post" class="site-settings user-settings" data-change-form data-form-dirty={ strconv.FormatBool(failed) }>
+					<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="id" value={ strconv.FormatInt(u.ID, 10) }/><input type="hidden" name="version" value={ strconv.FormatInt(u.Version, 10) }/>
+					@card.Card(card.Props{Class: "settings-panel px-4"}) {
+						<h2>{ i18n.T(ctx,"Данные пользователя") }</h2>
+						<label>
+							Email
+							@input.Input(input.Props{Name: "email", Type: "email", Value: u.Email, Required: true, Attributes: templ.Attributes{"maxlength": "254"}})
+						</label>
+						<label>{ i18n.T(ctx,"Имя") } @input.Input(input.Props{Name: "name", Value: u.Name, Attributes: templ.Attributes{"maxlength": "120"}})</label>
+						<label>{ i18n.T(ctx,"Пароль") } @input.Input(input.Props{Name: "password", Type: "password", Required: u.ID == 0, Attributes: templ.Attributes{"autocomplete": "new-password", "minlength": "12", "maxlength": "72"}})</label>
+						<h2>{ i18n.T(ctx,"Доступ к сайту") }</h2>
+						<label>
+							{ i18n.T(ctx,"Роль") }
+							@AdminSelect("user-role", "role", u.Role, i18n.T(ctx, "Роль"), []selectcomp.ItemData{{Value: "admin", Label: i18n.T(ctx, "Администратор")}, {Value: "editor", Label: i18n.T(ctx, "Редактор")}, {Value: "author", Label: i18n.T(ctx, "Автор")}}, nil)
+						</label>
+						<label>
+							{ i18n.T(ctx,"Состояние") }
+							@AdminSelect("user-blocked", "blocked", strconv.FormatBool(u.Blocked), i18n.T(ctx, "Состояние"), []selectcomp.ItemData{{Value: "false", Label: i18n.T(ctx, "Активен")}, {Value: "true", Label: i18n.T(ctx, "Заблокирован")}}, nil)
+						</label>
+						<p class="field-help">{ i18n.T(ctx,"Пустой пароль сохраняет прежний. Изменение пользователя отзывает его сессии. Последний активный администратор защищён от блокировки.") }</p>
+					}
+				</form>
+			</div>
+			<aside class="management-context">
+				@UserRoleGuide()
+				<p>{ i18n.T(ctx,"Изменение пользователя отзывает его сессии. Действия с последним администратором защищены на сервере.") }</p>
+			</aside>
+		</div>
+	}
+}
+
+templ Account(site, csrf string, u store.User, message string, failed bool) {
+	@AdminLayout(site, i18n.T(ctx, "Мой профиль"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, "Мой профиль"), -1) {
+			@button.Button(button.Props{Type: button.TypeSubmit, Form: "account-password-form", Size: button.SizeSm}) {
+				{ i18n.T(ctx,"Сменить пароль") }
+			}
+		}
+		if message!="" {
+			<p class="notice notice-error" role="alert">{ i18n.T(ctx,message) }</p>
+		}
+		<form id="account-password-form" method="post" action="/admin/account/password" class="site-settings user-settings" data-change-form>
+			<input type="hidden" name="csrf" value={ csrf }/>
+			@card.Card(card.Props{Class: "settings-panel px-4"}) {
+				<h2>{ u.Email }</h2>
+				<p class="field-help">{ i18n.T(ctx,roleLabel(u.Role)) }</p>
+				<label>{ i18n.T(ctx,"Текущий пароль") } @input.Input(input.Props{Name: "old_password", Type: "password", Required: true, Attributes: templ.Attributes{"autocomplete": "current-password"}})</label>
+				<label>{ i18n.T(ctx,"Новый пароль") } @input.Input(input.Props{Name: "password", Type: "password", Required: true, Attributes: templ.Attributes{"autocomplete": "new-password", "minlength": "12", "maxlength": "72"}})</label>
+				<label>{ i18n.T(ctx,"Повторите пароль") } @input.Input(input.Props{Name: "password_confirm", Type: "password", Required: true, Attributes: templ.Attributes{"autocomplete": "new-password", "minlength": "12", "maxlength": "72"}})</label>
+			}
+		</form>
+	}
+}
+
+templ Recovery(csrf, token, message string, reset, failed bool) {
+ @AuthLayout("Восстановление доступа") {
+				if message!="" {
+					<p class={ "notice",templ.KV("notice-error",failed) } role="status">{ i18n.T(ctx,message) }</p>
+				}
+				<form method="post" class="auth-form">
+					<input type="hidden" name="csrf" value={ csrf }/>
+					if reset {
+						<input type="hidden" name="token" value={ token }/>
+						<label>{ i18n.T(ctx,"Новый пароль") } @input.Input(input.Props{Name: "password", Type: "password", Required: true, Attributes: templ.Attributes{"autocomplete": "new-password", "minlength": "12", "maxlength": "72"}})</label>
+						<label>{ i18n.T(ctx,"Повторите пароль") } @input.Input(input.Props{Name: "password_confirm", Type: "password", Required: true, Attributes: templ.Attributes{"autocomplete": "new-password", "minlength": "12", "maxlength": "72"}})</label>
+					} else {
+						<label>
+							Email
+							@input.Input(input.Props{Name: "email", Type: "email", Required: true, Attributes: templ.Attributes{"autocomplete": "email", "maxlength": "254"}})
+						</label>
+					}
+					@button.Button(button.Props{Type: button.TypeSubmit, Size: button.SizeSm}) {
+						{ i18n.T(ctx,"Продолжить") }
+					}
+				</form><a href="/login" class="auth-recovery-link">{ i18n.T(ctx,"Войти") }</a>
+ }
+}
+
+templ UserRoleGuide() {
+	<h2>{ i18n.T(ctx,"Роли и доступ") }</h2>
+	<dl class="context-definitions">
+		<div><dt>{ i18n.T(ctx,"Администратор") }</dt><dd>{ i18n.T(ctx,"Управляет сайтом, пользователями, настройками и резервными копиями.") }</dd></div>
+		<div><dt>{ i18n.T(ctx,"Редактор") }</dt><dd>{ i18n.T(ctx,"Редактирует и публикует материалы всех авторов. Не управляет настройками сайта.") }</dd></div>
+		<div><dt>{ i18n.T(ctx,"Автор") }</dt><dd>{ i18n.T(ctx,"Работает со своими записями и файлами. Публикацию выполняет редактор или администратор.") }</dd></div>
+	</dl>
+}

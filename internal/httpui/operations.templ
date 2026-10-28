@@ -1,0 +1,201 @@
+package httpui
+
+import "gopress/internal/ui/components/icon"
+
+import "strconv"
+import "gopress/internal/i18n"
+import "gopress/internal/service"
+import "gopress/internal/store"
+import "gopress/internal/version"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/card"
+import "gopress/internal/ui/components/input"
+import "gopress/internal/ui/components/table"
+
+templ Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d service.Diagnostics, settings store.Settings, events []store.AuditEvent, total, page int, message string, failed bool) {
+	@AdminLayout(site, i18n.T(ctx, "Инструменты"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, "Инструменты"), -1) {
+			if tab=="backups" {
+				@button.Button(button.Props{Type: button.TypeSubmit, Form: "backup-create", Size: button.SizeSm}) {
+					{ i18n.T(ctx,"Создать бэкап") }
+				}
+			}
+		}
+		if message!="" {
+			<p class={ "notice",templ.KV("notice-error",failed) } role="status">{ i18n.T(ctx,message) }</p>
+		}
+		<nav class="content-list-tabs" aria-label={ i18n.T(ctx, "Разделы инструментов") }>
+			<a href="/admin/tools" aria-current={ activeTab(tab == "backups") }>@icon.Icon("database")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Резервные копии") }</span></a>
+			<a href="/admin/tools?tab=system" aria-current={ activeTab(tab == "system") }>@icon.Icon("wrench")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Состояние системы") }</span></a>
+			<a href="/admin/tools?tab=audit" aria-current={ activeTab(tab == "audit") }>@icon.Icon("clipboard-list")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Журнал действий") }</span></a>
+		</nav>
+		switch tab {
+			case "system":
+				<div class="system-workspace site-settings">
+					@card.Card(card.Props{Class: "settings-panel px-4"}) {
+						<h2>{ i18n.T(ctx,"Режим обслуживания") }</h2>
+						<p class="field-help">{ i18n.T(ctx,"В режиме обслуживания публичный сайт возвращает 503, изменения контента и фоновые задачи приостановлены. Вход и инструменты доступны.") }</p>
+						<form method="post" action="/admin/tools/maintenance">
+							<input type="hidden" name="csrf" value={ csrf }/>
+							@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"name": "enabled", "value": strconv.FormatBool(!active)}}) {
+								if active {
+									{ i18n.T(ctx,"Отключить обслуживание") }
+								} else {
+									{ i18n.T(ctx,"Включить обслуживание") }
+								}
+							}
+						</form>
+					}
+					@card.Card(card.Props{Class: "settings-panel px-4"}) {
+						<h2>{ i18n.T(ctx,"Диагностика") }</h2>
+						<dl class="diagnostics-grid"><div><dt>SQLite</dt><dd>{ i18n.T(ctx,"Проверка пройдена") }</dd></div><div><dt>{ i18n.T(ctx,"Схема базы") }</dt><dd>{ strconv.Itoa(d.Schema) }</dd></div><div><dt>{ i18n.T(ctx,"Размер базы") }</dt><dd>{ storageSize(d.DatabaseBytes) }</dd></div><div><dt>{ i18n.T(ctx,"Свободное место") }</dt><dd>{ storageSize(int64(d.FreeBytes)) }</dd></div><div><dt>{ i18n.T(ctx,"Пользователи") }</dt><dd>{ strconv.Itoa(d.Users) }</dd></div><div><dt>{ i18n.T(ctx,"Материалы сайта") }</dt><dd>{ strconv.Itoa(d.Pages) }</dd></div><div><dt>{ i18n.T(ctx,"Заявки") }</dt><dd>{ strconv.Itoa(d.Entries) }</dd></div></dl>
+					}
+					@card.Card(card.Props{Class: "settings-panel tools-wide"}) {
+						<h2>{ i18n.T(ctx,"Обновление и откат") }</h2>
+						<p>{ "GoPress "+version.Current }</p>
+						<p class="field-help">{ i18n.T(ctx,"Перед обновлением создайте и скачайте бэкап. Включите обслуживание, остановите процесс, замените бинарник, выполните migrate и doctor, затем запустите сайт. Для отката восстанавливайте вместе прежнюю версию приложения и проверенную копию данных. Web-процесс не заменяет бинарник.") }</p>
+					}
+				</div>
+			case "audit":
+				<div class="audit-workspace">
+					<section class="audit-panel tools-wide">
+						<div class="audit-heading">
+							<h2>{ i18n.T(ctx,"Журнал действий") } <span class="content-count">{ strconv.Itoa(total) }</span></h2>
+							<details class="audit-retention">
+								<summary>{ i18n.T(ctx,"Срок хранения") }</summary>
+								<form method="post" action="/admin/tools/retention" class="mail-test-form">
+									<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="version" value={ strconv.FormatInt(settings.Version, 10) }/>
+									<label>{ i18n.T(ctx,"Хранить журнал, дней") }<input type="number" class="site-input" name="days" min="1" max="3650" required value={ strconv.Itoa(settings.AuditRetentionDays) }/></label>
+									@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm}) {
+										{ i18n.T(ctx,"Сохранить") }
+									}
+								</form>
+							</details>
+						</div>
+						if len(events)==0 {
+							<div class="tool-empty"><h3>{ i18n.T(ctx,"Событий пока нет") }</h3><p>{ i18n.T(ctx,"Здесь появятся входы пользователей, изменения материалов и действия в настройках. Старые действия до включения журнала не восстанавливаются.") }</p></div>
+						}
+						if len(events)>0 {
+							<div class="content-table audit-table">
+								@table.Table() {
+									@table.Header() {
+										@table.Row() {
+											@table.Head() {
+												{ i18n.T(ctx,"Время") }
+											}
+											@table.Head() {
+												{ i18n.T(ctx,"Пользователь") }
+											}
+											@table.Head() {
+												{ i18n.T(ctx,"Действие") }
+											}
+											@table.Head() {
+												{ i18n.T(ctx,"Объект") }
+											}
+										}
+									}
+									@table.Body() {
+										for _,e:=range events {
+											@table.Row() {
+												@table.Cell() {
+													{ auditDate(ctx,e.At,settings.Site.Timezone) }
+												}
+												@table.Cell() {
+													{ auditActor(ctx,e) }
+												}
+												@table.Cell() {
+													<span>{ auditAction(ctx,e.Action) }</span>
+												}
+												@table.Cell() {
+													{ auditObject(ctx,e) }
+												}
+											}
+										}
+									}
+								}
+							</div>
+							<nav class="content-pagination">
+								<span></span>
+								<div class="flex gap-2">
+									if page>1 {
+										@button.Button(button.Props{Href: "/admin/tools?tab=audit&page=" + strconv.Itoa(page-1), Variant: button.VariantOutline, Size: button.SizeSm}) {
+											{ i18n.T(ctx,"Назад") }
+										}
+									}
+									if page*50<total {
+										@button.Button(button.Props{Href: "/admin/tools?tab=audit&page=" + strconv.Itoa(page+1), Variant: button.VariantOutline, Size: button.SizeSm}) {
+											{ i18n.T(ctx,"Далее") }
+										}
+									}
+								</div>
+							</nav>
+						}
+					</section>
+				</div>
+			default:
+				<div class="management-workspace site-settings">
+					<div>
+						@card.Card(card.Props{Class: "settings-panel"}) {
+							<h2>{ i18n.T(ctx,"Резервные копии") }</h2>
+							<p class="field-help">{ i18n.T(ctx,"Бэкап включает базу, загрузки и темы. Почтовые секреты исключены. Перед восстановлением создаётся копия текущего сайта; все сессии будут отозваны.") }</p>
+							<form id="backup-create" method="post" action="/admin/tools/backups/create">
+								<input type="hidden" name="csrf" value={ csrf }/>
+							</form>
+							<details class="tool-import">
+								<summary>{ i18n.T(ctx,"Импортировать бэкап") }</summary>
+								<form method="post" action="/admin/tools/backups/import" enctype="multipart/form-data" hx-encoding="multipart/form-data" class="mail-test-form">
+									<input type="hidden" name="csrf" value={ csrf }/><label>{ i18n.T(ctx,"Архив бэкапа ZIP — до 1 GiB") }<input type="file" name="backup_file" accept=".zip,application/zip" required class="site-input"/></label>
+									@button.Button(button.Props{Type: button.TypeSubmit, Size: button.SizeSm, Variant: button.VariantOutline}) {
+										{ i18n.T(ctx,"Импортировать бэкап") }
+									}
+								</form>
+							</details>
+							if len(backups)==0 {
+								<div class="tool-empty"><h3>{ i18n.T(ctx,"Резервных копий пока нет") }</h3><p>{ i18n.T(ctx,"Создайте первую копию кнопкой вверху или импортируйте ZIP-архив.") }</p></div>
+							}
+							for _,b:=range backups {
+								<article class="backup-row">
+									<div><strong>{ b.ID }</strong><span class="field-help">{ contentDate(b.At)+" · "+storageSize(b.Bytes) }</span></div>
+									<div class="backup-actions">
+										@button.Button(button.Props{Href: "/admin/tools/backups/" + b.ID + "/download", Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"hx-boost": "false"}}) {
+											{ i18n.T(ctx,"Скачать") }
+										}
+										<form method="post" action="/admin/tools/backups/verify">
+											<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="backup" value={ b.ID }/>
+											@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm}) {
+												{ i18n.T(ctx,"Проверить") }
+											}
+										</form>
+										<form method="post" action="/admin/tools/backups/delete" hx-confirm={ i18n.T(ctx, "Удалить эту резервную копию?") }>
+											<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="backup" value={ b.ID }/>
+											@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Size: button.SizeSm}) {
+												{ i18n.T(ctx,"Удалить") }
+											}
+										</form>
+									</div>
+									if active {
+										<form method="post" action="/admin/tools/backups/restore" class="mail-test-form" hx-confirm={ i18n.T(ctx, "Восстановить сайт из выбранного бэкапа? Текущая версия будет сохранена отдельной копией. Потребуется войти заново.") }>
+											<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="backup" value={ b.ID }/>
+											<label>
+												{ i18n.T(ctx,"Введите RESTORE для подтверждения") }
+												@input.Input(input.Props{Name: "confirm", Required: true, Attributes: templ.Attributes{"pattern": "RESTORE", "autocomplete": "off"}})
+											</label>
+											@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm}) {
+												{ i18n.T(ctx,"Восстановить") }
+											}
+										</form>
+									}
+								</article>
+							}
+						}
+					</div>
+					<aside class="management-context">
+						<h2>{ i18n.T(ctx,"Восстановление сайта") }</h2>
+						<ol><li>{ i18n.T(ctx,"Включите режим обслуживания в состоянии системы.") }</li><li>{ i18n.T(ctx,"Выберите проверенную копию и подтвердите восстановление.") }</li><li>{ i18n.T(ctx,"Проверьте сайт и отключите обслуживание.") }</li></ol>
+						<p>{ i18n.T(ctx,"Перед восстановлением текущий сайт сохраняется отдельно. После замены потребуется войти заново.") }</p>
+						<a class="context-link" href="/admin/tools?tab=system">{ i18n.T(ctx,"Состояние системы") }</a>
+					</aside>
+				</div>
+		}
+	}
+}

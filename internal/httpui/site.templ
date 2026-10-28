@@ -1,0 +1,184 @@
+package httpui
+
+import "gopress/internal/i18n"
+
+import "strconv"
+import "gopress/internal/ui/components/select"
+import "gopress/internal/store"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/icon"
+
+templ MediaLibrary(site, baseURL, csrf string, files []store.MediaFile, total, page int, query, message string, selected *store.MediaFile, used, failed bool) {
+	@AdminLayout(site, i18n.T(ctx, "Медиатека"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, "Медиатека"), total)
+		if message!="" {
+			<p class={ "notice",templ.KV("notice-error",failed) } role="status">
+				{ i18n.T(ctx, message) }
+			</p>
+		}
+		<div class={ "library-layout",templ.KV("library-layout-empty",selected==nil) }>
+			<section class="library-content">
+				<form id="media-upload-form" action="/admin/media/upload" method="post" enctype="multipart/form-data" hx-encoding="multipart/form-data" class="library-upload">
+					<input type="hidden" name="csrf" value={ csrf }/>
+					<div class="library-upload-description">@icon.Image(icon.Props{Class: "size-5"})<div><label for="library-file">{ i18n.T(ctx,"Добавить изображение") }</label><p class="field-help">{ i18n.T(ctx,"Перетащите изображение сюда или выберите файл. PNG / JPEG · до 8 MiB и 16 Мп") }</p></div></div>
+					<input id="library-file" type="file" name="file" accept="image/png,image/jpeg" required/>
+					@button.Button(button.Props{Type: button.TypeSubmit, Size: button.SizeSm}) {
+						@icon.Plus()<span>{ i18n.T(ctx,"Загрузить") }</span>
+					}
+				</form>
+				<div class="library-toolbar"><form method="get" action="/admin/media" class="library-search" role="search">@AdminSearch("media-search", query, i18n.T(ctx, "Поиск изображений…"))</form><p class="field-help">{ i18n.T(ctx,"Выберите изображение, чтобы изменить сведения.") }</p></div>
+				<section class="library-grid" aria-label={ i18n.T(ctx, "Изображения") }>
+					for _,file:=range files {
+						<a class={ "library-tile",templ.KV("is-selected",mediaSelected(selected,file.Name)) } href={ templ.SafeURL(mediaFileURL(query, page, file.Name)) } data-media-name={ file.Name } hx-target="#media-inspector" hx-select="#media-inspector" hx-swap="outerHTML show:none" hx-push-url="true" aria-current={ activeTab(mediaSelected(selected, file.Name)) }>
+							<img class="library-thumbnail" src={ "/uploads/" + file.Name } alt={ file.Alt } loading="lazy"/>
+							<span class="library-tile-title">
+								{ mediaTitle(file) }
+							</span>
+							<span class="field-help">
+								{ mediaFormat(file.Name)+" · "+mediaSize(file.Size) }
+							</span>
+						</a>
+					}
+					if len(files)==0 {
+						<div class="library-empty">@icon.Image(icon.Props{Class: "size-7"})<h2>{ i18n.T(ctx,"Изображений пока нет") }</h2><p class="field-help">{ i18n.T(ctx,"Загрузите файл выше или измените поиск.") }</p></div>
+					}
+				</section>
+				if page>1||total>24 {
+					<nav class="library-pagination" aria-label={ i18n.T(ctx, "Страницы медиатеки") }>
+						if page>1 {
+							<a href={ templ.SafeURL(mediaURL(query, page-1)) }>@icon.ArrowLeft(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Назад") }</span></a>
+						}
+						<span>
+							{ i18n.T(ctx,"Страница ") }{ strconv.Itoa(page) }
+						</span>
+						if page*24<total {
+							<a href={ templ.SafeURL(mediaURL(query, page+1)) }>{ i18n.T(ctx,"Далее") } @icon.ArrowRight(icon.Props{Class: "size-3.5"})</a>
+						}
+					</nav>
+				}
+			</section>
+			if selected!=nil {
+				<aside id="media-inspector" class="library-inspector" aria-label={ i18n.T(ctx, "Сведения об изображении") }>
+					<div class="library-inspector-heading"><h2>{ mediaTitle(*selected) }</h2><a href={ templ.SafeURL("/uploads/" + selected.Name) } target="_blank" rel="noopener" title={ i18n.T(ctx, "Открыть оригинал") } aria-label={ i18n.T(ctx, "Открыть оригинал") }>@icon.ArrowUpRight(icon.Props{Class: "size-4"})</a></div>
+					<img class="library-preview" src={ "/uploads/" + selected.Name } alt={ selected.Alt }/>
+					<p class="field-help">
+						{ mediaFormat(selected.Name)+" · "+mediaSize(selected.Size) }
+					</p>
+					<form action="/admin/media/details" method="post" class="library-details" data-change-form data-form-dirty={ strconv.FormatBool(failed) }>
+						<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="name" value={ selected.Name }/><input type="hidden" name="revision" value={ selected.Revision }/><input type="hidden" name="return_q" value={ query }/><input type="hidden" name="return_page" value={ strconv.Itoa(page) }/>
+						<label>{ i18n.T(ctx,"Название") }<input class="site-input" name="title" value={ selected.Title } maxlength="200"/></label>
+						<label>{ i18n.T(ctx,"Альтернативный текст") }<input class="site-input" name="alt" value={ selected.Alt } maxlength="500"/></label>
+						<p class="field-help">{ i18n.T(ctx,"Опишите, что изображено на картинке.") }</p>
+						<label>
+							{ i18n.T(ctx,"Подпись") }
+							<textarea class="site-input" name="caption" rows="2" maxlength="1000">
+								{ selected.Caption }
+							</textarea>
+						</label>
+						@button.Button(button.Props{Type: button.TypeSubmit, Size: button.SizeSm}) {
+							@icon.Check()<span>{ i18n.T(ctx,"Сохранить сведения") }</span>
+						}
+					</form>
+					<label class="library-file-url">{ i18n.T(ctx,"Ссылка на файл") }<input class="site-input" type="text" readonly value={ baseURL + "/uploads/" + selected.Name }/></label>
+					if used {
+						<p class="library-used">@icon.LockKeyhole(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Используется в материалах, настройках сайта или модулей. Удаление недоступно.") }</span></p>
+					} else {
+						<form action="/admin/media/delete" method="post" hx-confirm="Удалить изображение без возможности восстановления?" class="library-delete">
+							<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="name" value={ selected.Name }/>@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Size: button.SizeSm}) {
+	@icon.Icon("trash-2")(icon.Props{})<span>{ i18n.T(ctx,"Удалить файл") }</span>
+}
+						</form>
+					}
+				</aside>
+			}
+		</div>
+	}
+}
+
+templ Menus(site, csrf string, menu store.Menu, pages []store.Page, message string, failed bool) {
+	@AdminLayout(site, i18n.T(ctx, "Меню"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, "Меню сайта"), -1) {
+			@button.Button(button.Props{Type: button.TypeSubmit, Form: "site-menu-form", Size: button.SizeSm}) {
+				@icon.Check()<span>{ i18n.T(ctx,"Сохранить меню") }</span>
+			}
+		}
+		if message!="" {
+			<p class={ "notice",templ.KV("notice-error",failed) } role="status">
+				{ i18n.T(ctx, message) }
+			</p>
+		}
+		<nav class="content-list-tabs" aria-label={ i18n.T(ctx, "Позиция меню") }><a href="/admin/menus?position=header" aria-current={ activeTab(menu.Position == "header") }>@icon.Icon("panel-top")(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Шапка сайта") }</span></a><a href="/admin/menus?position=footer" aria-current={ activeTab(menu.Position == "footer") }>@icon.Icon("panel-bottom")(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Подвал") }</span></a></nav>
+		if menu.Position=="header"&&menu.Version==0 {
+			<p class="field-help">{ i18n.T(ctx,"Пока сайт показывает стандартное меню: главную и опубликованные страницы. Сохранение заменит его списком ниже.") }</p>
+		}
+		<form id="site-menu-form" action="/admin/menus" method="post" data-menu-form data-change-form data-form-dirty={ strconv.FormatBool(failed) } class="menu-builder">
+			<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="position" value={ menu.Position }/><input type="hidden" name="version" value={ strconv.FormatInt(menu.Version, 10) }/>
+			<aside class="menu-add-panel">
+				<h2>{ i18n.T(ctx,"Добавить пункт") }</h2><label for="menu-page-choice">{ i18n.T(ctx,"Страница сайта") }</label>
+				@AdminSelect("menu-page-choice", "", "/", i18n.T(ctx, "Страница сайта"), menuPageItems(ctx, pages), templ.Attributes{"data-menu-page": true})@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"data-menu-add-page": true}}) {
+	@icon.Plus()<span>{ i18n.T(ctx,"Добавить в меню") }</span>
+}
+				<div class="menu-add-divider"></div>
+				<p class="field-help">{ i18n.T(ctx,"Для записи, внешнего сайта или своего адреса:") }</p>@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"data-menu-add": true}}) {
+	@icon.Globe()<span>{ i18n.T(ctx,"Добавить свою ссылку") }</span>
+}
+			</aside>
+			<section class="menu-structure" aria-label={ i18n.T(ctx, "Структура меню") }>
+				<div class="menu-structure-heading"><h2>{ i18n.T(ctx,"Пункты меню") }</h2><span data-menu-status role="status"></span></div>
+				<p class="field-help">{ i18n.T(ctx,"Добавьте пункты слева, расположите стрелками и нажмите «Сохранить меню». Нажмите на пункт, чтобы изменить название, адрес или вложенность.") }</p>
+				<div data-menu-items class="menu-items">
+					for _,item:=range menu.Items {
+						@MenuRow(item)
+					}
+				</div>
+				<p class="menu-empty field-help" data-menu-empty hidden?={ len(menu.Items)>0 }>{ i18n.T(ctx,"Пока нет ссылок. Добавьте страницу или свою ссылку слева.") }</p>
+				<p class="field-help">{ i18n.T(ctx,"Пустое меню скрывается после сохранения.") }</p>
+			</section>
+			<template data-menu-template>
+				@MenuRow(store.MenuItem{})
+			</template>
+		</form>
+	}
+}
+
+templ MenuRow(item store.MenuItem) {
+	<div class="menu-row" data-menu-row data-depth={ strconv.Itoa(item.Depth) }>
+		<details class="menu-row-editor" open?={ item.Label=="" }>
+			<summary>
+				@icon.Icon("list-tree")(icon.Props{Class: "size-4"})
+				<span class="menu-row-summary">
+					<strong data-menu-label>
+						if item.Label=="" {
+							{ i18n.T(ctx,"Новая ссылка") }
+						} else {
+							{ item.Label }
+						}
+					</strong>
+				</span>@icon.ChevronRight(icon.Props{Class: "menu-row-chevron size-3.5"})
+			</summary>
+			<div class="menu-row-fields">
+				<label>{ i18n.T(ctx,"Название ссылки") }<input class="site-input" name="label" value={ item.Label } required maxlength="120" placeholder={ i18n.T(ctx, "О компании") }/></label><label>{ i18n.T(ctx,"Адрес") }<input class="site-input" name="url" value={ item.URL } required maxlength="2048" placeholder={ i18n.T(ctx, "/about или https://…") }/></label>
+				<label>
+					{ i18n.T(ctx,"Положение") }
+					@AdminSelect("", "depth", strconv.Itoa(item.Depth), i18n.T(ctx, "Положение"), []selectcomp.ItemData{{Value: "0", Label: i18n.T(ctx, "Основной пункт")}, {Value: "1", Label: i18n.T(ctx, "Подпункт")}, {Value: "2", Label: i18n.T(ctx, "Вложенный подпункт")}}, nil)
+				</label>
+			</div>
+		</details>
+		<div class="menu-row-actions"><button type="button" data-menu-up title={ i18n.T(ctx, "Выше") } aria-label={ i18n.T(ctx, "Переместить выше") }>@icon.ArrowDown(icon.Props{Class: "size-4 rotate-180"})</button><button type="button" data-menu-down title={ i18n.T(ctx, "Ниже") } aria-label={ i18n.T(ctx, "Переместить ниже") }>@icon.ArrowDown(icon.Props{Class: "size-4"})</button><button type="button" data-menu-remove title={ i18n.T(ctx, "Удалить ссылку") } aria-label={ i18n.T(ctx, "Удалить ссылку") }>@icon.Icon("trash-2")(icon.Props{Class: "size-4"})</button></div>
+	</div>
+}
+
+templ MediaPicker(files []store.MediaFile, total, page int, query, selected string) {
+	<div class="picker-search"><label class="sr-only" for="picker-search">{ i18n.T(ctx,"Поиск в медиатеке") }</label><input id="picker-search" class="site-input" type="search" name="q" value={ query } placeholder={ i18n.T(ctx, "Поиск в медиатеке") } maxlength="200" hx-get="/admin/media/choices" hx-trigger="search, keyup changed delay:400ms" hx-target="#media-picker" hx-select="unset" hx-swap="innerHTML" hx-include="[name='cover']:checked"/></div>
+	<p class="field-help">{ i18n.T(ctx,"Нажмите на изображение для обложки, «В текст» — для вставки в материал.") }</p>
+	@MediaFileChoices(files, selected)
+	<nav class="picker-pagination" aria-label={ i18n.T(ctx, "Страницы изображений") }>
+		if page>1 {
+			<button type="button" hx-get={ pickerURL(query, page-1) } hx-include="[name='cover']:checked" hx-target="#media-picker" hx-select="unset" hx-swap="innerHTML">@icon.ArrowLeft(icon.Props{Class: "size-3"})<span>{ i18n.T(ctx,"Назад") }</span></button>
+		}
+		<span>{ strconv.Itoa(page) } · { strconv.Itoa(total) } { i18n.T(ctx,"файлов") }</span>
+		if page*24<total {
+			<button type="button" hx-get={ pickerURL(query, page+1) } hx-include="[name='cover']:checked" hx-target="#media-picker" hx-select="unset" hx-swap="innerHTML">{ i18n.T(ctx,"Далее") } @icon.ArrowRight(icon.Props{Class: "size-3"})</button>
+		}
+	</nav>
+}

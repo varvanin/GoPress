@@ -1,0 +1,26 @@
+package alertdialog
+
+import "gopress/internal/i18n"
+
+import "gopress/internal/ui/components/button"
+
+// Uses the same Base UI dialog runtime as Sheet, including focus and Escape.
+templ Confirm() {
+	<div data-templ-portal hidden>
+		<div data-base-ui-portal hidden>
+			<div role="presentation" class="gp-confirm-overlay"></div>
+			<div id="system-confirm" role="alertdialog" aria-modal="true" tabindex="-1" aria-labelledby="system-confirm-title" aria-describedby="system-confirm-description" data-templ-modal="true" data-templ-disable-pointer-dismissal="true" class="gp-confirm">
+				<h2 id="system-confirm-title" data-templ-dialog-title>{ i18n.T(ctx,"Подтвердите действие") }</h2>
+				<p id="system-confirm-description" data-templ-dialog-description></p>
+				<div class="gp-confirm-actions">
+					@button.Button(button.Props{Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"data-confirm-result": "cancel"}}) {
+						{ i18n.T(ctx,"Отмена") }
+					}
+					@button.Button(button.Props{Variant: button.VariantDestructive, Size: button.SizeSm, Attributes: templ.Attributes{"data-confirm-result": "accept"}}) {
+						{ i18n.T(ctx,"Удалить") }
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+}

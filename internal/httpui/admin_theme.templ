@@ -1,0 +1,18 @@
+package httpui
+import "gopress/internal/i18n"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/icon"
+
+templ AdminThemeToggle(compact bool) {
+ @button.Button(button.Props{Type:button.TypeButton,Variant:button.VariantGhost,Size:button.SizeSm,Class:themeToggleClass(compact),Attributes:templ.Attributes{"data-admin-theme-toggle":true,"data-label-light":i18n.T(ctx,"Светлая тема"),"data-label-dark":i18n.T(ctx,"Тёмная тема"),"aria-label":i18n.T(ctx,"Светлая тема"),"title":i18n.T(ctx,"Светлая тема")}}) {
+ @icon.Icon("sun")(icon.Props{Class:"gp-theme-icon-light size-4"})
+ @icon.Icon("moon")(icon.Props{Class:"gp-theme-icon-dark size-4"})
+ if !compact {
+ <span class="gp-theme-label-light">{ i18n.T(ctx,"Светлая тема") }</span><span class="gp-theme-label-dark">{ i18n.T(ctx,"Тёмная тема") }</span>
+ }
+ }
+}
+func themeToggleClass(compact bool)string{
+ if compact{return "gp-theme-toggle gp-theme-toggle-compact"}
+ return "gp-nav-signout gp-theme-toggle"
+}

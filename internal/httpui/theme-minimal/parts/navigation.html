@@ -1,0 +1,7 @@
+{{define "minimal-links"}}
+{{if .HeaderMenuConfigured}}{{template "minimal-menu" .HeaderMenu}}{{else}}
+<a href="/" {{if or .Home (eq .Kind "post")}}aria-current="location"{{end}}>Записи</a>
+{{range .Pages}}<a href="/{{.Slug}}" {{if eq $.Slug .Slug}}aria-current="page"{{end}}>{{.Title}}</a>{{end}}
+{{end}}
+{{end}}
+{{define "minimal-menu"}}<ul class="minimal-menu">{{range .}}<li><a href="{{.URL}}">{{.Label}}</a>{{if .Children}}{{template "minimal-menu" .Children}}{{end}}</li>{{end}}</ul>{{end}}

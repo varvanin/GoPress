@@ -1,0 +1,14 @@
+{
+  "id": "contact-card",
+  "name": "Контакты",
+  "version": "1.0",
+  "author": "GoPress",
+  "description": "Контактный блок с адресом и ссылкой. Все тексты настраиваются в админке.",
+  "fields": [
+    {"key":"title","label":"Заголовок","type":"text","default":"Давайте поговорим","required":true},
+    {"key":"text","label":"Описание","type":"textarea","default":"Расскажите о своей задаче. Мы ответим и поможем выбрать решение."},
+    {"key":"address","label":"Адрес","type":"text","default":"Варшава, Польша"},
+    {"key":"link","label":"Ссылка","type":"url","default":"https://example.com/contact"},
+    {"key":"button","label":"Текст ссылки","type":"text","default":"Связаться с нами"}
+  ]
+}

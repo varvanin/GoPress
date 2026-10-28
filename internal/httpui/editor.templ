@@ -1,0 +1,58 @@
+package httpui
+
+import "gopress/internal/i18n"
+
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/icon"
+
+templ EditorToolbar() {
+	<div class="editor-toolbar" role="toolbar" aria-label={ i18n.T(ctx, "Форматирование текста") }>
+		@EditorToolGroup(editorToolGroups[0])
+		<div class="editor-tool-group">
+			<details class="editor-menu" name="editor-menus">
+				<summary title={ i18n.T(ctx, "Стиль текста") } aria-label={ i18n.T(ctx, "Стиль текста") }>@EditorToolIcon("heading")@icon.ChevronRight(icon.Props{Class: "editor-menu-chevron"})</summary>
+				<div class="editor-menu-popup">
+					@EditorToolButton(editorTool{"paragraph", i18n.T(ctx, "Обычный текст"), "pilcrow"}, true)
+					@EditorToolButton(editorTool{"heading1", i18n.T(ctx, "Заголовок 1"), "heading"}, true)
+					@EditorToolButton(editorTool{"heading2", i18n.T(ctx, "Заголовок 2"), "heading"}, true)
+					@EditorToolButton(editorTool{"heading3", i18n.T(ctx, "Заголовок 3"), "heading"}, true)
+				</div>
+			</details>
+			<details class="editor-menu" name="editor-menus">
+				<summary title={ i18n.T(ctx, "Списки") } aria-label={ i18n.T(ctx, "Списки") }>@EditorToolIcon("list")@icon.ChevronRight(icon.Props{Class: "editor-menu-chevron"})</summary>
+				<div class="editor-menu-popup">
+					@EditorToolButton(editorTool{"bulletList", i18n.T(ctx, "Маркированный список"), "list"}, true)
+					@EditorToolButton(editorTool{"orderedList", i18n.T(ctx, "Нумерованный список"), "list-ordered"}, true)
+					@EditorToolButton(editorTool{"horizontalRule", i18n.T(ctx, "Разделитель"), "minus"}, true)
+				</div>
+			</details>
+		</div>
+		for _,group:=range editorToolGroups[1:] {
+			@EditorToolGroup(group)
+		}
+		<div class="editor-tool-group editor-add-group">@EditorToolButton(editorTool{"image", i18n.T(ctx, "Добавить"), "image-plus"}, true)</div>
+		<div class="editor-tool-group editor-search-group">@EditorToolButton(editorTool{"search", i18n.T(ctx, "Найти в тексте"), "search"}, false)</div>
+	</div>
+}
+
+templ EditorToolGroup(tools []editorTool) {
+	<div class="editor-tool-group">
+		for _,tool:=range tools {
+			@EditorToolButton(tool, false)
+		}
+	</div>
+}
+
+templ EditorToolButton(tool editorTool, label bool) {
+	@button.Button(button.Props{Variant: button.VariantGhost, Size: button.SizeIconSm, Class: "editor-tool", Disabled: true, Attributes: templ.Attributes{"data-editor-command": tool.Command, "aria-pressed": "false", "aria-label": i18n.T(ctx, tool.Label), "title": i18n.T(ctx, tool.Label)}}) {
+		@EditorToolIcon(tool.Icon)
+		if label {
+			<span>{ i18n.T(ctx,tool.Label) }</span>
+		}
+	}
+}
+
+templ EditorToolIcon(name string) {
+	{{ symbol := icon.Icon(name) }}
+	@symbol(icon.Props{Class: "size-4", Attributes: templ.Attributes{"aria-hidden": "true"}})
+}

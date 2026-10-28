@@ -1,0 +1,21 @@
+{{define "seo"}}
+<title>{{.SEO.Title}}</title>
+{{if .SEO.Description}}<meta name="description" content="{{.SEO.Description}}">{{end}}
+<meta name="robots" content="{{if .SEO.Robots}}{{.SEO.Robots}}{{else}}{{if .SEO.NoIndex}}noindex, nofollow{{else}}index, follow{{end}}{{end}}">
+{{if .SEO.Canonical}}<link rel="canonical" href="{{.SEO.Canonical}}">{{end}}
+{{if .SEO.OpenGraph}}
+<meta property="og:title" content="{{.SEO.SocialTitle}}"><meta property="og:description" content="{{.SEO.SocialDescription}}"><meta property="og:type" content="{{.SEO.Type}}"><meta property="og:site_name" content="{{.SEO.SiteName}}">
+{{if .SEO.Canonical}}<meta property="og:url" content="{{.SEO.Canonical}}">{{end}}
+{{if .SEO.Image}}<meta property="og:image" content="{{.SEO.Image}}">{{end}}
+{{if .SEO.Locale}}<meta property="og:locale" content="{{.SEO.Locale}}">{{end}}
+{{end}}
+{{if .SEO.Twitter}}
+<meta name="twitter:card" content="{{.SEO.TwitterCard}}"><meta name="twitter:title" content="{{.SEO.SocialTitle}}"><meta name="twitter:description" content="{{.SEO.SocialDescription}}">
+{{if .SEO.Image}}<meta name="twitter:image" content="{{.SEO.Image}}">{{end}}{{if .SEO.TwitterSite}}<meta name="twitter:site" content="{{.SEO.TwitterSite}}">{{end}}
+{{end}}
+{{if .SEO.GoogleVerification}}<meta name="google-site-verification" content="{{.SEO.GoogleVerification}}">{{end}}
+{{if .SEO.BingVerification}}<meta name="msvalidate.01" content="{{.SEO.BingVerification}}">{{end}}
+{{if .SEO.YandexVerification}}<meta name="yandex-verification" content="{{.SEO.YandexVerification}}">{{end}}
+{{if .SEO.JSONLD}}<script type="application/ld+json">{{.SEO.JSONLD}}</script>{{end}}
+{{if .SEO.RSS}}<link rel="alternate" type="application/rss+xml" title="{{.Site.Title}}" href="{{.Site.BaseURL}}/rss.xml">{{end}}
+{{end}}

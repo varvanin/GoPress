@@ -1,0 +1,11 @@
+services:
+  gopress:
+    build: .
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - site-data:/data
+    restart: unless-stopped
+    stop_grace_period: 30s
+volumes:
+  site-data:

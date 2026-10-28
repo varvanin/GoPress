@@ -1,0 +1,141 @@
+package httpui
+import "strconv"
+import "gopress/internal/i18n"
+import "gopress/internal/store"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/icon"
+
+templ Modules(site,csrf string,modules []ModuleInfo,installed bool) {
+ @AdminLayout(site,i18n.T(ctx,"Модули"),csrf) {
+ @AdminPageHeader(i18n.T(ctx,"Модули"),len(modules)) {
+ @button.Button(button.Props{Href:"/admin/modules/upload",Size:button.SizeSm}) {
+ @icon.Plus()<span>{ i18n.T(ctx,"Загрузить свой модуль") }</span>
+ }
+ @button.Button(button.Props{Href:"/admin/modules/reference.md",Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"hx-boost":"false"}}) {
+ @icon.FileText()<span>{ i18n.T(ctx,"Справочник") }</span>
+ }
+ @button.Button(button.Props{Href:"/admin/modules/starter.zip",Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"hx-boost":"false"}}) {
+ @icon.ArrowDown()<span>{ i18n.T(ctx,"ZIP-образец") }</span>
+ }
+ }
+ if installed {
+ <p class="notice" role="status">{ i18n.T(ctx,"Модуль установлен. Настройте его и включите для показа на сайте.") }</p>
+ }
+ <div class="theme-catalog module-catalog">
+ for _,m:=range modules {
+ <article class="theme-card" data-module-id={ m.ID } data-active={ strconv.FormatBool(m.Enabled) }>
+ <div class="theme-thumbnail module-thumbnail">
+ if m.Builtin {
+ <img src="/assets/module-faq.svg" alt="FAQ" width="800" height="420"/>
+ } else {
+ <img src={ templ.SafeURL("/module-assets/"+m.ID+"/screenshot") } alt={ m.Name } width="800" height="420" loading="lazy"/>
+ }
+ </div>
+ <div class="theme-card-info"><div class="theme-card-title"><h2>{ m.Name }</h2><span class="theme-active-label">
+ if m.Enabled {
+ @icon.Check(icon.Props{Class:"size-3"})<span>{ i18n.T(ctx,"Включён") }</span>
+ } else {
+ { i18n.T(ctx,"Отключён") }
+ }
+ </span></div><p>
+ if m.Builtin {
+ { i18n.T(ctx,"Вопросы и ответы") }
+ } else {
+ { m.Description }
+ }
+ </p><span class="theme-meta">{ m.Author } · { m.Version }</span></div>
+ <div class="theme-card-actions">
+ <form method="post" action={ templ.SafeURL(moduleTogglePath(m)) }><input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="id" value={ m.ID }/><input type="hidden" name="version" value={ strconv.FormatInt(m.Revision,10) }/><input type="hidden" name="enabled" value={ strconv.FormatBool(!m.Enabled) }/>
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:moduleButtonVariant(m.Enabled),Size:button.SizeSm}) {
+ if m.Enabled {
+ { i18n.T(ctx,"Отключить") }
+ } else {
+ { i18n.T(ctx,"Включить") }
+ }
+ }
+ </form>
+ @button.Button(button.Props{Href:moduleEditorPath(m),Variant:button.VariantGhost,Size:button.SizeSm}) {
+ { i18n.T(ctx,"Настроить") }
+ }
+ if !m.Builtin && !m.Enabled {
+ <form method="post" action="/admin/modules/package/delete" hx-confirm={ i18n.T(ctx,"Удалить модуль и его настройки навсегда?") }><input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="id" value={ m.ID }/><input type="hidden" name="version" value={ strconv.FormatInt(m.Revision,10) }/>
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantGhost,Size:button.SizeIconSm,Attributes:templ.Attributes{"aria-label":i18n.T(ctx,"Удалить модуль"),"title":i18n.T(ctx,"Удалить модуль")}}) {
+ @icon.Icon("trash-2")(icon.Props{Class:"size-4"})
+ }
+ </form>
+ }
+ </div>
+ </article>
+ }
+ </div>
+ }
+}
+
+func moduleTogglePath(m ModuleInfo) string {
+ if m.Builtin {return "/admin/modules/faq/toggle"}
+ return "/admin/modules/package/toggle"
+}
+func moduleEditorPath(m ModuleInfo) string {
+ if m.Builtin {return "/admin/modules/faq"}
+ return "/admin/modules/package/"+m.ID+"/edit"
+}
+func moduleButtonVariant(enabled bool) button.Variant {
+ if enabled {return button.VariantOutline}
+ return button.VariantDefault
+}
+
+templ ModuleUpload(site,csrf,message string) {
+ @AdminLayout(site,i18n.T(ctx,"Модули"),csrf) {
+ @AdminPageHeader(i18n.T(ctx,"Загрузить свой модуль"),-1) {
+ @button.Button(button.Props{Href:"/admin/modules",Size:button.SizeSm,Variant:button.VariantOutline}) {
+ { i18n.T(ctx,"Назад") }
+ }
+ }
+ if message!="" {
+ <p class="notice notice-error" role="alert">{ i18n.T(ctx,message) }</p>
+ }
+ <div class="site-settings"><section class="theme-upload-panel"><form method="post" action="/admin/modules/upload" enctype="multipart/form-data" hx-encoding="multipart/form-data" class="theme-upload-form" data-change-form>
+ <input type="hidden" name="csrf" value={ csrf }/>
+ <div class="field"><label for="module-zip">{ i18n.T(ctx,"Архив модуля GoPress") }</label><input id="module-zip" type="file" name="module_zip" accept=".zip,application/zip" required class="site-input"/><p class="field-help">{ i18n.T(ctx,"module.json, template.html, style.css и превью PNG/JPEG. ZIP до 8 MiB. После установки модуль выключен.") }</p></div>
+ @button.Button(button.Props{Type:button.TypeSubmit,Size:button.SizeSm}) {
+ @icon.Plus()<span>{ i18n.T(ctx,"Установить") }</span>
+ }
+ </form></section></div>
+ }
+}
+
+templ ModuleEditor(site,csrf string,info ModuleInfo,p store.ModulePackage,settings map[string]string,message string) {
+ @AdminLayout(site,i18n.T(ctx,"Модули"),csrf) {
+ @AdminPageHeader(info.Name,-1) {
+ @button.Button(button.Props{Href:"/admin/modules",Size:button.SizeSm,Variant:button.VariantOutline}) {
+ { i18n.T(ctx,"Модули") }
+ }
+ @button.Button(button.Props{Type:button.TypeSubmit,Form:"module-settings",Size:button.SizeSm}) {
+ { i18n.T(ctx,"Сохранить") }
+ }
+ }
+ if message!="" {
+ <p class={ "notice",templ.KV("notice-error",message!="Настройки модуля сохранены.") } role="status">{ i18n.T(ctx,message) }</p>
+ }
+ <div class="management-workspace"><form id="module-settings" method="post" action="/admin/modules/package/save" data-change-form class="site-settings module-settings">
+ <input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="id" value={ info.ID }/><input type="hidden" name="version" value={ strconv.FormatInt(p.Version,10) }/>
+ <section class="settings-panel">
+ for _,f:=range info.Fields {
+ <label for={ "module-field-"+f.Key }>{ f.Label }
+ if f.Type=="textarea" {
+ <textarea id={ "module-field-"+f.Key } class="site-input" name={ "setting_"+f.Key } rows="4" required?={ f.Required } maxlength="5000">{ settings[f.Key] }</textarea>
+ } else {
+ <input id={ "module-field-"+f.Key } class="site-input" type={ moduleInputType(f.Type) } name={ "setting_"+f.Key } value={ settings[f.Key] } required?={ f.Required } maxlength="5000"/>
+ }
+ </label>
+ }
+ if len(info.Fields)==0 {
+ <p class="field-help">{ i18n.T(ctx,"У этого модуля нет настраиваемых полей.") }</p>
+ }
+ </section></form><aside class="management-context"><h2>{ i18n.T(ctx,"Код для вставки") }</h2><input class="site-input" readonly data-faq-code value={ moduleCode(info.ID) } aria-label={ i18n.T(ctx,"Код для вставки") }/><p>{ i18n.T(ctx,"Вставьте код отдельным абзацем в страницу или запись и включите модуль в каталоге.") }</p><p>{ info.Description }</p></aside></div>
+ }
+}
+func moduleInputType(kind string) string {
+ if kind=="url" {return "url"}
+ return "text"
+}

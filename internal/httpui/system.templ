@@ -1,0 +1,72 @@
+package httpui
+
+import "gopress/internal/i18n"
+import "context"
+
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/input"
+
+templ System(title, csrf string, install bool) {
+	@AuthLayout(title) {
+		if install {
+			<p class="auth-form-description">{ i18n.T(ctx,"Укажите данные сайта и создайте администратора.") }</p>
+		}
+		<form method="post" class="auth-form">
+			<input type="hidden" name="csrf" value={ csrf }/>
+			if install {
+				<div class="field"><label for="token">{ i18n.T(ctx,"Токен установки") }</label>@input.Input(input.Props{ID: "token", Name: "token", Type: "password", Required: true, Placeholder: i18n.T(ctx, "Токен из консоли сервера"), Attributes: templ.Attributes{"autocomplete": "off", "aria-describedby": "token-help"}})<p class="field-help" id="token-help">{ i18n.T(ctx,"Одноразовый токен напечатан при запуске GoPress.") }</p></div>
+				<div class="field"><label for="title">{ i18n.T(ctx,"Название сайта") }</label>@input.Input(input.Props{ID: "title", Name: "title", Required: true, Placeholder: i18n.T(ctx, "Мой сайт")})</div>
+				<div class="grid gap-4 sm:grid-cols-2"><div class="field"><label for="base_url">{ i18n.T(ctx,"Основной URL") }</label>@input.Input(input.Props{ID: "base_url", Name: "base_url", Type: "url", Required: true, Placeholder: "https://example.com"})</div><div class="field"><label for="timezone">{ i18n.T(ctx,"Часовой пояс") }</label>@input.Input(input.Props{ID: "timezone", Name: "timezone", Value: "Europe/Warsaw", Required: true})</div></div>
+				<div class="border-t border-border pt-1"></div>
+			}
+			<div class="field"><label for="email">{ authEmailLabel(ctx, install) }</label>@input.Input(input.Props{ID: "email", Name: "email", Type: "email", Required: true, Placeholder: "name@example.com", Attributes: templ.Attributes{"autocomplete": "username"}})</div>
+			<div class="field">
+				<label for="password">{ i18n.T(ctx,"Пароль") }</label>@input.Input(input.Props{ID: "password", Name: "password", Type: "password", Required: true, Placeholder: i18n.T(ctx, "Введите пароль"), Attributes: templ.Attributes{"autocomplete": passwordAutocomplete(install)}})
+				if install {
+					<p class="field-help">{ i18n.T(ctx,"От 12 до 72 байт.") }</p>
+				}
+			</div>
+			@button.Button(button.Props{Type: button.TypeSubmit, Size: button.SizeSm, Class: "w-full"}) {
+				if install {
+					{ i18n.T(ctx,"Создать сайт") }
+				} else {
+					{ i18n.T(ctx,"Войти") }
+				}
+			}
+		</form>
+		if !install {
+			<a href="/forgot-password" class="auth-recovery-link">{ i18n.T(ctx,"Забыли пароль?") }</a>
+		}
+	}
+}
+
+func passwordAutocomplete(install bool) string {
+	if install {
+		return "new-password"
+	}
+	return "current-password"
+}
+
+func authEmailLabel(ctx context.Context, install bool) string {
+	if install {
+		return i18n.T(ctx, "Email администратора")
+	}
+	return "Email"
+}
+
+templ AuthLayout(title string) {
+	<!DOCTYPE html>
+	<html lang={ i18n.Language(ctx) } class="dark">
+		<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>{ i18n.T(ctx,title) } · GoPress</title><script src="/assets/admin-theme.js"></script><link rel="stylesheet" href="/assets/admin.css"/></head>
+		<body class="style-nova gp-admin gp-auth auth-page auth-simple">
+			@AdminThemeToggle(true)
+ <main class="auth-shell">
+				<a class="auth-logo" href="/" aria-label="GoPress"><img src="/assets/gopress.svg" width="2720" height="510" alt="GoPress"/></a>
+				<section class="auth-card" aria-labelledby="auth-title">
+					<h1 id="auth-title">{ i18n.T(ctx,title) }</h1>
+					{ children... }
+				</section>
+			</main>
+		</body>
+	</html>
+}

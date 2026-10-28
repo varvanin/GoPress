@@ -1,0 +1,59 @@
+package httpui
+
+import "gopress/internal/i18n"
+
+import "strconv"
+import "fmt"
+import "gopress/internal/ui/components/select"
+import "gopress/internal/ui/utils"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/icon"
+import "gopress/internal/ui/components/input"
+
+templ AdminPageHeader(title string, count int) {
+	<header class="page-heading content-heading">
+		<div class="content-heading-title">
+			<h1>{ i18n.T(ctx, title) }</h1>
+			if count>=0 {
+				<span class="content-count" aria-label={ i18n.T(ctx, "Количество результатов") }>{ strconv.Itoa(count) }</span>
+			}
+		</div>
+		<div class="page-heading-actions">
+			{ children... }
+		</div>
+	</header>
+}
+
+templ AdminSearch(id, value, placeholder string) {
+	<div class="content-search-field">
+		<label for={ id } class="sr-only">{ i18n.T(ctx,placeholder) }</label>
+		@input.Input(input.Props{ID: id, Name: "q", Value: value, Placeholder: i18n.T(ctx, placeholder), Attributes: templ.Attributes{"maxlength": "200", "type": "search"}})
+		@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Найти"), "title": i18n.T(ctx, "Найти")}}) {
+			@icon.Icon("search")(icon.Props{Class: "size-4"})
+		}
+	</div>
+}
+
+templ EditorPanelSummary(label string, symbol func(...icon.Props) templ.Component) {
+	<summary data-editor-panel={ i18n.T(ctx, label) }>@symbol(icon.Props{Class: "size-4"})<span>{ i18n.T(ctx, label) }</span>@icon.ChevronRight(icon.Props{Class: "editor-disclosure-arrow size-3.5"})</summary>
+}
+
+templ AdminSelect(id, name, value, label string, items []selectcomp.ItemData, attributes templ.Attributes) {
+	if id=="" {
+		{{ id = utils.RandomID() }}
+	}
+	<div class="gp-select" { attributes... }>
+		@selectcomp.Select(selectcomp.Props{ID: id + "-popup", Name: name, DefaultValue: value, Items: items}) {
+			@selectcomp.Trigger(selectcomp.TriggerProps{ID: id, Attributes: templ.Attributes{"aria-label": label}}) {
+				@selectcomp.Value()
+			}
+			@selectcomp.Content(selectcomp.ContentProps{Align: selectcomp.AlignStart, AlignItemWithTrigger: utils.Ptr(false)}) {
+				for _,item:=range items {
+					@selectcomp.Item(selectcomp.ItemProps{Value: item.Value, Label: fmt.Sprint(item.Label)}) {
+						{ fmt.Sprint(item.Label) }
+					}
+				}
+			}
+		}
+	</div>
+}

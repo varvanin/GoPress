@@ -1,0 +1,174 @@
+package httpui
+
+import "gopress/internal/ui/components/icon"
+
+import "gopress/internal/i18n"
+
+import "strconv"
+import "gopress/internal/store"
+import "gopress/internal/service"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/input"
+import "gopress/internal/ui/components/card"
+import selectcomp "gopress/internal/ui/components/select"
+
+templ SettingsPage(site, csrf, tab string, value store.Settings, mail service.MailSettings, pages []store.Page, message string, failed, dirty bool) {
+	@AdminLayout(site, i18n.T(ctx, "Настройки"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, "Настройки"), -1) {
+			if tab!="mail"||!mail.Environment {
+				@button.Button(button.Props{Type: button.TypeSubmit, Form: "site-settings-form", Size: button.SizeSm}) {
+					{ i18n.T(ctx,"Сохранить настройки") }
+				}
+			}
+		}
+		<nav class="content-list-tabs settings-tabs" aria-label={ i18n.T(ctx, "Разделы настроек") }>
+			<a href="/admin/settings?tab=general" aria-current={ activeTab(tab == "general") }>@icon.Icon("settings-2")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Общие") }</span></a>
+			<a href="/admin/settings?tab=home" aria-current={ activeTab(tab == "home") }>@icon.Icon("house")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Главная страница") }</span></a>
+			<a href="/admin/settings?tab=mail" aria-current={ activeTab(tab == "mail") }>@icon.Icon("mail")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Почта") }</span></a>
+			<a href="/admin/settings?tab=language" aria-current={ activeTab(tab == "language") }>@icon.Icon("languages")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Язык интерфейса") }</span></a>
+		</nav>
+		if message!="" {
+			<p class={ "notice",templ.KV("notice-error",failed) } role="status">{ i18n.T(ctx, message) }</p>
+		}
+		<div class="management-workspace settings-workspace">
+			<div class="site-settings">
+				if tab=="mail" {
+					if mail.Environment {
+						<p class="field-help">{ i18n.T(ctx,"Почта настроена переменными окружения сервера. Изменяйте их на сервере; здесь можно проверить отправку.") }</p>
+					} else {
+						<form id="site-settings-form" method="post" action="/admin/settings/mail" data-change-form data-form-dirty={ strconv.FormatBool(dirty) }>
+							<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="mail_version" value={ mail.Version }/>
+							@card.Card(card.Props{Class: "settings-panel px-4"}) {
+								<h2>{ i18n.T(ctx,"Исходящая почта") }</h2>
+								<label>
+									{ i18n.T(ctx,"Отправка уведомлений") }
+									@AdminSelect("mail-enabled", "enabled", strconv.FormatBool(mail.Enabled), i18n.T(ctx, "Отправка уведомлений"), []selectcomp.ItemData{{Value: "true", Label: i18n.T(ctx, "Включена")}, {Value: "false", Label: i18n.T(ctx, "Отключена")}}, nil)
+								</label>
+								<div class="settings-pair">
+									<label>
+										{ i18n.T(ctx,"SMTP-сервер") }
+										@input.Input(input.Props{Name: "host", Value: mail.Host, Placeholder: "smtp.example.com", Attributes: templ.Attributes{"maxlength": "253", "autocomplete": "off"}})
+									</label>
+									<label>
+										{ i18n.T(ctx,"Порт") }
+										@input.Input(input.Props{Name: "port", Type: "number", Value: mail.Port, Required: true, Attributes: templ.Attributes{"min": "1", "max": "65535"}})
+									</label>
+								</div>
+								<p class="field-help">{ i18n.T(ctx,"Порт 587 — STARTTLS, 465 — TLS. Соединение всегда шифруется, сертификат проверяется.") }</p>
+								<label>
+									{ i18n.T(ctx,"Адрес отправителя") }
+									@input.Input(input.Props{Name: "from", Type: "email", Value: mail.From, Placeholder: "website@example.com", Attributes: templ.Attributes{"maxlength": "254"}})
+								</label>
+								<label>
+									{ i18n.T(ctx,"Логин SMTP") }
+									@input.Input(input.Props{Name: "username", Value: mail.Username, Attributes: templ.Attributes{"autocomplete": "off", "maxlength": "254"}})
+								</label>
+								<label>
+									{ i18n.T(ctx,"Пароль SMTP") }
+									@input.Input(input.Props{Name: "password", Type: "password", Placeholder: i18n.T(ctx, "Новый пароль"), Attributes: templ.Attributes{"autocomplete": "new-password", "maxlength": "4096"}})
+								</label>
+								if mail.Password!="" {
+									<p class="field-help">{ i18n.T(ctx,"Пароль сохранён. Оставьте поле пустым, чтобы сохранить его.") }</p>
+									<label class="settings-checkbox"><input type="checkbox" name="clear_password" value="1"/> { i18n.T(ctx,"Удалить сохранённый пароль") }</label>
+								}
+								<p class="field-help">{ i18n.T(ctx,"Получатель задаётся отдельно в каждой форме. Сначала сохраните настройки, затем отправьте тестовое письмо.") }</p>
+							}
+						</form>
+					}
+					@card.Card(card.Props{Class: "settings-panel px-4"}) {
+						<h2>{ i18n.T(ctx,"Проверка отправки") }</h2>
+						if mail.Environment {
+							<p class="field-help">{ mail.Host+":"+mail.Port+" · "+mail.From }</p>
+						}
+						<form method="post" action="/admin/settings/mail-test" class="mail-test-form">
+							<input type="hidden" name="csrf" value={ csrf }/>
+							<label>
+								{ i18n.T(ctx,"Email для тестового письма") }
+								@input.Input(input.Props{Name: "test_recipient", Type: "email", Required: true, Placeholder: "you@example.com", Attributes: templ.Attributes{"maxlength": "254"}})
+							</label>
+							@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm}) {
+								{ i18n.T(ctx,"Отправить тестовое письмо") }
+							}
+						</form>
+					}
+				} else {
+					<form id="site-settings-form" method="post" action={ templ.SafeURL("/admin/settings/" + tab) } data-change-form data-form-dirty={ strconv.FormatBool(dirty) }>
+						<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="version" value={ strconv.FormatInt(value.Version, 10) }/>
+						@card.Card(card.Props{Class: "settings-panel px-4"}) {
+							switch tab {
+								case "general":
+									<h2>{ i18n.T(ctx,"Общие настройки") }</h2>
+									<label>
+										{ i18n.T(ctx,"Название сайта") }
+										@input.Input(input.Props{Name: "title", Value: value.Site.Title, Required: true, Attributes: templ.Attributes{"maxlength": "200"}})
+									</label>
+									<label>{ i18n.T(ctx,"Описание сайта") }<textarea name="description" class="site-input" maxlength="500" rows="3">{ value.Description }</textarea></label>
+									<label>
+										{ i18n.T(ctx,"Адрес сайта") }
+										@input.Input(input.Props{Name: "base_url", Type: "url", Value: value.Site.BaseURL, Required: true, Placeholder: "https://example.com", Attributes: templ.Attributes{"maxlength": "2048"}})
+									</label>
+									<p class="field-help">{ i18n.T(ctx,"Основной адрес без пути. После смены адреса открывайте сайт и админку по новому URL.") }</p>
+									<label>
+										{ i18n.T(ctx,"Часовой пояс") }
+										@input.Input(input.Props{Name: "timezone", Value: value.Site.Timezone, Required: true, Placeholder: "Europe/Warsaw", Attributes: templ.Attributes{"maxlength": "100"}})
+									</label>
+									<p class="field-help">{ i18n.T(ctx,"Название IANA, например Europe/Warsaw или Europe/Moscow. Время уже запланированных публикаций не меняется.") }</p>
+								case "home":
+									<h2>{ i18n.T(ctx,"Главная страница") }</h2>
+									<label>
+										{ i18n.T(ctx,"Показывать на главной") }
+										@AdminSelect("home-mode", "home_mode", value.HomeMode, i18n.T(ctx, "Содержимое главной"), []selectcomp.ItemData{{Value: "posts", Label: i18n.T(ctx, "Лента записей")}, {Value: "page", Label: i18n.T(ctx, "Выбранная страница")}}, nil)
+									</label>
+									<label>
+										{ i18n.T(ctx,"Опубликованная страница") }
+										@AdminSelect("home-page", "home_page_id", strconv.FormatInt(value.HomePageID, 10), i18n.T(ctx, "Главная страница"), homePageItems(ctx, pages, value.HomePageID), nil)
+									</label>
+									<p class="field-help">{ i18n.T(ctx,"Используется только в режиме выбранной страницы. Если её снять с публикации или удалить, сайт покажет ленту записей.") }</p>
+									<label>
+										{ i18n.T(ctx,"Записей на странице") }
+										@input.Input(input.Props{Name: "posts_per_page", Type: "number", Value: strconv.Itoa(value.PostsPerPage), Required: true, Attributes: templ.Attributes{"min": "1", "max": "100"}})
+									</label>
+									<p class="field-help">{ i18n.T(ctx,"От 1 до 100. Влияет на ленту и её пагинацию; внешний вид задаёт активный шаблон.") }</p>
+								case "language":
+									<h2>{ i18n.T(ctx,"Язык интерфейса") }</h2>
+									<label>
+										{ i18n.T(ctx,"Язык административной панели") }
+										@AdminSelect("admin-language", "language", value.Language, i18n.T(ctx, "Язык административной панели"), []selectcomp.ItemData{{Value: "ru", Label: i18n.T(ctx, "Русский")}, {Value: "en", Label: "English"}, {Value: "pl", Label: "Polski"}}, nil)
+									</label>
+									<p class="field-help">{ i18n.T(ctx,"Настройка применяется ко всей админке и странице входа. Язык опубликованного контента и шаблона сайта не меняется.") }</p>
+							}
+						}
+					</form>
+				}
+			</div>
+			<aside class="management-context">
+				<h2>{ i18n.T(ctx,"Параметры сайта") }</h2>
+				<dl class="context-definitions">
+					<div><dt>{ i18n.T(ctx,"Адрес сайта") }</dt><dd>{ value.Site.BaseURL }</dd></div>
+					<div><dt>{ i18n.T(ctx,"Часовой пояс") }</dt><dd>{ value.Site.Timezone }</dd></div>
+					<div>
+						<dt>{ i18n.T(ctx,"Главная страница") }</dt>
+						<dd>
+							if value.HomeMode=="page" {
+								{ i18n.T(ctx,"Выбранная страница") }
+							} else {
+								{ i18n.T(ctx,"Лента записей") }
+							}
+						</dd>
+					</div>
+					<div>
+						<dt>{ i18n.T(ctx,"Почта") }</dt>
+						<dd>
+							if mail.Configured() {
+								{ i18n.T(ctx,"Настроена") }
+							} else {
+								{ i18n.T(ctx,"Не настроена") }
+							}
+						</dd>
+					</div>
+				</dl>
+				<p>{ i18n.T(ctx,"Каждый раздел сохраняется отдельно. Проверьте изменения перед сохранением; опубликованные материалы не меняются автоматически.") }</p>
+			</aside>
+		</div>
+	}
+}

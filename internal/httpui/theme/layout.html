@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+{{template "seo" .}}
+<link rel="stylesheet" href="/assets/public.css">
+</head>
+<body data-theme="{{.Appearance.Theme}}">
+<a class="public-skip" href="#content">К содержимому</a>
+{{if .Preview}}<div class="theme-preview-banner" role="status">Предпросмотр · эта версия видна только вам</div>{{end}}
+<div class="site-shell">
+{{template "header" .}}
+<main id="content">{{template "body" .}}</main>
+{{template "footer" .}}
+</div>
+</body>
+</html>

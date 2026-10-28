@@ -1,0 +1,69 @@
+package httpui
+
+import "gopress/internal/i18n"
+
+import "strconv"
+import "gopress/internal/ui/components/select"
+import "gopress/internal/store"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/card"
+import "gopress/internal/ui/components/input"
+import "gopress/internal/ui/components/icon"
+
+templ Terms(site, csrf string, terms []store.Term, message, name string) {
+	@AdminLayout(site, i18n.T(ctx, "Категории и теги"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, "Категории и теги"), len(terms))
+		if message!="" {
+			<p class="notice notice-error" role="alert">{ i18n.T(ctx, message) }</p>
+		}
+		@card.Card(card.Props{Class: "settings-panel"}) {
+			@card.Header() {
+				@card.Title() {
+					<h2>{ i18n.T(ctx,"Новая категория или тег") }</h2>
+				}
+			}
+			@card.Content() {
+				@TermForm(store.Term{Name: name}, csrf)
+			}
+		}
+		<section class="term-list" aria-label={ i18n.T(ctx, "Категории и теги") }>
+			for _,term:=range terms {
+				@TermForm(term, csrf)
+			}
+			if len(terms)==0 {
+				<p class="field-help">{ i18n.T(ctx,"Категорий и тегов пока нет.") }</p>
+			}
+		</section>
+	}
+}
+
+templ TermForm(term store.Term, csrf string) {
+	<form action="/admin/posts/terms" method="post" class="term-form">
+		<input type="hidden" name="csrf" value={ csrf }/>
+		<input type="hidden" name="id" value={ strconv.FormatInt(term.ID, 10) }/>
+		<input type="hidden" name="version" value={ strconv.FormatInt(term.Version, 10) }/>
+		if term.ID==0 {
+			<label class="sr-only" for="term-kind">{ i18n.T(ctx,"Тип") }</label>
+			@AdminSelect("term-kind", "kind", "category", i18n.T(ctx, "Тип метки"), []selectcomp.ItemData{{Value: "category", Label: i18n.T(ctx, "Категория")}, {Value: "tag", Label: i18n.T(ctx, "Тег")}}, nil)
+		} else {
+			<input type="hidden" name="kind" value={ term.Kind }/>
+			<span class="term-kind">{ i18n.T(ctx, termKind(term.Kind)) }</span>
+		}
+		<label class="sr-only" for={ "term-name-" + strconv.FormatInt(term.ID, 10) }>{ i18n.T(ctx,"Название") }</label>
+		@input.Input(input.Props{ID: "term-name-" + strconv.FormatInt(term.ID, 10), Name: "name", Value: term.Name, Placeholder: i18n.T(ctx, "Название"), Required: true, Attributes: templ.Attributes{"maxlength": "80"}})
+		if term.ID==0 {
+			@button.Button(button.Props{Type: button.TypeSubmit, Size: button.SizeSm, Attributes: templ.Attributes{"name": "action", "value": "save"}}) {
+				@icon.Plus()<span>{ i18n.T(ctx,"Добавить") }</span>
+			}
+		} else {
+			@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"name": "action", "value": "save", "aria-label": i18n.T(ctx, "Сохранить: ") + term.Name, "title": i18n.T(ctx, "Сохранить")}}) {
+				@icon.Check(icon.Props{Class: "size-4"})
+			}
+		}
+		if term.ID>0 {
+			@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"name": "action", "value": "delete", "formnovalidate": true, "aria-label": i18n.T(ctx, "Удалить: ") + term.Name, "title": i18n.T(ctx, "Удалить")}}) {
+				@icon.Icon("trash-2")(icon.Props{Class: "size-4"})
+			}
+		}
+	</form>
+}

@@ -1,0 +1,645 @@
+package httpui
+
+import "gopress/internal/i18n"
+
+import "strconv"
+import "gopress/internal/ui/components/alertdialog"
+import "gopress/internal/ui/components/toast"
+import "gopress/internal/store"
+import "gopress/internal/service"
+import selectcomp "gopress/internal/ui/components/select"
+import "gopress/internal/ui/components/badge"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/card"
+import "gopress/internal/ui/components/icon"
+import "gopress/internal/ui/components/input"
+import "gopress/internal/ui/components/sidebar"
+import "gopress/internal/ui/components/table"
+
+// Origin Space experiment-03 composition, using the existing shadcn-templ runtime.
+templ AdminLayout(site, title, csrf string) {
+	if partialRequest(ctx) {
+		<title>{ i18n.T(ctx, title) } · GoPress</title>
+		@AdminMain(site, title, csrf) {
+			{ children... }
+		}
+	} else {
+		<!DOCTYPE html>
+		<html lang={ i18n.Language(ctx) } class="dark">
+			<head>
+				<meta charset="utf-8"/>
+				<meta name="viewport" content="width=device-width, initial-scale=1"/>
+				<meta name="csrf-token" content={ csrf }/>
+ <meta name="style-nonce" content={ adminStyleNonce(ctx) }/>
+				<meta name="htmx-config" content={ `{"allowEval":false,"allowScriptTags":false,"selfRequestsOnly":true,"historyCacheSize":0,"includeIndicatorStyles":false}` }/>
+				<title>{ i18n.T(ctx, title) } · GoPress</title>
+				<script src="/assets/admin-theme.js"></script>
+ <link rel="stylesheet" href="/assets/admin.css"/>
+				<script src="/assets/htmx.min.js" defer></script>
+				<script src="/assets/components.bundle.js" defer></script>
+				<script src="/admin/translations.js" defer></script>
+				<script src="/assets/admin.js" type="module"></script>
+			</head>
+			<body class="style-nova gp-admin bg-sidebar text-foreground antialiased">
+				@toast.Toaster()
+				@alertdialog.Confirm()
+				<a href="#main" class="skip-link">{ i18n.T(ctx,"К содержимому") }</a>
+				@sidebar.Provider(sidebar.ProviderProps{ID: "gopress-sidebar", DisableDefaultOpen:sidebarCollapsed(ctx), Class: "gp-sidebar-provider", Attributes: templ.Attributes{"hx-boost": "true", "hx-target": "#main", "hx-select": "#main", "hx-swap": "outerHTML show:top", "hx-sync": "this:replace", "hx-history": "false"}}) {
+					@sidebar.Sidebar(sidebar.Props{Variant: sidebar.VariantInset, Collapsible: sidebar.CollapsibleIcon, Attributes: templ.Attributes{"role": "complementary", "aria-label": i18n.T(ctx, "Навигация сайта")}}) {
+						@sidebar.Header(sidebar.HeaderProps{Class: "gp-nav-header"}) {
+							<a class="gp-logo" href="/admin" aria-label={ "GoPress — " + site } title={ site }>
+								<img src="/assets/gopress.svg" width="2720" height="510" alt="GoPress"/>
+							</a>
+						}
+						@sidebar.Content(sidebar.ContentProps{Class: "gp-nav-content"}) {
+							@sidebar.Group(sidebar.GroupProps{Class: "gp-nav-overview"}) {
+								@sidebar.GroupContent() {
+									@sidebar.Menu() {
+										@AdminNavLink("/admin", i18n.T(ctx, "Обзор"), title, icon.LayoutDashboard)
+									}
+								}
+							}
+							@sidebar.Group() {
+								@sidebar.GroupLabel() {
+									{ i18n.T(ctx,"Контент ") }
+								}
+								@sidebar.GroupContent() {
+									@sidebar.Menu() {
+										@AdminNavLink("/admin/pages", i18n.T(ctx, "Страницы"), title, icon.FileText)
+										@sidebar.MenuItem() {
+											@sidebar.MenuButton(sidebar.MenuButtonProps{Href: "/admin/posts", IsActive: adminSection(title) == "/admin/posts", Attributes: navAttributes(adminSection(title) == "/admin/posts", i18n.T(ctx, "Записи"))}) {
+												@icon.Icon("newspaper")(icon.Props{}) <span>{ i18n.T(ctx,"Записи") }</span>
+											}
+											@sidebar.Menu(sidebar.MenuProps{Class: "gp-nav-submenu", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Разделы записей")}}) {
+												@AdminNavLink("/admin/posts/terms", i18n.T(ctx, "Категории и теги"), title, icon.Icon("tags"))
+											}
+										}
+										@AdminNavLink("/admin/media", i18n.T(ctx, "Медиатека"), title, icon.Image)
+										@AdminNavLink("/admin/forms", i18n.T(ctx, "Формы"), title, icon.Icon("clipboard-list"))
+									}
+								}
+							}
+							@sidebar.Group() {
+								@sidebar.GroupLabel() {
+									{ i18n.T(ctx,"Сайт ") }
+								}
+								@sidebar.GroupContent() {
+									@sidebar.Menu() {
+										@AdminNavLink("/admin/themes", i18n.T(ctx, "Шаблоны"), title, icon.Icon("paintbrush"))
+										@AdminNavLink("/admin/modules", i18n.T(ctx, "Модули"), title, icon.Icon("blocks"))
+										@AdminNavLink("/admin/seo", "SEO", title, icon.Globe)
+										@AdminNavLink("/admin/menus", i18n.T(ctx, "Меню"), title, icon.Icon("list-tree"))
+									}
+								}
+							}
+							@sidebar.Group() {
+								@sidebar.GroupLabel() {
+									{ i18n.T(ctx,"Управление ") }
+								}
+								@sidebar.GroupContent() {
+									@sidebar.Menu() {
+										@AdminNavLink("/admin/users",i18n.T(ctx, "Пользователи"),title, icon.Icon("users"))
+if adminRole(ctx)!="admin" {
+ @AdminNavLink("/admin/account",i18n.T(ctx,"Мой профиль"),title,icon.Icon("users"))
+}
+										@AdminNavLink("/admin/settings", i18n.T(ctx, "Настройки"), title, icon.Icon("settings-2"))
+										@AdminNavLink("/admin/tools",i18n.T(ctx,"Инструменты"),title,icon.Icon("wrench"))
+									}
+								}
+							}
+						}
+						@sidebar.Footer(sidebar.FooterProps{Class: "gp-nav-footer"}) {
+ @AdminThemeToggle(false)
+							@sidebar.Menu() {
+								@sidebar.MenuItem() {
+									@sidebar.MenuButton(sidebar.MenuButtonProps{Href: "/", Attributes: templ.Attributes{"target": "_blank", "rel": "noopener", "title": i18n.T(ctx, "Открыть сайт"), "aria-label": i18n.T(ctx, "Открыть сайт")}}) {
+										@icon.Globe() <span>{ i18n.T(ctx,"Открыть сайт") }</span> @icon.ArrowUpRight(icon.Props{Class: "gp-nav-external"})
+									}
+								}
+							}
+							<form action="/logout" method="post" hx-boost="false">
+								<input type="hidden" name="csrf" value={ csrf }/>
+								@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Class: "gp-nav-signout", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Выйти"), "title": i18n.T(ctx, "Выйти")}}) {
+									@icon.LogOut() <span>{ i18n.T(ctx,"Выйти") }</span>
+								}
+							</form>
+						}
+					}
+					@AdminMain(site, title, csrf) {
+						{ children... }
+					}
+				}
+			</body>
+		</html>
+	}
+}
+
+templ AdminMain(site, title, csrf string) {
+	@sidebar.Inset(sidebar.InsetProps{ID: "main", Class: "gp-main", Attributes: templ.Attributes{"tabindex": "-1", "data-section": adminSection(title)}}) {
+		if i18n.Source(title)!="Редактирование страницы" && i18n.Source(title)!="Редактирование записи" {
+			<header class="gp-topbar">
+				<div class="gp-breadcrumb">
+					@sidebar.Trigger(sidebar.TriggerProps{Target: "gopress-sidebar", Class: "gp-sidebar-trigger", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Переключить навигацию")}})
+					<a href="/admin">{ site }</a>
+					@icon.ChevronRight(icon.Props{Class: "size-4", Attributes: templ.Attributes{"aria-hidden": "true"}})
+					<span aria-current="page">{ i18n.T(ctx, title) }</span>
+				</div>
+				<div class="gp-header-actions">
+					<span id="admin-nav-status" class="text-xs text-muted-foreground" role="status"></span>
+				</div>
+			</header>
+		}
+		<div class="workspace @container/main">
+			{ children... }
+		</div>
+	}
+}
+
+templ AdminNavLink(href, label, title string, symbol func(...icon.Props) templ.Component) {
+	if allowNav(ctx,href) {
+	@sidebar.MenuItem() {
+		@sidebar.MenuButton(sidebar.MenuButtonProps{Href: href, IsActive: adminSection(title) == href, Attributes: navAttributes(adminSection(title) == href, label)}) {
+			@symbol() <span>{ i18n.T(ctx, label) }</span>
+		}
+	}
+}
+}
+
+templ PlannedNavItem(label string, symbol func(...icon.Props) templ.Component) {
+	if adminRole(ctx)=="admin" {
+	@sidebar.MenuItem() {
+		@sidebar.MenuButton(sidebar.MenuButtonProps{Attributes: templ.Attributes{"disabled": true, "data-planned": true, "title": label + i18n.T(ctx, " — запланировано"), "aria-label": label + i18n.T(ctx, " — запланировано")}}) {
+			@symbol()
+			<span>{ i18n.T(ctx, label) }</span>
+		}
+	}
+}
+}
+
+templ Pages(site, csrf string, pages []store.Page, view ContentList) {
+	@AdminLayout(site, contentLabel(view.Kind, i18n.T(ctx, "Страницы"), i18n.T(ctx, "Записи")), csrf) {
+		@AdminPageHeader(contentLabel(view.Kind, i18n.T(ctx, "Страницы"), i18n.T(ctx, "Записи")), view.Total) {
+			@button.Button(button.Props{Href: contentPath(view.Kind) + "/new", Size: button.SizeSm}) {
+				@icon.Plus()
+				<span>{ contentLabel(view.Kind,i18n.T(ctx,"Новая страница"),i18n.T(ctx,"Новая запись")) }</span>
+			}
+		}
+		<div class="content-list-toolbar">
+			<nav class="content-list-tabs" aria-label={ i18n.T(ctx, "Статус материалов") }>
+				<a href={ templ.SafeURL(contentListURL(ContentList{Kind: view.Kind, Query: view.Query, Term: view.Term}, 1)) } aria-current={ activeTab(!view.Trash) }>@icon.Icon("list")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Все") }</span></a>
+				<a href={ templ.SafeURL(contentListURL(ContentList{Kind: view.Kind, Query: view.Query, Trash: true, Term: view.Term}, 1)) } aria-current={ activeTab(view.Trash) }>@icon.Icon("trash-2")(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Корзина") }</span></a>
+			</nav>
+			<form method="get" action={ templ.SafeURL(contentPath(view.Kind)) } class="content-search" role="search">
+				if view.Trash {
+					<input type="hidden" name="trash" value="1"/>
+				}
+				if view.Kind=="post" {
+					<label class="sr-only" for="term-filter">{ i18n.T(ctx,"Категория или тег") }</label>
+					@AdminSelect("term-filter", "term", selectedTermValue(view.Term), i18n.T(ctx, "Категория или тег"), termSelectItems(ctx, view.Terms), nil)
+				}
+				@AdminSearch("content-search", view.Query, contentLabel(view.Kind, i18n.T(ctx, "Поиск страниц…"), i18n.T(ctx, "Поиск записей…")))
+			</form>
+		</div>
+		if len(pages)==0 {
+			if view.Trash || view.Query!="" || view.Term>0 {
+				<section class="empty-state"><h2>{ i18n.T(ctx,"Материалы не найдены") }</h2><p>{ i18n.T(ctx,"Попробуйте другой запрос или вернитесь к общему списку.") }</p></section>
+			} else {
+				@EmptyPages(view.Kind)
+			}
+		} else {
+			<form id="content-bulk" method="post" action="/admin/content/bulk" class="content-bulk">
+				<input type="hidden" name="csrf" value={ csrf }/>
+				<input type="hidden" name="kind" value={ view.Kind }/>
+				<span data-selection-count aria-live="polite">{ i18n.T(ctx,"Выбрано: 0") }</span>
+				if view.Trash {
+					@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"name": "action", "value": "restore", "data-bulk-action": true, "disabled": true}}) {
+						{ i18n.T(ctx,"Восстановить выбранное ") }
+					}
+					@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"name": "action", "value": "delete", "data-bulk-action": true, "disabled": true}}) {
+						{ i18n.T(ctx,"Удалить навсегда ") }
+					}
+				} else {
+					@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"name": "action", "value": "trash", "data-bulk-action": true, "disabled": true}}) {
+						{ i18n.T(ctx,"В корзину ") }
+					}
+				}
+				<span class="text-muted-foreground text-xs">{ i18n.T(ctx,"Выбор на текущей странице") }</span>
+			</form>
+			<div class="content-table">@PageTable(pages, csrf)</div>
+		}
+		if view.Page>1 || view.Total>store.ContentPageSize {
+			<nav class="content-pagination" aria-label={ i18n.T(ctx, "Страницы списка") }>
+				<span>
+					if len(pages)>0 {
+						{ strconv.Itoa((view.Page-1)*store.ContentPageSize+1)+"–"+strconv.Itoa(min(view.Page*store.ContentPageSize,view.Total))+i18n.T(ctx," из ")+strconv.Itoa(view.Total) }
+					} else {
+						{ i18n.T(ctx,"Нет результатов") }
+					}
+				</span>
+				<div class="flex gap-2">
+					if view.Page>1 {
+						@button.Button(button.Props{Href: contentListURL(view, view.Page-1), Variant: button.VariantOutline, Size: button.SizeSm}) {
+							@icon.ArrowLeft()<span>{ i18n.T(ctx,"Назад ") }</span>
+						}
+					}
+					if view.Page*store.ContentPageSize<view.Total {
+						@button.Button(button.Props{Href: contentListURL(view, view.Page+1), Variant: button.VariantOutline, Size: button.SizeSm}) {
+							{ i18n.T(ctx,"Далее") } @icon.ArrowRight()
+						}
+					}
+				</div>
+			</nav>
+		}
+	}
+}
+
+templ EmptyPages(kind string) {
+	<section class="empty-state">
+		<span class="empty-icon">@icon.FileText(icon.Props{Class: "size-7"})</span>
+		<h2>{ contentLabel(kind, i18n.T(ctx,"Начните с первой страницы"), i18n.T(ctx,"Напишите первую запись")) }</h2>
+		<p>{ i18n.T(ctx,"Расскажите о себе, своей компании или проекте.") }<br/>{ i18n.T(ctx,"Черновик будет виден только вам.") }</p>
+	</section>
+}
+
+templ PageTable(pages []store.Page, csrf string, timezone ...string) {
+	@table.Table() {
+		@table.Caption(table.CaptionProps{Class: "sr-only"}) {
+			{ i18n.T(ctx,"Материалы сайта ") }
+		}
+		@table.Header() {
+			@table.Row() {
+				if len(timezone)==0 {
+					@table.Head(table.HeadProps{Class: "content-selection"}) {
+						<input type="checkbox" data-select-all aria-label={ i18n.T(ctx, "Выбрать все материалы на этой странице") }/>
+					}
+				}
+				@table.Head(table.HeadProps{Class: "content-title-head"}) {
+					{ i18n.T(ctx,"Название ") }
+				}
+				if len(timezone)>0 {
+					@table.Head(table.HeadProps{Class: "hidden md:table-cell"}) {
+						{ i18n.T(ctx,"Тип") }
+					}
+				}
+				@table.Head() {
+					{ i18n.T(ctx,"Статус ") }
+				} @table.Head(table.HeadProps{Class: "hidden sm:table-cell"}) {
+	{ i18n.T(ctx,"Изменено ") }
+} @table.Head(table.HeadProps{Class: "text-right"}) {
+	<span class="sr-only">{ i18n.T(ctx,"Действия") }</span>
+}
+			}
+		}
+		@table.Body() {
+			for _,p:=range pages {
+				@table.Row() {
+					if len(timezone)==0 {
+						@table.Cell(table.CellProps{Class: "content-selection"}) {
+							<input type="checkbox" disabled?={ !service.CanPublish(ctx)&&p.Published } name="selection" form="content-bulk" value={ strconv.FormatInt(p.ID, 10) + ":" + strconv.FormatInt(p.Version, 10) } aria-label={ i18n.T(ctx, "Выбрать: ") + p.Title }/>
+						}
+					}
+					@table.Cell() {
+						<div class="page-cell">
+							<span class="document-icon">
+								if p.Kind=="post" {
+									@icon.Icon("newspaper")(icon.Props{Class: "size-4"})
+								} else {
+									@icon.FileText(icon.Props{Class: "size-4"})
+								}
+							</span>
+							<div class="page-identity"><a class="page-title" href={ templ.SafeURL("/admin/pages/" + strconv.FormatInt(p.ID, 10) + "/edit") }>{ p.Title }</a><span class="page-path" title={ "/" + p.Slug }>{ "/"+p.Slug }</span></div>
+						</div>
+					}
+					if len(timezone)>0 {
+						@table.Cell(table.CellProps{Class: "hidden text-muted-foreground md:table-cell"}) {
+							{ contentLabel(p.Kind,i18n.T(ctx,"Страница"),i18n.T(ctx,"Запись")) }
+						}
+					}
+					@table.Cell() {
+						if p.ScheduledAt>0 {
+							@badge.Badge(badge.Props{Variant: badge.VariantOutline}) {
+								if len(timezone)>0 {
+									{ i18n.T(ctx,"Запланировано") }
+								} else {
+									{ i18n.T(ctx,"Запланировано · ")+contentDate(p.ScheduledAt) }
+								}
+							}
+						} else if p.Published {
+							@badge.Badge(badge.Props{Variant: badge.VariantOutline, Class: "gp-published-badge"}) {
+								@icon.Check(icon.Props{Class: "size-3"})<span>{ i18n.T(ctx,"Опубликовано ") }</span>
+							}
+						} else {
+							@badge.Badge(badge.Props{Variant: badge.VariantSecondary, Class: "text-muted-foreground"}) {
+								<span class="size-1.5 rounded-full bg-current opacity-50"></span>{ i18n.T(ctx,"Черновик ") }
+							}
+						}
+					}
+					@table.Cell(table.CellProps{Class: "hidden text-muted-foreground sm:table-cell"}) {
+						{ tableContentDate(p.UpdatedAt,timezone...) }
+					}
+					@table.Cell(table.CellProps{Class: "text-right"}) {
+						<div class="content-row-actions">
+							@button.Button(button.Props{Href: "/admin/pages/" + strconv.FormatInt(p.ID, 10) + "/edit", Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Редактировать: ") + p.Title, "title": i18n.T(ctx, "Редактировать")}}) {
+								@icon.PenLine()
+							}
+							if p.TrashedAt>0 {
+								@ContentAction(p, csrf, "restore", i18n.T(ctx, "Восстановить"))
+								@ContentAction(p, csrf, "delete", i18n.T(ctx, "Удалить навсегда"))
+							} else if service.CanPublish(ctx)||!p.Published {
+								@ContentAction(p, csrf, "trash", i18n.T(ctx, "В корзину"))
+							}
+						</div>
+					}
+				}
+			}
+		}
+	}
+}
+
+templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total int, revisions []store.Revision, terms []store.Term, parents,templates []selectcomp.ItemData, timezone, message string, failed, scheduleFailed bool) {
+	@AdminLayout(site, contentLabel(p.Kind, i18n.T(ctx, "Редактирование страницы"), i18n.T(ctx, "Редактирование записи")), csrf) {
+		if p.TrashedAt>0 {
+			<div class="editor-restore">@ContentAction(p, csrf, "restore", i18n.T(ctx, "Восстановить из корзины"))</div>
+		}
+ if scheduleFailed {
+  <div class="notice notice-error" role="status">{ i18n.T(ctx,"Публикация по расписанию не выполнена. Проверьте родительскую страницу и адрес, затем назначьте время заново. Черновик сохранён.") }</div>
+ }
+
+		if message!="" {
+			<div class={ "notice",templ.KV("notice-error",failed) } role="status" tabindex="-1" data-notice>
+				{ i18n.T(ctx, message) }
+				if failed && p.ID>0 {
+					<a class="block underline" href={ templ.SafeURL("/admin/pages/" + strconv.FormatInt(p.ID, 10) + "/edit") } target="_blank" rel="noopener">{ i18n.T(ctx,"Открыть актуальную версию") } @icon.ArrowUpRight(icon.Props{Class: "inline size-3.5"})</a>
+				}
+			</div>
+		}
+		<noscript><div class="notice notice-error">{ i18n.T(ctx,"Для редактирования текста включите JavaScript.") }</div></noscript>
+		<form id="page-form" method="post" action="/admin/pages/save" class="editor-grid" data-page-editor data-failed={ strconv.FormatBool(failed) } data-readonly={ strconv.FormatBool(p.TrashedAt > 0) }>
+			<input type="hidden" name="csrf" value={ csrf }/>
+			<input type="hidden" name="kind" value={ p.Kind }/>
+			<input type="hidden" name="id" value={ strconv.FormatInt(p.ID, 10) }/>
+			<input type="hidden" name="version" value={ strconv.FormatInt(p.Version, 10) }/>
+			<textarea name="document" data-document hidden>{ p.Document }</textarea>
+			<header class="editor-commandbar">
+				<div class="editor-commandbar-context">
+					@sidebar.Trigger(sidebar.TriggerProps{Target: "gopress-sidebar", Class: "gp-sidebar-trigger", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Переключить навигацию")}})
+					<a class="editor-section-link" href={ templ.SafeURL(contentPath(p.Kind)) }>{ contentLabel(p.Kind,i18n.T(ctx,"Страницы"),i18n.T(ctx,"Записи")) }</a>
+					@icon.ChevronRight(icon.Props{Class: "size-3.5 text-muted-foreground"})
+					<span class="editor-kind">
+						if p.ID==0 {
+							{ contentLabel(p.Kind,i18n.T(ctx,"Новая страница"),i18n.T(ctx,"Новая запись")) }
+						} else {
+							{ contentLabel(p.Kind,i18n.T(ctx,"Страница"),i18n.T(ctx,"Запись")) }
+						}
+					</span>
+					<span id="editor-status" role="status" class="editor-save-status">{ i18n.T(ctx,"Редактор загружается…") }</span>
+					<span id="admin-nav-status" role="status" class="editor-request-status"></span>
+				</div>
+				<div class="editor-commandbar-actions">
+					@button.Button(button.Props{Href: contentPath(p.Kind), Variant: button.VariantGhost, Size: button.SizeSm, Attributes: templ.Attributes{"data-editor-cancel": true}}) {
+						@icon.X()<span>{ i18n.T(ctx,"Отменить") }</span>
+					}
+					@button.Button(button.Props{Href: "/admin/pages/" + strconv.FormatInt(p.ID, 10) + "/preview", Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"data-saved-preview": true, "hidden": p.ID == 0, "target": "_blank", "rel": "noopener"}}) {
+						@icon.Eye()<span>{ i18n.T(ctx,"Предпросмотр") }</span>
+					}
+					if p.TrashedAt==0 {
+						<div class="editor-publish-actions">
+							@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm, Disabled: true, Attributes: templ.Attributes{"name": "intent", "value": "save", "data-editor-submit": true}}) {
+								@icon.Save()<span>{ i18n.T(ctx,"Сохранить") }</span>
+							}
+							if service.CanPublish(ctx) {
+@button.Button(button.Props{Type: button.TypeSubmit, Size: button.SizeSm, Disabled: true, Attributes: templ.Attributes{"name": "intent", "value": "publish", "data-editor-submit": true}}) {
+								@icon.Send()
+								if p.Published {
+									{ i18n.T(ctx,"Обновить") }
+								} else {
+									{ i18n.T(ctx,"Опубликовать") }
+								}
+							}
+}
+
+						</div>
+					}
+				</div>
+			</header>
+			<fieldset class="contents" data-editor-fields disabled?={ p.TrashedAt>0 }>
+				<legend class="sr-only">{ i18n.T(ctx,"Редактирование материала") }</legend>
+				<section class="editor-main" aria-label={ i18n.T(ctx, "Заголовок и текст") }>
+					<label class="sr-only" for="page-title">{ i18n.T(ctx,"Заголовок") }</label>
+					@input.Input(input.Props{ID: "page-title", Name: "title", Value: p.Title, Required: true, Placeholder: contentLabel(p.Kind, i18n.T(ctx, "Заголовок страницы"), i18n.T(ctx, "Заголовок записи")), Class: "editor-title", Attributes: templ.Attributes{"maxlength": "200", "autocomplete": "off"}})
+					<div class="editor-permalink">
+						<label for="page-slug">{ i18n.T(ctx,"Адрес:") }</label>
+						<div class="slug-field"><span>/</span>@input.Input(input.Props{ID: "page-slug", Name: "slug", Value: pageLeaf(p.Slug), Required: true, Placeholder: "adres-materiala", Attributes: templ.Attributes{"maxlength": "120", "pattern": "[a-z0-9]+(-[a-z0-9]+)*", "autocomplete": "off", "aria-describedby": "slug-help"}})</div>
+						<span id="slug-help" class="sr-only">{ i18n.T(ctx,"Латинские буквы в нижнем регистре, цифры и дефисы.") }</span>
+					</div>
+					@card.Card(card.Props{Class: "editor-document"}) {
+						@EditorToolbar()
+						<fieldset class="editor-link-fields" data-link-panel hidden>
+							<legend>{ i18n.T(ctx,"Ссылка") }</legend>
+							<label class="sr-only" for="link-url">{ i18n.T(ctx,"Адрес ссылки") }</label>
+							@input.Input(input.Props{ID: "link-url", Placeholder: i18n.T(ctx, "https://example.com или /contacts"), Attributes: templ.Attributes{"data-link-url": true, "maxlength": "2048"}})
+							@button.Button(button.Props{Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"data-link-apply": true}}) {
+								{ i18n.T(ctx,"Применить ") }
+							}
+							@button.Button(button.Props{Variant: button.VariantGhost, Size: button.SizeSm, Attributes: templ.Attributes{"data-link-remove": true}}) {
+								{ i18n.T(ctx,"Убрать ссылку ") }
+							}
+						</fieldset>
+						<fieldset class="editor-link-fields" data-search-panel hidden>
+							<legend>{ i18n.T(ctx,"Поиск в тексте") }</legend>
+							<label class="sr-only" for="editor-search">{ i18n.T(ctx,"Найти в тексте") }</label>
+							@input.Input(input.Props{ID: "editor-search", Type: "search", Placeholder: i18n.T(ctx, "Найти…"), Attributes: templ.Attributes{"data-editor-search": true, "maxlength": "256"}})
+							@button.Button(button.Props{Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"data-search-next": true}}) {
+								{ i18n.T(ctx,"Найти далее ") }
+							}
+						</fieldset>
+						<div id="rich-editor" class="editor-content" aria-label={ i18n.T(ctx, "Редактор текста") }></div>
+					}
+				</section>
+				<aside class="editor-settings" aria-label={ i18n.T(ctx, "Настройки материала") }>
+ if p.Kind!="post" {
+  @card.Card(card.Props{Class:"editor-panel"}) {
+   <details open>
+    @EditorPanelSummary(i18n.T(ctx,"Настройки страницы"),icon.FileText)
+    <div class="editor-panel-body">
+     <label>{ i18n.T(ctx,"Родительская страница") }
+      @AdminSelect("page-parent","parent_id",strconv.FormatInt(p.ParentID,10),i18n.T(ctx,"Родительская страница"),parents,nil)
+     </label>
+     <label>{ i18n.T(ctx,"Порядок") }
+      @input.Input(input.Props{Name:"order",Type:"number",Value:strconv.Itoa(p.Order),Attributes:templ.Attributes{"min":"-100000","max":"100000"}})
+     </label>
+     <label>{ i18n.T(ctx,"Шаблон страницы") }
+      @AdminSelect("page-template","template",p.Template,i18n.T(ctx,"Шаблон страницы"),templates,nil)
+     </label>
+     <p class="field-help">{ i18n.T(ctx,"Изменения пути и порядка применяются после публикации. Старые опубликованные адреса перенаправляются на новые вместе с дочерними страницами.") }</p>
+    </div>
+   </details>
+  }
+ }
+
+					<h2 class="editor-inspector-title">{ i18n.T(ctx,"Настройки") }</h2>
+					@card.Card(card.Props{Class: "editor-panel editor-publish"}) {
+						@card.Header() {
+							@card.Title() {
+								<h2>{ i18n.T(ctx,"Публикация") }</h2>
+							}
+						}
+						@card.Content() {
+							<dl class="editor-facts">
+								<div>
+									<dt>{ i18n.T(ctx,"Статус") }</dt>
+									<dd>
+										if p.TrashedAt>0 {
+											{ i18n.T(ctx,"В корзине") }
+										} else if p.Published {
+											{ i18n.T(ctx,"Опубликовано") }
+										} else {
+											{ i18n.T(ctx,"Черновик") }
+										}
+									</dd>
+								</div>
+								if p.PublishedAt>0 {
+									<div><dt>{ i18n.T(ctx,"Опубликовано") }</dt><dd>{ contentDate(p.PublishedAt) }</dd></div>
+								}
+							</dl>
+							if service.CanPublish(ctx) {
+<details class="editor-schedule" data-schedule-controls hidden?={ p.ID==0||p.TrashedAt>0 } open?={ p.ScheduledAt>0 }>
+								<summary>{ i18n.T(ctx,"Публикация по расписанию") }</summary>
+								<div class="schedule-controls">
+									<label for="publish-at" class="field-help">{ timezone }</label>
+									@input.Input(input.Props{ID: "publish-at", Type: "datetime-local", Name: "publish_at", Form: "schedule-form", Required: true, Value: scheduleValue(p.ScheduledAt, timezone)})
+									@button.Button(button.Props{Type: button.TypeSubmit, Form: "schedule-form", Variant: button.VariantOutline, Size: button.SizeSm, Class: "w-full"}) {
+										{ i18n.T(ctx,"Запланировать ") }
+									}
+									if p.ScheduledAt>0 {
+										<p class="field-help">{ i18n.T(ctx,"Версия v")+strconv.FormatInt(p.ScheduledVersion,10)+" · "+contentDate(p.ScheduledAt) }</p>
+										<p class="field-help">{ i18n.T(ctx,"Последующие правки останутся в черновике.") }</p>
+										@button.Button(button.Props{Type: button.TypeSubmit, Form: "content-state-form", Variant: button.VariantGhost, Size: button.SizeSm, Attributes: templ.Attributes{"name": "action", "value": "cancel_schedule"}}) {
+											{ i18n.T(ctx,"Отменить расписание ") }
+										}
+									}
+								</div>
+							</details>
+}
+
+							if p.PublishedSlug!="" {
+								<a class="preview-link" href={ templ.SafeURL("/" + p.PublishedSlug) } target="_blank" rel="noopener">{ i18n.T(ctx,"Открыть на сайте") } @icon.ArrowUpRight(icon.Props{Class: "size-3.5"})</a>
+							}
+						}
+						if p.ID>0 && p.TrashedAt==0 && (service.CanPublish(ctx)||!p.Published) {
+							@card.Footer(card.FooterProps{Class: "editor-publish-footer"}) {
+								if p.Published {
+									@button.Button(button.Props{Type: button.TypeSubmit, Form: "content-state-form", Variant: button.VariantGhost, Size: button.SizeSm, Attributes: templ.Attributes{"name": "action", "value": "unpublish"}}) {
+										{ i18n.T(ctx,"Снять с публикации ") }
+									}
+								}
+								@button.Button(button.Props{Type: button.TypeSubmit, Form: "content-state-form", Variant: button.VariantGhost, Size: button.SizeSm, Class: "editor-trash", Attributes: templ.Attributes{"name": "action", "value": "trash"}}) {
+									{ i18n.T(ctx,"В корзину ") }
+								}
+							}
+						}
+					}
+					if p.Kind=="post" {
+						@card.Card(card.Props{Class: "editor-panel"}) {
+							<details open?={ len(p.TermIDs)>0 }>
+								@EditorPanelSummary(i18n.T(ctx, "Категории и теги"), icon.Icon("tags"))
+								<div class="editor-panel-body">
+									for _,kind:=range []string{"category","tag"} {
+										<fieldset class="taxonomy-options">
+											<legend>{ i18n.T(ctx, termKind(kind)) }</legend>
+											for _,term:=range terms {
+												if term.Kind==kind {
+													<label><input type="checkbox" name="term_ids" value={ strconv.FormatInt(term.ID, 10) } checked?={ selectedTerm(p.TermIDs,term.ID) }/><span>{ term.Name }</span></label>
+												}
+											}
+										</fieldset>
+									}
+									<a class="preview-link" href="/admin/posts/terms">{ i18n.T(ctx,"Управлять категориями и тегами") } @icon.ArrowRight(icon.Props{Class: "size-3.5"})</a>
+								</div>
+							</details>
+						}
+					}
+					@card.Card(card.Props{Class: "editor-panel"}) {
+						<details data-image-panel>
+							@EditorPanelSummary(i18n.T(ctx, "Обложка"), icon.Image)
+							<div class="editor-panel-body">
+								<label class="upload-zone" for="image-upload">@icon.Image(icon.Props{Class: "size-4"})<strong>{ i18n.T(ctx,"Загрузить изображение") }</strong></label>
+								@input.Input(input.Props{ID: "image-upload", Type: "file", Accept: "image/png,image/jpeg", Class: "sr-only", Attributes: templ.Attributes{"data-image-upload": true, "aria-describedby": "upload-help"}})
+								<p id="upload-help" class="field-help">{ i18n.T(ctx,"PNG/JPEG · до 8 MiB / 16 Мп") }</p>
+								<p id="upload-status" class="text-xs" role="status"></p>
+								<div id="media-picker" hx-select="unset" hx-get={ "/admin/media/choices?selected=" + p.Cover } hx-trigger="media:refresh" hx-swap="innerHTML">@MediaPicker(files, total, 1, "", p.Cover)</div>
+								<details class="editor-image-options">
+									<summary>{ i18n.T(ctx,"Описание и вставка в текст") }</summary>
+									<div class="editor-panel-body">
+										<div class="field"><label for="image-alt">{ i18n.T(ctx,"Описание (alt)") }</label>@input.Input(input.Props{ID: "image-alt", Attributes: templ.Attributes{"data-image-alt": true, "maxlength": "2000"}})</div>
+										<div class="field"><label for="image-caption">{ i18n.T(ctx,"Подпись") }</label>@input.Input(input.Props{ID: "image-caption", Attributes: templ.Attributes{"data-image-caption": true, "maxlength": "2000"}})</div>
+										@button.Button(button.Props{Variant: button.VariantOutline, Size: button.SizeSm, Class: "w-full", Attributes: templ.Attributes{"data-insert-image": true}}) {
+											{ i18n.T(ctx,"Вставить выбранное в текст ") }
+										}
+									</div>
+								</details>
+							</div>
+						</details>
+					}
+					@EditorSEO(p)
+				</aside>
+			</fieldset>
+		</form>
+		<form id="schedule-form" hidden method="post" action={ templ.SafeURL("/admin/pages/" + strconv.FormatInt(p.ID, 10) + "/schedule") }>
+			<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="version" value={ strconv.FormatInt(p.Version, 10) }/>
+		</form>
+		<form id="content-state-form" hidden method="post" action={ templ.SafeURL("/admin/pages/" + strconv.FormatInt(p.ID, 10) + "/state") }>
+			<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="version" value={ strconv.FormatInt(p.Version, 10) }/>
+		</form>
+		if p.ID>0 {
+			<section class="editor-history">
+				<details class="content-revisions">
+					<summary>{ i18n.T(ctx,"История изменений · последние 50 версий") }</summary>
+					<div class="content-dates"><span>{ i18n.T(ctx,"Создан: ")+contentDate(p.CreatedAt) }</span><span>{ i18n.T(ctx,"Изменён: ")+contentDate(p.UpdatedAt) }</span></div>
+					for _,revision:=range revisions {
+						<div class="revision-row">
+							<div><strong>{ "v"+strconv.FormatInt(revision.Version,10)+" · "+revision.Title }</strong><span>{ contentDate(revision.CreatedAt) }</span></div>
+							<a href={ templ.SafeURL("/admin/pages/" + strconv.FormatInt(p.ID, 10) + "/revisions/" + strconv.FormatInt(revision.Version, 10)) } target="_blank" rel="noopener">{ i18n.T(ctx,"Просмотр") } @icon.ArrowUpRight(icon.Props{Class: "inline size-3.5"})</a>
+							if p.TrashedAt==0 && revision.Version!=p.Version {
+								<form method="post" action={ templ.SafeURL("/admin/pages/" + strconv.FormatInt(p.ID, 10) + "/revisions/" + strconv.FormatInt(revision.Version, 10) + "/restore") }>
+									<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="version" value={ strconv.FormatInt(p.Version, 10) }/>
+									@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm}) {
+										{ i18n.T(ctx,"В черновик ") }
+									}
+								</form>
+							}
+						</div>
+					}
+				</details>
+			</section>
+		}
+	}
+}
+
+templ ContentAction(p store.Page, csrf, action, label string) {
+	<form method="post" action={ templ.SafeURL("/admin/pages/" + strconv.FormatInt(p.ID, 10) + "/state") }>
+		<input type="hidden" name="csrf" value={ csrf }/>
+		<input type="hidden" name="version" value={ strconv.FormatInt(p.Version, 10) }/>
+		<input type="hidden" name="action" value={ action }/>
+		@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Size: button.SizeSm, Class: "content-state-action", Attributes: templ.Attributes{"aria-label": label + ": " + p.Title, "title": label}}) {
+			if action=="restore" {
+				@icon.Icon("rotate-ccw")(icon.Props{Class: "size-4"})
+			} else {
+				@icon.Icon("trash-2")(icon.Props{Class: "size-4"})
+			}
+			<span>{ i18n.T(ctx, label) }</span>
+		}
+	</form>
+}
+
+templ MediaFileChoices(files []store.MediaFile, selected string) {
+	<fieldset class="space-y-3">
+		<legend class="sr-only">{ i18n.T(ctx,"Выбор обложки") }</legend>
+		<label class="media-none"><input type="radio" name="cover" value="" form="page-form" checked?={ selected=="" }/> { i18n.T(ctx,"Без обложки") }</label>
+		<div class="media-grid">
+			for _,file:=range files {
+				<div class="media-option"><label class="media-choice"><input type="radio" name="cover" value={ file.Name } data-media-alt={ file.Alt } data-media-caption={ file.Caption } form="page-form" checked?={ selected==file.Name } aria-label={ i18n.T(ctx, "Выбрать ") + mediaTitle(file) }/><img src={ "/uploads/" + file.Name } alt={ file.Alt } title={ mediaTitle(file) } loading="lazy"/><span class="sr-only">{ mediaTitle(file) }</span></label><button type="button" class="media-inline-insert" data-library-insert={ file.Name } data-media-alt={ file.Alt } data-media-caption={ file.Caption }>{ i18n.T(ctx,"В текст") }</button></div>
+			}
+		</div>
+	</fieldset>
+}

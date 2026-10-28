@@ -1,0 +1,4 @@
+<footer class="minimal-footer">
+{{if .FooterMenu}}<nav class="minimal-footer-nav" aria-label="Навигация в подвале">{{template "minimal-menu" .FooterMenu}}</nav>{{end}}
+<div class="minimal-footer-bottom"><span>© {{.Year}} {{.Site.Title}}</span>{{if .SEO.RSS}}<a href="/rss.xml">RSS {{template "minimal-arrow"}}</a>{{end}}<span>Создано на <strong>GoPress</strong></span></div>
+</footer>

@@ -1,0 +1,6 @@
+{{if or .Pagination.PreviousURL .Pagination.NextURL}}
+<nav class="minimal-pagination" aria-label="Страницы записей">
+{{if .Pagination.PreviousURL}}<a href="{{.Pagination.PreviousURL}}#entries"><span aria-hidden="true">←</span> Назад</a>{{else}}<span></span>{{end}}
+<span>{{.Pagination.Current}} <span class="minimal-divider">/</span> {{.Pagination.TotalPages}}</span>
+{{if .Pagination.NextURL}}<a href="{{.Pagination.NextURL}}#entries">Далее {{template "minimal-arrow"}}</a>{{else}}<span></span>{{end}}
+</nav>{{end}}

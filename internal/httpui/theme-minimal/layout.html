@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+{{template "seo" .}}
+<link rel="stylesheet" href="/assets/public-minimal.css">
+</head>
+<body data-theme="{{.Appearance.Theme}}">
+<a class="minimal-skip" href="#content">К содержимому</a>
+{{if .Preview}}<div class="minimal-preview" role="status">Предпросмотр · эта версия видна только вам</div>{{end}}
+<div class="minimal-shell">
+{{template "header" .}}
+<div class="minimal-content">
+<main id="content">{{template "body" .}}</main>
+{{template "footer" .}}
+</div>
+</div>
+</body>
+</html>

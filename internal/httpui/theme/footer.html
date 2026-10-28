@@ -1,0 +1,12 @@
+{{if and (not .NotFound) (or .Home (eq .Kind "post"))}}
+<section class="reader-subscribe" aria-labelledby="rss-title">
+<div class="subscribe-symbol" aria-hidden="true">{{template "icon-rss"}}</div>
+<div><p class="eyebrow">Продолжение следует</p><h2 id="rss-title">Хорошие истории стоит сохранять.</h2><p>Новые материалы в вашей RSS-ленте. Без писем и регистрации.</p></div>
+{{if .SEO.RSS}}<a class="primary-link" href="/rss.xml">Подписаться через RSS {{template "icon-arrow"}}</a>{{end}}
+</section>
+{{end}}
+<footer class="site-footer">
+<div class="footer-main"><a class="footer-wordmark" href="/">{{.Site.Title}}</a><p>{{if .Site.Description}}{{.Site.Description}}{{else}}Истории, идеи и внимание к тому, что нас окружает.{{end}}</p></div>
+{{if .FooterMenu}}<nav class="public-nav footer-nav" aria-label="Навигация в подвале">{{template "menu" .FooterMenu}}</nav>{{end}}
+<div class="footer-bottom"><span>© {{.Year}} {{.Site.Title}}</span><a href="/search">Найти в журнале</a><span class="powered-by">Создано на <strong>GoPress</strong></span></div>
+</footer>

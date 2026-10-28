@@ -1,0 +1,4 @@
+<section class="archive-heading"><p class="eyebrow">Архив журнала</p><h1>{{with .ActiveTerm}}{{.Name}}{{else}}Истории, к которым<br>можно вернуться.{{end}}</h1><p>Все публикации в одном месте. Выберите интересующую тему или продолжите знакомство с журналом.</p></section>
+<section id="journal" class="journal" aria-labelledby="journal-title">{{template "parts/filters" .}}
+{{if .Posts}}<div class="post-grid archive-grid">{{range .Feed}}{{template "parts/post-card" .}}{{end}}</div>{{else}}<div class="journal-empty"><h3>В этой рубрике пока тихо.</h3><p>Новые материалы появятся здесь после публикации.</p><a class="text-link" href="/#journal">Все записи {{template "icon-arrow"}}</a></div>{{end}}
+{{template "parts/pagination" .}}</section>

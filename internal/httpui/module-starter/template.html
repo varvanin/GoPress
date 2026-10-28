@@ -1,0 +1,7 @@
+<!-- Dynamic values are escaped automatically. Settings keys come from module.json. -->
+<div class="contact-card">
+  <span class="contact-card-eyebrow">{{.Settings.address}}</span>
+  <h2>{{.Settings.title}}</h2>
+  {{if .Settings.text}}<p>{{.Settings.text}}</p>{{end}}
+  {{if .Settings.link}}<a href="{{.Settings.link}}">{{.Settings.button}} <span aria-hidden="true">↗</span></a>{{end}}
+</div>

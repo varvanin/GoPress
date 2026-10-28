@@ -1,0 +1,137 @@
+package httpui
+
+import "gopress/internal/i18n"
+
+import "strconv"
+import "strings"
+import "gopress/internal/store"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/card"
+import "gopress/internal/ui/components/input"
+import "gopress/internal/ui/components/icon"
+
+templ AppearancePage(site, csrf string, value store.Appearance, themes []ThemeInfo, message string, failed bool) {
+	@AdminLayout(site, i18n.T(ctx, "Шаблоны"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, "Шаблоны"), len(themes)) {
+			@button.Button(button.Props{Href: "/admin/themes/upload", Size: button.SizeSm}) {
+				@icon.Plus(icon.Props{Class: "size-4"})<span>{ i18n.T(ctx,"Загрузить свой шаблон") }</span>
+			}
+			@button.Button(button.Props{Href: "/admin/themes/reference", Variant: button.VariantOutline, Size: button.SizeSm}) {
+				@icon.FileText(icon.Props{Class: "size-4"})<span>{ i18n.T(ctx,"Справочник") }</span>
+			}
+			@button.Button(button.Props{Href: "/admin/themes/starter.zip", Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"hx-boost": "false"}}) {
+				@icon.ArrowDown()<span>{ i18n.T(ctx,"ZIP-образец") }</span>
+			}
+		}
+		if message!="" {
+			<p class={ "notice",templ.KV("notice-error",failed) } role="status" data-notice tabindex="-1">{ i18n.T(ctx, message) }</p>
+		}
+		<p class="theme-current" role="status">
+			{ i18n.T(ctx,"Активный шаблон:") }
+			for _,theme:=range themes {
+				if theme.ID==value.Theme {
+					<strong>{ theme.Name }</strong>
+				}
+			}
+		</p>
+		<div class="theme-catalog">
+			for _,theme:=range themes {
+				<article class={ "theme-card",templ.KV("theme-card-active",theme.ID==value.Theme) } data-theme-id={ theme.ID } data-active={ strconv.FormatBool(theme.ID == value.Theme) }>
+					<a class="theme-thumbnail" href={ templ.SafeURL("/admin/themes/view?theme=" + theme.ID) } target="_blank" rel="noopener" hx-boost="false" aria-label={ i18n.T(ctx, "Предпросмотр: ") + theme.Name }>
+						<img src={ templ.SafeURL("/admin/themes/screenshot?theme=" + theme.ID) } alt={ i18n.T(ctx, "Превью шаблона «") + theme.Name + "»" } width="1280" height="800" loading="lazy"/>
+						<span class="theme-thumbnail-overlay">@icon.Eye(icon.Props{Class: "size-4"})<span>{ i18n.T(ctx,"Смотреть шаблон") }</span></span>
+					</a>
+					<div class="theme-card-info">
+						<div class="theme-card-title">
+							<h2>{ theme.Name }</h2>
+							if theme.ID==value.Theme {
+								<span class="theme-active-label">@icon.Check(icon.Props{Class: "size-3"})<span>{ i18n.T(ctx,"Активна") }</span></span>
+							}
+						</div>
+						<p>{ theme.Description }</p>
+						<span class="theme-meta">
+							{ theme.Author }
+							if theme.Version!="" {
+								<span>· { theme.Version }</span>
+							}
+						</span>
+					</div>
+					<div class="theme-card-actions">
+						if theme.ID!=value.Theme {
+							<form action="/admin/themes" method="post">
+								<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="scope" value="theme"/><input type="hidden" name="intent" value="activate"/><input type="hidden" name="version" value={ strconv.FormatInt(value.Version, 10) }/><input type="hidden" name="theme" value={ theme.ID }/>
+								@button.Button(button.Props{Type: button.TypeSubmit, Size: button.SizeSm}) {
+									{ i18n.T(ctx,"Активировать") }
+								}
+							</form>
+						} else {
+							@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantOutline, Size: button.SizeSm, Disabled: true, Class: "theme-current-button"}) {
+								@icon.Check(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Активна") }</span>
+							}
+						}
+						<div class="template-secondary-actions">
+							@button.Button(button.Props{Href: "/admin/themes/view?theme=" + theme.ID, Target: "_blank", Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"hx-boost": "false", "rel": "noopener", "aria-label": i18n.T(ctx, "Просмотр"), "title": i18n.T(ctx, "Просмотр")}}) {
+								@icon.Eye(icon.Props{Class: "size-4"})
+							}
+							@button.Button(button.Props{Href: templateEditorURL(theme.ID, "layout.html"), Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Редактор"), "title": i18n.T(ctx, "Редактор")}}) {
+								@icon.PenLine(icon.Props{Class: "size-4"})
+							}
+							if strings.HasPrefix(theme.ID,"theme:") && theme.ID!=value.Theme {
+								<form action="/admin/themes/delete" method="post" hx-confirm={ i18n.T(ctx, "Удалить шаблон «") + theme.Name + i18n.T(ctx, "»? Материалы сайта сохранятся.") }>
+									<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="theme" value={ theme.ID }/>
+									@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Удалить шаблон ") + theme.Name, "title": i18n.T(ctx, "Удалить шаблон")}}) {
+										@icon.Icon("trash-2")(icon.Props{Class: "size-4"})
+									}
+								</form>
+							}
+						</div>
+					</div>
+				</article>
+			}
+		</div>
+	}
+}
+
+
+templ EditorSEO(p store.Page) {
+	@card.Card(card.Props{Class: "editor-panel"}) {
+		<details>
+			@EditorPanelSummary(i18n.T(ctx, "SEO и поиск"), icon.Globe)
+			<div class="editor-panel-body">
+				<div class="field"><label for="seo-title">{ i18n.T(ctx,"SEO-заголовок") }</label>@input.Input(input.Props{ID: "seo-title", Name: "seo_title", Value: p.SEO.Title, Placeholder: p.Title, Attributes: templ.Attributes{"maxlength": "200"}})</div>
+				<div class="field"><label for="seo-description">{ i18n.T(ctx,"Описание") }</label><textarea id="seo-description" class="site-input" name="seo_description" rows="4" maxlength="500" placeholder={ i18n.T(ctx, "Кратко опишите материал") }>{ p.SEO.Description }</textarea></div>
+                <div class="field"><label for="seo-canonical">Canonical URL</label>@input.Input(input.Props{ID:"seo-canonical",Name:"seo_canonical",Type:"url",Value:p.SEO.Canonical,Placeholder:"https://example.com/page",Attributes:templ.Attributes{"maxlength":"2048"}})</div>
+                <div class="field"><label for="seo-social-title">{ i18n.T(ctx,"Заголовок для соцсетей") }</label>@input.Input(input.Props{ID:"seo-social-title",Name:"seo_social_title",Value:p.SEO.SocialTitle,Attributes:templ.Attributes{"maxlength":"200"}})</div>
+                <div class="field"><label for="seo-social-description">{ i18n.T(ctx,"Описание для соцсетей") }</label><textarea id="seo-social-description" class="site-input" name="seo_social_description" rows="3" maxlength="500">{ p.SEO.SocialDescription }</textarea></div>
+                <div class="field"><label for="seo-social-image">{ i18n.T(ctx,"Изображение для соцсетей") }</label>@input.Input(input.Props{ID:"seo-social-image",Name:"seo_social_image",Value:p.SEO.SocialImage,Placeholder:"/uploads/image.webp",Attributes:templ.Attributes{"maxlength":"2048"}})</div>
+                <label class="settings-checkbox"><input type="checkbox" name="seo_nofollow" value="1" checked?={ p.SEO.NoFollow }/><span>{ i18n.T(ctx,"Не переходить по ссылкам (nofollow)") }</span></label>
+				<label class="settings-checkbox"><input type="checkbox" name="noindex" value="1" checked?={ p.SEO.NoIndex }/><span>{ i18n.T(ctx,"Не индексировать этот материал") }</span></label>
+				<p class="field-help">{ i18n.T(ctx,"Без отдельных настроек используем заголовок и начало текста. SEO обновится на сайте после публикации.") }</p>
+			</div>
+		</details>
+	}
+}
+
+templ ThemeUploadPage(site, csrf, message string) {
+	@AdminLayout(site, i18n.T(ctx, "Шаблоны"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, "Загрузить свой шаблон"), -1) {
+			@button.Button(button.Props{Href: "/admin/themes", Variant: button.VariantOutline, Size: button.SizeSm}) {
+				{ i18n.T(ctx,"Назад") }
+			}
+		}
+		if message!="" {
+			<p class="notice notice-error" role="alert">{ i18n.T(ctx,message) }</p>
+		}
+		<div class="site-settings">
+			<section class="theme-upload-panel">
+				<form action="/admin/themes/upload" method="post" enctype="multipart/form-data" hx-encoding="multipart/form-data" class="theme-upload-form" data-change-form>
+					<input type="hidden" name="csrf" value={ csrf }/>
+					<div class="field"><label for="theme-zip">{ i18n.T(ctx,"Архив шаблона GoPress") }</label><input id="theme-zip" type="file" name="theme_zip" accept=".zip,application/zip" required class="site-input"/><p class="field-help">{ i18n.T(ctx,"theme.json, screenshot.png или screenshot.svg, HTML-шаблоны и папка assets. Установка не меняет активный шаблон.") }</p></div>
+					@button.Button(button.Props{Type: button.TypeSubmit, Size: button.SizeSm}) {
+						@icon.Plus()<span>{ i18n.T(ctx,"Установить") }</span>
+					}
+				</form>
+			</section>
+		</div>
+	}
+}

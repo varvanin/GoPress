@@ -1,0 +1,25 @@
+{
+  "name": "gopress-admin",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run build:css && npm run build:editor",
+    "build:css": "tailwindcss -i web/styles/admin.css -o internal/httpui/assets/admin.css --minify",
+    "build:editor": "node scripts/build-editor.mjs",
+    "test": "node --test web/js/*.test.js"
+  },
+  "dependencies": {
+    "@codemirror/lang-css": "6.3.1",
+    "@codemirror/lang-html": "6.4.12",
+    "@codemirror/lang-javascript": "6.2.5",
+    "@tiptap/core": "3.31.3",
+    "@tiptap/pm": "3.31.3",
+    "@tiptap/starter-kit": "3.31.3",
+    "codemirror": "6.0.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.3",
+    "esbuild": "0.25.10",
+    "tailwindcss": "4.3.3"
+  }
+}

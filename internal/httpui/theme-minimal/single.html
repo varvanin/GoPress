@@ -1,0 +1,7 @@
+<article class="minimal-article">
+<header class="minimal-article-heading"><a class="minimal-back" href="/#entries">← К записям</a><div class="minimal-article-meta">{{if .PublishedAt}}<time datetime="{{isoDate .PublishedAt}}">{{date .PublishedAt}}</time>{{else}}<span>Предпросмотр записи</span>{{end}}{{if .ReadingMinutes}}<span class="minimal-meta-dot" aria-hidden="true">·</span><span>{{.ReadingMinutes}} мин чтения</span>{{end}}</div><h1>{{.Title}}</h1>{{if .Description}}<p class="minimal-description">{{.Description}}</p>{{end}}</header>
+{{if .Cover}}<figure class="minimal-cover"><img src="{{cover .Slug .Cover}}" alt="" width="1440" height="960" fetchpriority="high" decoding="async"></figure>{{end}}
+<div class="minimal-reading article-content">{{.Body}}</div>
+<footer class="minimal-article-footer">{{if .PostTerms}}<nav class="minimal-tags" aria-label="Рубрики и метки">{{range .PostTerms}}<a href="/?term={{.ID}}#entries">{{if eq .Kind "tag"}}#{{end}}{{.Name}}</a>{{end}}</nav>{{end}}<div><span>Спасибо за внимание.</span><a class="minimal-text-link" href="/#entries">Все записи {{template "minimal-arrow"}}</a></div></footer>
+</article>
+{{if .Related}}<section class="minimal-more" aria-labelledby="minimal-more-title"><div class="minimal-section-heading"><h2 id="minimal-more-title">Продолжить чтение</h2></div>{{range .Related}}<article class="minimal-related"><time datetime="{{isoDate .PublishedAt}}">{{date .PublishedAt}}</time><h3><a href="/{{.Slug}}">{{.Title}} {{template "minimal-arrow"}}</a></h3></article>{{end}}</section>{{end}}
