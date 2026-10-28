@@ -10,6 +10,9 @@ import (
 )
 
 func reserveRoute(ctx context.Context, tx *sql.Tx, slug string, id int64) error {
+	if ReservedContentPath(slug) {
+		return ErrConflict
+	}
 	if _, err := tx.ExecContext(ctx, "INSERT INTO routes(slug,page_id) VALUES(?,?) ON CONFLICT(slug) DO NOTHING", slug, id); err != nil {
 		return err
 	}
@@ -21,6 +24,15 @@ func reserveRoute(ctx context.Context, tx *sql.Tx, slug string, id int64) error 
 		return ErrConflict
 	}
 	return nil
+}
+
+// ReservedContentPath also guards paths assembled from a parent during a transaction.
+func ReservedContentPath(slug string) bool {
+	switch strings.SplitN(slug, "/", 2)[0] {
+	case "admin", "api", "install", "login", "logout", "assets", "theme-assets", "module-assets", "uploads", "healthz", "readyz", "preview", "search", "forms", "forgot-password", "reset-password":
+		return true
+	}
+	return false
 }
 func pagePath(ctx context.Context, tx *sql.Tx, id, parent int64, slug, kind string) (string, error) {
 	if kind != "page" {

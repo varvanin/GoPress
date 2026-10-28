@@ -56,6 +56,22 @@ After rebuilding, stop the old process yourself and restart it with the same `--
 
 Restricted development environments may need an alternate writable `GOCACHE`, such as `/tmp/gopress-go-cache`. Such a cache is not part of the project or a normal installation requirement. Do not mistake offline dependency checks for a completed online vulnerability or checksum-database audit.
 
+## First end-to-end acceptance
+
+After `make release`, run the isolated live-process acceptance test:
+
+```sh
+node scripts/smoke.mjs
+node scripts/smoke.mjs --browser
+# Optional container acceptance, after building the image:
+docker build -t gopress:ci .
+node scripts/smoke.mjs --docker
+```
+
+The test uses temporary data and random credentials. It covers protected concurrent installation, sign-in, image upload, draft/authorized preview, publication, draft isolation, restart, offline CLI backup/verification and restoration into a separate directory. It launches the restored site, compares the published HTML and image bytes, checks the retained working revision and requires fresh sign-in after restoration. It also checks rejected uploads, CSRF, URL collisions, forms, search and maintenance. It never uses the working site's database.
+
+A free loopback TCP port is required. `--browser` additionally requires Chrome (override with `GOPRESS_BROWSER`) and checks real editor typing/autosave and mobile width; `--docker` requires Docker and the prebuilt image. The HTTP integration suite runs against temporary SQLite without listening sockets, but does not replace these live-process/browser checks. See [verified progress and limitations](docs/PROGRESS.md).
+
 ## Features
 
 ### Content and publishing

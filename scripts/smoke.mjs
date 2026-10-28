@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {spawn,spawnSync} from 'node:child_process';
-import {mkdtemp,mkdir,rm,writeFile} from 'node:fs/promises';
+import {mkdtemp,mkdir,readFile,rm,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createServer} from 'node:net';
@@ -10,57 +10,119 @@ import {once} from 'node:events';
 const args=new Set(process.argv.slice(2));
 for(const arg of args)assert(['--docker','--browser'].includes(arg),'Unknown argument: '+arg);
 const docker=args.has('--docker'),browserQA=args.has('--browser');
+// Reserve the port before creating fixture data, so a denied socket leaves no files behind.
+const reservation=createServer();
+await new Promise((resolve,reject)=>reservation.once('error',reject).listen(0,'127.0.0.1',resolve));
+const port=reservation.address().port;
+await new Promise(resolve=>reservation.close(resolve));
 const work=await mkdtemp(join(tmpdir(),'gopress-smoke-'));
-const reservation=createServer();await new Promise((resolve,reject)=>reservation.once('error',reject).listen(0,'127.0.0.1',resolve));
-const port=reservation.address().port;await new Promise(resolve=>reservation.close(resolve));
 const base='http://127.0.0.1:'+port;
 const password='smoke-'+randomBytes(16).toString('hex'),email='smoke@example.test';
-const container='gopress-smoke-'+randomBytes(6).toString('hex');
-let server,chrome,chromeSocket,logs='',token='';
+const container='gopress-smoke-'+randomBytes(6).toString('hex'),volume=container+'-data';
+const data=docker?'/data/site':join(work,'site');
+const snapshot=docker?'/data/backup':join(work,'backup');
+const restored=docker?'/data/restored':join(work,'restored');
+const environment={...process.env,GOPRESS_SMTP_HOST:'',GOPRESS_SMTP_FROM:'',GOPRESS_SMTP_USER:'',GOPRESS_SMTP_PASSWORD:'',GOPRESS_TRUSTED_PROXIES:''};
+let server,chrome,chromeSocket,logs='',token='',containerRunning=false;
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function until(check,description,timeout=15000){const end=Date.now()+timeout;let last;while(Date.now()<end){try{const result=await check();if(result)return result;}catch(error){last=error;}await delay(100);}throw new Error('Timed out: '+description+(last?' ('+last.message+')':''));}
+function cli(args,success=true){
+ const result=docker?spawnSync('docker',['run','--rm','--mount',`type=volume,source=${volume},target=/data`,'gopress:ci',...args],{encoding:'utf8',timeout:60000}):spawnSync('./bin/gopress',args,{encoding:'utf8',timeout:60000,env:environment});
+ assert(!result.error&&!result.signal,'CLI could not finish: '+args[0]);
+ if(success)assert.equal(result.status,0,result.stderr);else assert.notEqual(result.status,0,'CLI unexpectedly accepted: '+args[0]);
+ return result;
+}
+async function startSite(directory){
+ logs='';token='';
+ if(docker){
+  const result=spawnSync('docker',['run','--rm','-d','--name',container,'--mount',`type=volume,source=${volume},target=/data`,'-p',`127.0.0.1:${port}:8080`,'gopress:ci','serve','--data',directory,'--addr','0.0.0.0:8080'],{encoding:'utf8',timeout:30000});
+  assert.equal(result.status,0,result.stderr);containerRunning=true;
+ }else{
+  server=spawn('./bin/gopress',['serve','--data',directory,'--addr','127.0.0.1:'+port],{stdio:['ignore','ignore','pipe'],env:environment});
+  server.stderr.on('data',chunk=>{logs+=chunk.toString();const match=logs.match(/installation token[^:]*: ([a-f0-9]{64})/);if(match)token=match[1];});
+  server.on('error',error=>{logs+=error.message;});
+ }
+ await until(async()=>{if(server&&(server.exitCode!==null||server.signalCode!==null))throw new Error('Server exited');return (await fetch(base+'/readyz',{signal:AbortSignal.timeout(3000)})).ok;},'site readiness');
+ if(docker){const output=spawnSync('docker',['logs',container],{encoding:'utf8'});const match=(output.stdout+output.stderr).match(/installation token[^:]*: ([a-f0-9]{64})/);if(match)token=match[1];}
+}
+async function stopSite(){
+ if(docker&&containerRunning){
+  const result=spawnSync('docker',['stop','--time','20',container],{encoding:'utf8',timeout:30000});
+  assert.equal(result.status,0,result.stderr);containerRunning=false;
+ }else if(server){
+  const child=server;server=null;
+  if(child.exitCode!==null||child.signalCode!==null)return;
+  const exited=once(child,'exit');
+  const timer=setTimeout(()=>child.kill('SIGKILL'),15000);
+  try{child.kill('SIGTERM');const [code,signal]=await exited;assert.equal(code,0,'Server did not shut down cleanly: '+signal);}finally{clearTimeout(timer);}
+ }
+}
 class BrowserHTTP {
  cookies=new Map();
- async request(path,{method='GET',data,json}={}){
+ async request(path,{method='GET',data,json,raw,contentType='application/octet-stream',csrf=true}={}){
   const headers={Cookie:[...this.cookies].map(([name,value])=>name+'='+value).join('; ')};
-  if(method!=='GET')headers['X-CSRF-Token']=this.cookies.get('csrf')||'';
+  if(method!=='GET'&&csrf)headers['X-CSRF-Token']=this.cookies.get('csrf')||'';
   let body;
   if(json!==undefined){headers['Content-Type']='application/json';body=JSON.stringify(json);}
   else if(data){headers['Content-Type']='application/x-www-form-urlencoded';body=data.toString();}
-  const response=await fetch(base+path,{method,headers,body,redirect:'manual'});
+  else if(raw!==undefined){headers['Content-Type']=contentType;body=raw;}
+  const response=await fetch(base+path,{method,headers,body,redirect:'manual',signal:AbortSignal.timeout(10000)});
   for(const cookie of response.headers.getSetCookie()){const pair=cookie.split(';')[0];const index=pair.indexOf('=');this.cookies.set(pair.slice(0,index),pair.slice(index+1));}
-  return {status:response.status,location:response.headers.get('location'),body:await response.text(),headers:response.headers};
+  const bytes=Buffer.from(await response.arrayBuffer());
+  return {status:response.status,location:response.headers.get('location'),body:bytes.toString('utf8'),bytes,headers:response.headers};
  }
 }
 const field=(html,name)=>{const match=html.match(new RegExp('name="'+name+'"[^>]*value="([^"]*)"'));assert(match,'Missing field '+name);return match[1];};
 try{
- if(docker){
-  const run=spawnSync('docker',['run','--rm','-d','--name',container,'-p',`127.0.0.1:${port}:8080`,'gopress:ci'],{encoding:'utf8'});assert.equal(run.status,0,run.stderr);
- }else{
-  server=spawn('./bin/gopress',['serve','--data',join(work,'site'),'--addr','127.0.0.1:'+port],{stdio:['ignore','ignore','pipe'],env:{...process.env,GOPRESS_SMTP_HOST:'',GOPRESS_SMTP_FROM:'',GOPRESS_SMTP_USER:'',GOPRESS_SMTP_PASSWORD:'',GOPRESS_TRUSTED_PROXIES:''}});
-  server.stderr.on('data',chunk=>{logs+=chunk.toString();const match=logs.match(/installation token[^:]*: ([a-f0-9]{64})/);if(match)token=match[1];});
-  server.on('error',error=>{logs+=error.message;});
- }
- await until(async()=>{if(server?.exitCode!==null&&server?.exitCode!==undefined)throw new Error('Server exited');return (await fetch(base+'/healthz')).ok;},'server health');
- if(docker){const output=spawnSync('docker',['logs',container],{encoding:'utf8'});const match=(output.stdout+output.stderr).match(/installation token[^:]*: ([a-f0-9]{64})/);assert(match,'No installation token');token=match[1];}
+ if(docker){const result=spawnSync('docker',['volume','create',volume],{encoding:'utf8'});assert.equal(result.status,0,result.stderr);}
+ await startSite(data);
  await until(()=>token,'installation token');
- const admin=new BrowserHTTP();assert.equal((await admin.request('/install')).status,200);
- let response=await admin.request('/install',{method:'POST',data:new URLSearchParams({token,title:'Smoke site',base_url:base,timezone:'UTC',email,password})});assert.equal(response.status,303);
+ const admin=new BrowserHTTP(),anon=new BrowserHTTP();
+ assert.equal((await admin.request('/install')).status,200);
+ const installation=new URLSearchParams({token,title:'Smoke site',base_url:base,timezone:'UTC',email,password});
+ assert.equal((await admin.request('/install',{method:'POST',data:installation,csrf:false})).status,403);
+ const wrongToken=new URLSearchParams(installation);wrongToken.set('token','invalid');
+ assert.equal((await admin.request('/install',{method:'POST',data:wrongToken})).status,401);
+ const installed=await Promise.all([admin.request('/install',{method:'POST',data:installation}),admin.request('/install',{method:'POST',data:installation})]);
+ assert.deepEqual(installed.map(r=>r.status).sort(),[303,409],'installation was not atomic');
  assert.equal((await admin.request('/install')).status,409);
- await admin.request('/login');response=await admin.request('/login',{method:'POST',data:new URLSearchParams({email,password})});assert.equal(response.status,303);
+ await admin.request('/login');
+ let response=await admin.request('/login',{method:'POST',data:new URLSearchParams({email,password})});assert.equal(response.status,303);
  assert.equal((await admin.request('/admin')).status,200);
- const document=JSON.stringify({type:'doc',content:[{type:'paragraph',content:[{type:'text',text:'Smoke publication visible text'}]}]});
- response=await admin.request('/admin/pages',{method:'POST',json:{id:0,version:0,title:'Smoke page',slug:'smoke-page',kind:'page',document}});assert.equal(response.status,200,response.body);let page=JSON.parse(response.body);
+ const png=await readFile(new URL('./fixtures/smoke.png',import.meta.url));
+ assert.equal((await anon.request('/admin/media',{method:'POST',raw:png,contentType:'image/png'})).status,401);
+ assert.equal((await admin.request('/admin/media',{method:'POST',raw:png,contentType:'image/png',csrf:false})).status,403);
+ response=await admin.request('/admin/media',{method:'POST',raw:png,contentType:'image/png'});assert.equal(response.status,201,response.body);
+ const image=JSON.parse(response.body).name;
+ for(const raw of ['<svg onload="alert(1)"/>','<html>unsafe</html>',Buffer.alloc(8*1024*1024+1)])assert.equal((await admin.request('/admin/media',{method:'POST',raw,contentType:'image/png'})).status,400);
+ const publicImage=await anon.request('/uploads/'+image);assert.equal(publicImage.status,200);assert.equal(publicImage.headers.get('content-type'),'image/png');assert(publicImage.bytes.length>0);
+ const document=JSON.stringify({type:'doc',content:[{type:'paragraph',content:[{type:'text',text:'Smoke publication visible text'}]},{type:'image',attrs:{src:'/uploads/'+image,alt:'Smoke image',caption:'Smoke caption'}}]});
+ const newPage={id:0,version:0,title:'Smoke page',slug:'smoke-page',kind:'page',cover:image,document};
+ assert.equal((await anon.request('/admin/pages',{method:'POST',json:newPage})).status,401);
+ assert.equal((await admin.request('/admin/pages',{method:'POST',json:newPage,csrf:false})).status,403);
+ response=await admin.request('/admin/pages',{method:'POST',json:newPage});assert.equal(response.status,200,response.body);let page=JSON.parse(response.body);
+ assert.equal((await anon.request('/smoke-page')).status,404);
+ assert.equal((await anon.request(`/admin/pages/${page.id}/preview`)).status,401);
+ response=await admin.request(`/admin/pages/${page.id}/preview`);assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');assert(response.headers.get('x-robots-tag')?.includes('noindex'));assert(response.body.includes(image));
+ assert.equal((await admin.request('/admin/pages/'+page.id,{method:'POST',json:{...page,version:page.version-1}})).status,409);
+ for(const slug of ['smoke-page','admin','theme-assets','module-assets'])assert([400,409].includes((await admin.request('/admin/pages',{method:'POST',json:{...newPage,slug}})).status),'reserved or duplicate URL accepted');
  assert.equal((await admin.request(`/admin/pages/${page.id}/publish`,{method:'POST',json:{version:page.version}})).status,204);
- response=await admin.request('/smoke-page');assert.equal(response.status,200);assert(response.body.includes('Smoke publication visible text'));
- response=await admin.request('/search?q=Smoke');assert.equal(response.status,200);assert(response.body.includes('Smoke page'));
+ response=await anon.request('/smoke-page');assert.equal(response.status,200);assert(response.body.includes('Smoke publication visible text'));assert(response.body.includes(image));
+ const publicBody=response.body;
+ response=await anon.request('/search?q=Smoke');assert.equal(response.status,200);assert(response.body.includes('Smoke page'));
+ assert.equal((await anon.request('/missing-page')).status,404);
  page=JSON.parse((await admin.request('/admin/pages/'+page.id)).body);
- assert.equal((await admin.request('/admin/pages/'+page.id,{method:'POST',json:{...page,title:'PRIVATE DRAFT TITLE'}})).status,200);
- assert(!(await admin.request('/smoke-page')).body.includes('PRIVATE DRAFT TITLE'));
+ response=await admin.request('/admin/media',{method:'POST',raw:png,contentType:'image/png'});assert.equal(response.status,201);
+ const privateImage=JSON.parse(response.body).name;
+ const privateDocument=JSON.stringify({type:'doc',content:[{type:'paragraph',content:[{type:'text',text:'PRIVATE DRAFT BODY'}]},{type:'image',attrs:{src:'/uploads/'+privateImage,alt:'Private image',caption:'Private caption'}}]});
+ response=await admin.request('/admin/pages/'+page.id,{method:'POST',json:{...page,title:'PRIVATE DRAFT TITLE',slug:'private-smoke-page',document:privateDocument,cover:privateImage,seo:{title:'PRIVATE SEO TITLE',description:'PRIVATE SEO DESCRIPTION'}}});assert.equal(response.status,200,response.body);page=JSON.parse(response.body);
+ response=await anon.request('/smoke-page');assert.equal(response.body,publicBody,'draft changed public snapshot');assert(!response.body.includes(privateImage));
+ assert.equal((await anon.request('/private-smoke-page')).status,404);
+ assert(!(await anon.request('/search?q=PRIVATE')).body.includes('PRIVATE DRAFT'));
  const formData=new URLSearchParams({id:'0',version:'0',name:'Smoke contact',recipient:'owner@example.test',button:'Send',success:'Smoke submission saved',enabled:'true'});
  for(const [label,type] of [['Name','text'],['Email','email'],['Message','textarea']])for(const [key,value] of [['field_label',label],['field_type',type],['field_required','true'],['field_options','']])formData.append(key,value);
  response=await admin.request('/admin/forms/save',{method:'POST',data:formData});assert.equal(response.status,303,response.body);const formID=response.location.match(/forms\/(\d+)/)[1];
- const anon=new BrowserHTTP();const publicForm=await anon.request('/forms/'+formID);assert.equal(publicForm.status,200);
+ const publicForm=await anon.request('/forms/'+formID);assert.equal(publicForm.status,200);
  const submitted=new URLSearchParams({csrf:anon.cookies.get('csrf'),version:field(publicForm.body,'version'),submission_key:field(publicForm.body,'submission_key'),field_0:'Visitor',field_1:'visitor@example.test',field_2:'=CSV_FORMULA()'});
  for(let i=0;i<2;i++)assert.equal((await anon.request('/forms/'+formID,{method:'POST',data:submitted})).status,303);
  response=await admin.request(`/admin/forms/${formID}/entries`);assert.equal(response.status,200);assert.equal((response.body.match(/class="cn-card[^\"]*form-entry/g)||[]).length,1,'duplicate submission stored');
@@ -87,6 +149,11 @@ try{
   const navigate=async path=>{await send('Page.navigate',{url:base+path});await until(()=>evaluate('document.readyState==="complete" && location.pathname==='+JSON.stringify(path)),'page load');};
   await navigate(`/admin/pages/${page.id}/edit`);await until(()=>evaluate('!!document.querySelector(".tiptap[contenteditable=true],.prose-editor[contenteditable=true]")'),'Tiptap mount');
   assert(await evaluate('!!document.querySelector("[data-editor-command=bold]")'));
+  await evaluate('document.querySelector(".tiptap[contenteditable=true],.prose-editor[contenteditable=true]").focus()');
+  await send('Input.insertText',{text:'Browser acceptance edit. '});
+  await until(async()=>{const r=await admin.request('/admin/pages/'+page.id);return r.status===200&&JSON.parse(r.body).document.includes('Browser acceptance edit.');},'browser edit autosaved');
+  assert(!(await anon.request('/smoke-page')).body.includes('Browser acceptance edit.'),'browser edit leaked before publication');
+
   await navigate('/admin/forms/'+formID+'/edit');await until(()=>evaluate('document.querySelector("[data-form-preview]")?.children.length>0'),'form builder');
   const initial=await evaluate('document.querySelectorAll("[data-form-fields]>[data-form-field]").length');await evaluate('document.querySelector("[data-add-form-field]").click()');assert.equal(await evaluate('document.querySelectorAll("[data-form-fields]>[data-form-field]").length'),initial+1);
   await navigate('/admin/pages');await until(()=>evaluate('!!document.querySelector("[data-select-all]")'),'selection control');
@@ -96,10 +163,36 @@ try{
   await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),'mobile horizontal overflow');const mobile=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await writeFile('artifacts/browser-mobile.png',Buffer.from(mobile.data,'base64'));
   assert.deepEqual(exceptions,[],'browser JavaScript exceptions');await command('Browser.close');
  }
- console.log('PASS: clean install, authentication, publish/draft isolation, FTS search, form deduplication, CSV safety, backup and maintenance'+(browserQA?', editor, form builder and mobile browser QA':''));
+
+ const working=await admin.request('/admin/pages/'+page.id);assert.equal(working.status,200);
+ const workingSnapshot=JSON.parse(working.body);
+ cli(['backup','create','--data',data,'--output',snapshot],false);
+ await stopSite();
+ await startSite(data);
+ assert.equal(token,'','restart reopened installation');
+ assert.equal((await anon.request('/smoke-page')).body,publicBody,'restart changed publication');
+ response=await admin.request('/admin/pages/'+page.id);assert.equal(response.status,200);assert.deepEqual(JSON.parse(response.body),workingSnapshot,'restart lost working revision');
+ await stopSite();
+ cli(['backup','create','--data',data,'--output',snapshot]);
+ cli(['backup','verify','--source',snapshot]);
+ cli(['backup','restore','--source',snapshot,'--data',restored]);
+ cli(['backup','restore','--source',snapshot,'--data',restored],false);
+ await startSite(restored);
+ assert.equal(token,'','restore reopened installation');
+ response=await anon.request('/smoke-page');assert.equal(response.status,200);assert.equal(response.body,publicBody,'restored publication differs');
+ response=await anon.request('/uploads/'+image);assert.equal(response.status,200);assert.deepEqual(response.bytes,publicImage.bytes,'restored image differs');
+ assert.equal((await anon.request('/private-smoke-page')).status,404);
+ assert.equal((await admin.request('/admin/pages/'+page.id)).status,401,'restore kept old session');
+ await admin.request('/login');
+ response=await admin.request('/login',{method:'POST',data:new URLSearchParams({email,password})});assert.equal(response.status,303,'restored administrator cannot sign in');
+ response=await admin.request('/admin/pages/'+page.id);assert.equal(response.status,200);assert.deepEqual(JSON.parse(response.body),workingSnapshot,'restore lost working revision');
+ assert.equal((await admin.request('/logout',{method:'POST'})).status,303);
+ assert.equal((await admin.request('/admin/pages/'+page.id)).status,401);
+ console.log('PASS: protected concurrent install, sign-in, image upload, draft/preview, publish, restart, offline CLI backup/verify/restore and restored site launch; forms, search and maintenance'+(browserQA?'; browser editing/autosave and mobile layout':''));
 }finally{
  chromeSocket?.close();chrome?.kill('SIGTERM');
- if(server){server.kill('SIGTERM');await Promise.race([once(server,'exit'),delay(10000)]);if(server.exitCode===null)server.kill('SIGKILL');}
- if(docker)spawnSync('docker',['rm','-f',container],{stdio:'ignore'});
- await rm(work,{recursive:true,force:true});
+ try{await stopSite();}finally{
+  if(docker){spawnSync('docker',['rm','-f',container],{stdio:'ignore'});spawnSync('docker',['volume','rm',volume],{stdio:'ignore'});}
+  await rm(work,{recursive:true,force:true});
+ }
 }

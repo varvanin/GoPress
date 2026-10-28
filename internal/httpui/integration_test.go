@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"image"
-	"image/png"
 	"io"
 	"log/slog"
 	"net/http"
@@ -145,11 +143,11 @@ func TestFullBackendScenario(t *testing.T) {
 	if w.Header().Get("Cache-Control") != "no-store" || !strings.Contains(w.Header().Get("X-Robots-Tag"), "noindex") || strings.Contains(w.Body.String(), "<script>") {
 		t.Fatal("unsafe preview")
 	}
-	var imageBytes bytes.Buffer
-	if err := png.Encode(&imageBytes, image.NewRGBA(image.Rect(0, 0, 3, 3))); err != nil {
+	imageBytes, err := os.ReadFile("../../scripts/fixtures/smoke.png")
+	if err != nil {
 		t.Fatal(err)
 	}
-	w = b.request("POST", "/admin/media", imageBytes.String(), "image/png", true)
+	w = b.request("POST", "/admin/media", string(imageBytes), "image/png", true)
 	status(t, w, 201)
 	var media struct {
 		Name string `json:"name"`
@@ -191,7 +189,7 @@ func TestFullBackendScenario(t *testing.T) {
 		t.Fatal("draft leaked")
 	}
 	status(t, anon.request("GET", "/new-address", "", "", false), 404)
-	for _, slug := range []string{"hello", "new-address", "admin", "api", "uploads", "install", "Bad Slug", "../x"} {
+	for _, slug := range []string{"hello", "new-address", "admin", "api", "theme-assets", "module-assets", "uploads", "install", "Bad Slug", "../x"} {
 		q := store.Page{Title: "Collision", Slug: slug, Document: document}
 		raw, _ = json.Marshal(q)
 		w = b.request("POST", "/admin/pages", string(raw), "application/json", true)
@@ -203,6 +201,16 @@ func TestFullBackendScenario(t *testing.T) {
 	raw, _ = json.Marshal(p)
 	status(t, b.request("POST", fmt.Sprintf("/admin/pages/%d", p.ID), string(raw), "application/json", true), 400)
 	status(t, anon.request("GET", "/missing", "", "", false), 404)
+	publicBeforeBackup := anon.request("GET", "/hello", "", "", false).Body.String()
+	uploaded := anon.request("GET", "/uploads/"+media.Name, "", "", false)
+	status(t, uploaded, 200)
+	if uploaded.Header().Get("Content-Type") != "image/png" || len(uploaded.Body.Bytes()) == 0 {
+		t.Fatal("uploaded image was not served as PNG")
+	}
+	draftBeforeBackup, err := s.Page(p.ID)
+	if err != nil || draftBeforeBackup.Title != "PRIVATE DRAFT" || !strings.Contains(draftBeforeBackup.Document, "SECRET DRAFT") {
+		t.Fatal("working draft was lost", err)
+	}
 	snapshot := filepath.Join(t.TempDir(), "backup")
 	if err := backup.Create(dir, snapshot); err == nil {
 		t.Fatal("backup while server owns lock")
@@ -246,7 +254,18 @@ func TestFullBackendScenario(t *testing.T) {
 	if !strings.Contains(w.Body.String(), "First public revision") {
 		t.Fatal("restore lost content")
 	}
-	status(t, anon.request("GET", "/uploads/"+media.Name, "", "", false), 200)
+	restoredImage := anon.request("GET", "/uploads/"+media.Name, "", "", false)
+	status(t, restoredImage, 200)
+	if !bytes.Equal(restoredImage.Body.Bytes(), uploaded.Body.Bytes()) || restoredImage.Header().Get("Content-Type") != "image/png" {
+		t.Fatal("restore changed uploaded image")
+	}
+	if w.Body.String() != publicBeforeBackup {
+		t.Fatal("restore changed public page")
+	}
+	restoredDraft, err := s.Page(p.ID)
+	if err != nil || restoredDraft.Title != draftBeforeBackup.Title || restoredDraft.Document != draftBeforeBackup.Document || restoredDraft.Slug != draftBeforeBackup.Slug || restoredDraft.Cover != draftBeforeBackup.Cover || restoredDraft.Version != draftBeforeBackup.Version {
+		t.Fatal("restore changed working revision", err)
+	}
 	status(t, b.request("GET", "/admin/pages", "", "", false), 401)
 	if _, err := s.Public("new-address"); err != sql.ErrNoRows {
 		t.Fatal("draft published by restore")

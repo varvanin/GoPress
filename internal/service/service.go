@@ -147,8 +147,7 @@ func (v *Service) Save(ctx context.Context, p store.Page, publish bool) (store.P
 	if p.ID < 0 || len(p.Title) == 0 || len(p.Title) > 200 || len(p.Slug) > 1024 || !validContentPath(p.Slug) || p.Kind == "post" && strings.Contains(p.Slug, "/") {
 		return p, ErrInvalid
 	}
-	switch strings.Split(p.Slug, "/")[0] {
-	case "admin", "api", "install", "login", "logout", "assets", "uploads", "healthz", "readyz", "preview", "search", "forms", "forgot-password", "reset-password":
+	if store.ReservedContentPath(p.Slug) {
 		return p, fmt.Errorf("%w: reserved URL", ErrInvalid)
 	}
 	if p.Template == "" {

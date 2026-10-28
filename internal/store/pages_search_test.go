@@ -73,3 +73,34 @@ func TestHierarchyMovesPublishedChildrenAndSearchSnapshots(t *testing.T) {
 		t.Fatal("trash entered search", err)
 	}
 }
+
+func TestReservedPathsRejectDirectAndInheritedRoutes(t *testing.T) {
+	s, err := Open(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	ctx := context.Background()
+	for _, slug := range []string{"admin", "assets", "theme-assets", "module-assets", "forms", "search"} {
+		if _, err = s.Save(ctx, Page{Title: "Reserved", Slug: slug, Document: lifecycleDocument}, false); err != ErrConflict {
+			t.Fatalf("accepted reserved path %s: %v", slug, err)
+		}
+	}
+	parent, err := s.Save(ctx, Page{Title: "Legacy parent", Slug: "legacy", Document: lifecycleDocument}, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.DB.Exec("UPDATE pages SET slug='theme-assets',published_slug='theme-assets' WHERE id=?", parent.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.Save(ctx, Page{Title: "Child", Slug: "child", ParentID: parent.ID, Document: lifecycleDocument}, false); err != ErrConflict {
+		t.Fatal("inherited reserved path accepted", err)
+	}
+	var pages int
+	if err = s.DB.QueryRow("SELECT count(*) FROM pages").Scan(&pages); err != nil || pages != 1 {
+		t.Fatal("rejected writes changed pages", pages, err)
+	}
+	if _, err = s.Save(ctx, Page{Title: "Normal", Slug: "theme-assets-guide", Document: lifecycleDocument}, true); err != nil {
+		t.Fatal("ordinary prefix-like path rejected", err)
+	}
+}
