@@ -60,3 +60,17 @@ test('toasts escape plain messages, cap the stack and support close and pause',t
  toast('Third');toast('Fourth');assert.equal(region.children.length,3);
  const last=region.children[2];last.children[2].events.click();assert.equal(region.children.length,2);
 });
+
+test('publishing and saving ignore the trash submit button, including a button owned by another form',()=>{
+ const trash={name:'action',value:'trash'};
+ const editor={querySelector:selector=>selector==='[name="action"]'?trash:null,getAttribute:()=>'/admin/pages/save'};
+ for(const intent of ['publish','save']){
+  const submitter={name:'intent',value:intent,form:editor,closest:selector=>selector==='form'?editor:null};
+  assert.equal(deletionPrompt(submitter),null);
+ }
+ assert.equal(deletionPrompt({closest:selector=>selector==='form'?editor:null}),null);
+ const state={getAttribute:()=>'/admin/pages/12/state'};
+ const remove={name:'action',value:'delete',form:state,closest:selector=>selector==='form'?editor:null};
+ assert.equal(deletionPrompt(remove).label,'Удалить навсегда');
+ assert.equal(deletionPrompt({form:editor,closest:()=>null},{action:'trash'}).label,'В корзину');
+});

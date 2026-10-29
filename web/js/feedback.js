@@ -49,8 +49,9 @@ export async function confirmAction(message, trigger, label=t('Удалить'))
 }
 
 export function deletionPrompt(element, parameters={}) {
- const form=element?.closest?.('form');
- const value=name=>parameters[name]??(element?.name===name?element.value:form?.querySelector(`[name="${name}"]`)?.value);
+ const form=element?.form||element?.closest?.('form');
+ // Other submit buttons are not submitted controls; they must never choose the action.
+ const value=name=>parameters[name]??(element?.name===name?element.value:form?.querySelector(`input[name="${name}"]:not([type="submit"]):not([type="button"]):not([type="reset"]),select[name="${name}"],textarea[name="${name}"]`)?.value);
  const action=value('action');
  if(action==='trash')return {message:t('Переместить выбранные материалы в корзину? Их можно будет восстановить.'),label:t('В корзину')};
  if(action==='delete'&&/\/(content\/bulk|pages\/\d+\/state)$/.test(form?.getAttribute('action')||''))return {message:t('Удалить выбранные материалы навсегда вместе с историей изменений? Восстановление будет невозможно.'),label:t('Удалить навсегда')};

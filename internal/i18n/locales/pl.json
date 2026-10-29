@@ -800,5 +800,6 @@
   "Публикация по расписанию не выполнена. Проверьте родительскую страницу и адрес, затем назначьте время заново. Черновик сохранён.": "Zaplanowana publikacja nie powiodła się. Sprawdź stronę nadrzędną i adres, a następnie zaplanuj publikację ponownie. Szkic został zachowany.",
   "Сведения изменены в другой вкладке. Скопируйте свои правки и откройте актуальную версию.": "Szczegóły pliku zmieniono w innej karcie. Skopiuj swoje zmiany i otwórz aktualną wersję.",
   "Изображение используется в материалах, настройках сайта или модулей. Его нельзя удалить.": "Obraz jest używany w treściach, ustawieniach witryny lub modułów i nie można go usunąć.",
-  "Используется в материалах, настройках сайта или модулей. Удаление недоступно.": "Używany w treściach, ustawieniach witryny lub modułów. Usuwanie jest niedostępne."
+  "Используется в материалах, настройках сайта или модулей. Удаление недоступно.": "Używany w treściach, ustawieniach witryny lub modułów. Usuwanie jest niedostępne.",
+  "или перетащите сюда": "lub przeciągnij tutaj"
 }

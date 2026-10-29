@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {mediaDrop} from './media-upload.js';
+import {mediaDrop,mediaChoose} from './media-upload.js';
 
 test('media drop uploads one valid image and rejects multiple, oversized, unsupported or busy drops',t=>{
  const previous=globalThis.document;
@@ -19,4 +19,17 @@ test('media drop uploads one valid image and rejects multiple, oversized, unsupp
  }
  classes.add('htmx-request');event.dataTransfer.files=[{type:'image/jpeg',size:1}];mediaDrop(event);assert.equal(submitted,1);
  const before=prevented;event.dataTransfer.types=['text/plain'];mediaDrop(event);assert.equal(prevented,before);
+});
+
+test('media chooser opens the picker and submits a selection, but ignores cancellation and pending uploads',()=>{
+ let picked=0,submitted=0,busy=false;
+ const input={click:()=>picked++,id:'library-file',files:[]};
+ const form={classList:{contains:()=>busy},querySelector:()=>input,requestSubmit:()=>submitted++};
+ input.form=form;
+ const button={form};
+ mediaChoose({type:'click',target:{closest:()=>button}});assert.equal(picked,1);
+ mediaChoose({type:'change',target:input});assert.equal(submitted,0);
+ input.files=[{}];mediaChoose({type:'change',target:input});assert.equal(submitted,1);
+ busy=true;mediaChoose({type:'click',target:{closest:()=>button}});mediaChoose({type:'change',target:input});
+ assert.equal(picked,1);assert.equal(submitted,1);
 });

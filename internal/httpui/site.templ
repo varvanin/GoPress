@@ -20,13 +20,13 @@ templ MediaLibrary(site, baseURL, csrf string, files []store.MediaFile, total, p
 			<section class="library-content">
 				<form id="media-upload-form" action="/admin/media/upload" method="post" enctype="multipart/form-data" hx-encoding="multipart/form-data" class="library-upload">
 					<input type="hidden" name="csrf" value={ csrf }/>
-					<div class="library-upload-description">@icon.Image(icon.Props{Class: "size-5"})<div><label for="library-file">{ i18n.T(ctx,"Добавить изображение") }</label><p class="field-help">{ i18n.T(ctx,"Перетащите изображение сюда или выберите файл. PNG / JPEG · до 8 MiB и 16 Мп") }</p></div></div>
-					<input id="library-file" type="file" name="file" accept="image/png,image/jpeg" required/>
-					@button.Button(button.Props{Type: button.TypeSubmit, Size: button.SizeSm}) {
-						@icon.Plus()<span>{ i18n.T(ctx,"Загрузить") }</span>
+					<input id="library-file" type="file" name="file" accept="image/png,image/jpeg" required hidden aria-label={ i18n.T(ctx,"Загрузить изображение") }/>
+					@button.Button(button.Props{Type: button.TypeButton, Size: button.SizeSm, Attributes: templ.Attributes{"data-media-choose": true}}) {
+						@icon.Plus()<span>{ i18n.T(ctx,"Загрузить изображение") }</span>
 					}
+					<span class="field-help">{ i18n.T(ctx,"или перетащите сюда") }</span>
 				</form>
-				<div class="library-toolbar"><form method="get" action="/admin/media" class="library-search" role="search">@AdminSearch("media-search", query, i18n.T(ctx, "Поиск изображений…"))</form><p class="field-help">{ i18n.T(ctx,"Выберите изображение, чтобы изменить сведения.") }</p></div>
+				<div class="library-toolbar"><form method="get" action="/admin/media" class="library-search" role="search">@AdminSearch("media-search", query, i18n.T(ctx, "Поиск изображений…"))</form></div>
 				<section class="library-grid" aria-label={ i18n.T(ctx, "Изображения") }>
 					for _,file:=range files {
 						<a class={ "library-tile",templ.KV("is-selected",mediaSelected(selected,file.Name)) } href={ templ.SafeURL(mediaFileURL(query, page, file.Name)) } data-media-name={ file.Name } hx-target="#media-inspector" hx-select="#media-inspector" hx-swap="outerHTML show:none" hx-push-url="true" aria-current={ activeTab(mediaSelected(selected, file.Name)) }>

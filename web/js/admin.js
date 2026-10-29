@@ -1,4 +1,4 @@
-import {mediaDrop} from './media-upload.js';
+import {mediaDrop,mediaChoose} from './media-upload.js';
 import {updateSEOSettings} from './seo-settings.js';
 import {mountTemplateEditor,setTemplatePending} from './template-editor-loader.js';
 import './faq.js';
@@ -114,6 +114,8 @@ function initialize() {
 }
 const unsaved = () => page && (page.dirty || page.uploading);
 function start() {
+ document.addEventListener('click',mediaChoose);
+ document.addEventListener('change',mediaChoose);
  for(const type of ['dragenter','dragover','dragleave','drop'])document.addEventListener(type,mediaDrop);
  document.addEventListener('settingsSaved',settingsSaved);
  document.addEventListener('click',editFormBuilder);

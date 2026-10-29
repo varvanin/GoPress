@@ -800,5 +800,6 @@
   "Публикация по расписанию не выполнена. Проверьте родительскую страницу и адрес, затем назначьте время заново. Черновик сохранён.": "Scheduled publication failed. Check the parent page and URL, then schedule it again. Your draft is preserved.",
   "Сведения изменены в другой вкладке. Скопируйте свои правки и откройте актуальную версию.": "File details changed in another tab. Copy your edits and open the current version.",
   "Изображение используется в материалах, настройках сайта или модулей. Его нельзя удалить.": "The image is used in content, site settings or modules and cannot be deleted.",
-  "Используется в материалах, настройках сайта или модулей. Удаление недоступно.": "Used in content, site settings or modules. Deletion is unavailable."
+  "Используется в материалах, настройках сайта или модулей. Удаление недоступно.": "Used in content, site settings or modules. Deletion is unavailable.",
+  "или перетащите сюда": "or drop it here"
 }

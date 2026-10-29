@@ -800,5 +800,6 @@
   "Публикация по расписанию не выполнена. Проверьте родительскую страницу и адрес, затем назначьте время заново. Черновик сохранён.": "Naplánované zveřejnění selhalo. Zkontrolujte nadřazenou stránku a adresu a nastavte čas znovu. Koncept zůstal zachován.",
   "Сведения изменены в другой вкладке. Скопируйте свои правки и откройте актуальную версию.": "Údaje se změnily na jiné kartě. Zkopírujte úpravy a otevřete aktuální verzi.",
   "Изображение используется в материалах, настройках сайта или модулей. Его нельзя удалить.": "Obrázek se používá v obsahu, nastavení webu nebo modulů a nelze jej smazat.",
-  "Используется в материалах, настройках сайта или модулей. Удаление недоступно.": "Použito v obsahu, nastavení webu nebo modulů. Smazání není dostupné."
+  "Используется в материалах, настройках сайта или модулей. Удаление недоступно.": "Použito v obsahu, nastavení webu nebo modulů. Smazání není dostupné.",
+  "или перетащите сюда": "nebo přetáhněte sem"
 }

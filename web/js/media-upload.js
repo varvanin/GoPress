@@ -25,3 +25,13 @@ export function mediaDrop(event) {
   input.files=files;
   form.requestSubmit();
 }
+
+export function mediaChoose(event) {
+  if(event.type==='click'){
+    const button=event.target.closest?.('[data-media-choose]');
+    if(button&&!button.form.classList.contains('htmx-request'))button.form.querySelector('input[type="file"]').click();
+  }else if(event.target.id==='library-file'&&event.target.files?.length){
+    const form=event.target.form;
+    if(form&&!form.classList.contains('htmx-request'))form.requestSubmit();
+  }
+}

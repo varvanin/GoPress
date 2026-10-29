@@ -800,5 +800,6 @@
   "Публикация по расписанию не выполнена. Проверьте родительскую страницу и адрес, затем назначьте время заново. Черновик сохранён.": "La publicación programada falló. Revisa la página superior y la URL y vuelve a programarla. El borrador se ha conservado.",
   "Сведения изменены в другой вкладке. Скопируйте свои правки и откройте актуальную версию.": "Los datos cambiaron en otra pestaña. Copia tus cambios y abre la versión actual.",
   "Изображение используется в материалах, настройках сайта или модулей. Его нельзя удалить.": "La imagen se usa en contenido, configuración del sitio o módulos y no se puede eliminar.",
-  "Используется в материалах, настройках сайта или модулей. Удаление недоступно.": "Se usa en contenido, configuración del sitio o módulos. No se puede eliminar."
+  "Используется в материалах, настройках сайта или модулей. Удаление недоступно.": "Se usa en contenido, configuración del sitio o módulos. No se puede eliminar.",
+  "или перетащите сюда": "o arrástrala aquí"
 }
