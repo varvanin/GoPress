@@ -49,7 +49,7 @@ html[data-admin-theme=light] .gp-admin .revision-row>a,
 html[data-admin-theme=light] .gp-admin .prose-editor a{color:#2679bd}
 html[data-admin-theme=light] .gp-admin [data-slot=table-head],html[data-admin-theme=light] .gp-admin .content-table .document-icon{color:#7b8592}
 html[data-admin-theme=light] .gp-admin .content-table [data-slot=table-head]{background:#f7f8fa}
-html[data-admin-theme=light] .gp-admin .gp-published-badge{background:#e8f5ed;border-color:#c8e6d2;color:#287953}
+html[data-admin-theme=light] .gp-admin .gp-published-badge{background:transparent;border-color:transparent;color:#287953}
 html[data-admin-theme=light] .gp-admin .content-table .gp-published-badge{color:#287953}
 html[data-admin-theme=light] .gp-admin .notice{background:#edf8f1;border-color:#c9e8d5;color:#31664c}
 html[data-admin-theme=light] .gp-admin .notice-error{background:#fff1f2;border-color:#f0d0d6;color:#9c3548}

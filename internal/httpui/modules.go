@@ -48,6 +48,23 @@ type ModuleInfo struct {
 var moduleID = regexp.MustCompile(`^[a-z][a-z0-9-]{0,47}$`)
 var moduleKey = regexp.MustCompile(`^[a-z][a-z0-9_]{0,39}$`)
 
+func moduleCatalogLocation(c *echo.Context) (string, error) {
+	query, state := strings.TrimSpace(c.FormValue("q")), c.FormValue("state")
+	if len(query) > 200 || state != "" && state != "enabled" && state != "disabled" {
+		return "", service.ErrInvalid
+	}
+	values := url.Values{}
+	if query != "" {
+		values.Set("q", query)
+	}
+	if state != "" {
+		values.Set("state", state)
+	}
+	if len(values) == 0 {
+		return "/admin/modules", nil
+	}
+	return "/admin/modules?" + values.Encode(), nil
+}
 func moduleCode(id string) string { return `[module id="` + id + `"]` }
 func (a *App) moduleCatalog() ([]ModuleInfo, error) {
 	enabled, err := a.Service.Store.FAQEnabled()
@@ -457,6 +474,10 @@ func (a *App) packageModuleRoutes(g *echo.Group) {
 		return c.Redirect(303, "/admin/modules/package/"+id+"/edit?saved=1")
 	}, a.csrf)
 	g.POST("/modules/package/toggle", func(c *echo.Context) error {
+		location, err := moduleCatalogLocation(c)
+		if err != nil {
+			return err
+		}
 		id, version, err := postedModule(c)
 		if err != nil {
 			return err
@@ -477,9 +498,13 @@ func (a *App) packageModuleRoutes(g *echo.Group) {
 		if err = a.Service.Store.ToggleModulePackage(c.Request().Context(), id, version, value == "true"); err != nil {
 			return err
 		}
-		return c.Redirect(303, "/admin/modules")
+		return c.Redirect(303, location)
 	}, a.csrf)
 	g.POST("/modules/package/delete", func(c *echo.Context) error {
+		location, err := moduleCatalogLocation(c)
+		if err != nil {
+			return err
+		}
 		id, version, err := postedModule(c)
 		if err != nil {
 			return err
@@ -487,7 +512,7 @@ func (a *App) packageModuleRoutes(g *echo.Group) {
 		if err = a.Service.Store.DeleteModulePackage(c.Request().Context(), id, version); err != nil {
 			return err
 		}
-		return c.Redirect(303, "/admin/modules")
+		return c.Redirect(303, location)
 	}, a.csrf)
 	a.Echo.GET("/module-assets/:module/:asset", func(c *echo.Context) error {
 		p, err := a.Service.Store.ModulePackage(c.Param("module"))

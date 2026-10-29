@@ -1,13 +1,14 @@
 package httpui
 import "strconv"
+import selectcomp "gopress/internal/ui/components/select"
 import "gopress/internal/i18n"
 import "gopress/internal/store"
 import "gopress/internal/ui/components/button"
 import "gopress/internal/ui/components/icon"
 
-templ Modules(site,csrf string,modules []ModuleInfo,installed bool) {
+templ Modules(site,csrf string,modules []ModuleInfo,installed bool,query,state string,total int) {
  @AdminLayout(site,i18n.T(ctx,"Модули"),csrf) {
- @AdminPageHeader(i18n.T(ctx,"Модули"),len(modules)) {
+ @AdminPageHeader(i18n.T(ctx,"Модули"),total) {
  @button.Button(button.Props{Href:"/admin/modules/upload",Size:button.SizeSm}) {
  @icon.Plus()<span>{ i18n.T(ctx,"Загрузить свой модуль") }</span>
  }
@@ -21,14 +22,19 @@ templ Modules(site,csrf string,modules []ModuleInfo,installed bool) {
  if installed {
  <p class="notice" role="status">{ i18n.T(ctx,"Модуль установлен. Настройте его и включите для показа на сайте.") }</p>
  }
+ <section id="module-results" class="module-results">
+ <form method="get" action="/admin/modules" class="module-controls" role="search" hx-get="/admin/modules" hx-trigger="submit, change" hx-target="#module-results" hx-select="#module-results" hx-swap="outerHTML show:none" hx-push-url="true">
+ @AdminSearch("module-search",query,i18n.T(ctx,"Поиск"))
+ @AdminSelect("module-state","state",state,i18n.T(ctx,"Состояние"),[]selectcomp.ItemData{{Value:"",Label:i18n.T(ctx,"Все")},{Value:"enabled",Label:i18n.T(ctx,"Включён")},{Value:"disabled",Label:i18n.T(ctx,"Отключён")}},nil)
+ </form>
  <div class="theme-catalog module-catalog">
  for _,m:=range modules {
  <article class="theme-card" data-module-id={ m.ID } data-active={ strconv.FormatBool(m.Enabled) }>
- <div class="theme-thumbnail module-thumbnail">
+ <div class="module-symbol" aria-hidden="true">
  if m.Builtin {
- <img src="/assets/module-faq.svg" alt="FAQ" width="800" height="420"/>
+ @icon.Icon("clipboard-list")(icon.Props{Class:"size-5"})
  } else {
- <img src={ templ.SafeURL("/module-assets/"+m.ID+"/screenshot") } alt={ m.Name } width="800" height="420" loading="lazy"/>
+ @icon.Icon("blocks")(icon.Props{Class:"size-5"})
  }
  </div>
  <div class="theme-card-info"><div class="theme-card-title"><h2>{ m.Name }</h2><span class="theme-active-label">
@@ -45,7 +51,7 @@ templ Modules(site,csrf string,modules []ModuleInfo,installed bool) {
  }
  </p><span class="theme-meta">{ m.Author } · { m.Version }</span></div>
  <div class="theme-card-actions">
- <form method="post" action={ templ.SafeURL(moduleTogglePath(m)) }><input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="id" value={ m.ID }/><input type="hidden" name="version" value={ strconv.FormatInt(m.Revision,10) }/><input type="hidden" name="enabled" value={ strconv.FormatBool(!m.Enabled) }/>
+ <form method="post" action={ templ.SafeURL(moduleTogglePath(m)) }><input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="q" value={ query }/><input type="hidden" name="state" value={ state }/><input type="hidden" name="id" value={ m.ID }/><input type="hidden" name="version" value={ strconv.FormatInt(m.Revision,10) }/><input type="hidden" name="enabled" value={ strconv.FormatBool(!m.Enabled) }/>
  @button.Button(button.Props{Type:button.TypeSubmit,Variant:moduleButtonVariant(m.Enabled),Size:button.SizeSm}) {
  if m.Enabled {
  { i18n.T(ctx,"Отключить") }
@@ -58,7 +64,7 @@ templ Modules(site,csrf string,modules []ModuleInfo,installed bool) {
  { i18n.T(ctx,"Настроить") }
  }
  if !m.Builtin && !m.Enabled {
- <form method="post" action="/admin/modules/package/delete" hx-confirm={ i18n.T(ctx,"Удалить модуль и его настройки навсегда?") }><input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="id" value={ m.ID }/><input type="hidden" name="version" value={ strconv.FormatInt(m.Revision,10) }/>
+ <form method="post" action="/admin/modules/package/delete" hx-confirm={ i18n.T(ctx,"Удалить модуль и его настройки навсегда?") }><input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="q" value={ query }/><input type="hidden" name="state" value={ state }/><input type="hidden" name="id" value={ m.ID }/><input type="hidden" name="version" value={ strconv.FormatInt(m.Revision,10) }/>
  @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantGhost,Size:button.SizeIconSm,Attributes:templ.Attributes{"aria-label":i18n.T(ctx,"Удалить модуль"),"title":i18n.T(ctx,"Удалить модуль")}}) {
  @icon.Icon("trash-2")(icon.Props{Class:"size-4"})
  }
@@ -68,6 +74,10 @@ templ Modules(site,csrf string,modules []ModuleInfo,installed bool) {
  </article>
  }
  </div>
+ if len(modules)==0 {
+ <p class="module-empty">{ i18n.T(ctx,"Совпадений не найдено.") }</p>
+ }
+ </section>
  }
 }
 

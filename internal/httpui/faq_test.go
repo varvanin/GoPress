@@ -79,3 +79,33 @@ func TestFAQValidation(t *testing.T) {
 		}
 	}
 }
+
+func TestEnabledModuleSidebarAndPartialUpdates(t *testing.T) {
+	_, _, b := seoApp(t)
+	read := func(path string, partial bool) string {
+		w := adminHTML(b, "GET", path, nil, partial, false, false)
+		status(t, w, 200)
+		return w.Body.String()
+	}
+	if strings.Contains(read("/admin/pages", false), `href="/admin/modules/faq"`) {
+		t.Fatal("disabled FAQ in sidebar")
+	}
+	status(t, adminHTML(b, "POST", "/admin/modules/faq/toggle", url.Values{"enabled": {"true"}}, false, false, true), 303)
+	for _, partial := range []bool{false, true} {
+		body := read("/admin/modules/faq", partial)
+		for _, marker := range []string{`id="gp-modules-nav"`, `href="/admin/modules/faq"`, `data-section="/admin/modules/faq"`, `gp-nav-submenu`} {
+			if !strings.Contains(body, marker) {
+				t.Fatalf("missing sidebar marker %s (partial=%v)", marker, partial)
+			}
+		}
+		if partial && (!strings.Contains(body, `hx-swap-oob="outerHTML"`) || strings.Contains(body, `data-slot="sidebar-wrapper"`)) {
+			t.Fatal("partial replaced sidebar shell or omitted menu update")
+		}
+	}
+	status(t, adminHTML(b, "POST", "/admin/modules/faq/toggle", url.Values{"enabled": {"false"}}, false, false, true), 303)
+	for _, partial := range []bool{false, true} {
+		if strings.Contains(read("/admin/pages", partial), `href="/admin/modules/faq"`) {
+			t.Fatal("disabled FAQ remained in sidebar")
+		}
+	}
+}

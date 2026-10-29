@@ -72,6 +72,19 @@ The test uses temporary data and random credentials. It covers protected concurr
 
 A free loopback TCP port is required. `--browser` additionally requires Chrome (override with `GOPRESS_BROWSER`) and checks real editor typing/autosave and mobile width; `--docker` requires Docker and the prebuilt image. The HTTP integration suite runs against temporary SQLite without listening sockets, but does not replace these live-process/browser checks. See [verified progress and limitations](docs/PROGRESS.md).
 
+## Local demonstration content
+
+With the local server stopped, add demonstration content to an installed site:
+
+```sh
+go run scripts/seed-demo.go --data ./data
+./bin/gopress serve --data ./data --addr 127.0.0.1:8080
+```
+
+This publishes six pages (including nested pages) and eight articles, adds two drafts, a post scheduled one week ahead and a trashed post, and creates three original PNG/JPEG illustrations. It adds categories, tags and navigation links while preserving existing materials, accounts, settings and menu items. One published article also has a newer private working revision for publication-isolation testing. Sample URLs use a `demo-` prefix; contact details are illustrative.
+
+The script first creates and verifies an offline backup under the data directory's sibling `backups` folder. It requires the exclusive data-directory lock, so it refuses to run against the active server. It checks public pages, image decoding, draft privacy and SQLite integrity through the real handlers. A repeat run reuses existing demo paths and media. The report and media manifest are stored as `demo-content-report.json` and `demo-media.json` in the data folder. Use this only for local testing: the published materials and scheduled publication are real site data.
+
 ## Features
 
 ### Content and publishing

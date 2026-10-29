@@ -5,10 +5,12 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/labstack/echo/v5"
+	"gopress/internal/i18n"
 	"gopress/internal/service"
 	"gopress/internal/store"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 func faqPath(id int64) string { return "/admin/modules/faq/" + strconv.FormatInt(id, 10) + "/edit" }
@@ -31,9 +33,32 @@ func (a *App) moduleRoutes(g *echo.Group) {
 		if err != nil {
 			return err
 		}
-		return htmlComponent(c, 200, Modules(site.Title, a.csrfToken(c), modules, c.QueryParam("installed") == "1"))
+		query, state := strings.TrimSpace(c.QueryParam("q")), c.QueryParam("state")
+		if len(query) > 200 || state != "" && state != "enabled" && state != "disabled" {
+			return service.ErrInvalid
+		}
+		total := len(modules)
+		filtered := make([]ModuleInfo, 0, total)
+		for _, module := range modules {
+			if state == "enabled" && !module.Enabled || state == "disabled" && module.Enabled {
+				continue
+			}
+			description := module.Description
+			if module.Builtin {
+				description = i18n.T(c.Request().Context(), description)
+			}
+			text := strings.ToLower(strings.Join([]string{module.ID, module.Name, module.Author, description}, " "))
+			if strings.Contains(text, strings.ToLower(query)) {
+				filtered = append(filtered, module)
+			}
+		}
+		return htmlComponent(c, 200, Modules(site.Title, a.csrfToken(c), filtered, c.QueryParam("installed") == "1", query, state, total))
 	})
 	g.POST("/modules/faq/toggle", func(c *echo.Context) error {
+		location, err := moduleCatalogLocation(c)
+		if err != nil {
+			return err
+		}
 		value := c.FormValue("enabled")
 		if value != "true" && value != "false" {
 			return service.ErrInvalid
@@ -41,7 +66,7 @@ func (a *App) moduleRoutes(g *echo.Group) {
 		if err := a.Service.Store.SetFAQEnabled(c.Request().Context(), value == "true"); err != nil {
 			return err
 		}
-		return c.Redirect(303, "/admin/modules")
+		return c.Redirect(303, location)
 	}, a.csrf)
 	g.GET("/modules/faq", func(c *echo.Context) error {
 		site, err := a.Service.Store.Site()

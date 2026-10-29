@@ -98,6 +98,14 @@ func TestUploadedModuleLifecycleAndBackup(t *testing.T) {
 	status(t, adminHTML(b, "POST", "/admin/modules/package/save", fields, false, false, true), 409)
 	toggle := url.Values{"id": {p.ID}, "version": {"2"}, "enabled": {"true"}}
 	status(t, adminHTML(b, "POST", "/admin/modules/package/toggle", toggle, false, false, true), 303)
+	nav := adminHTML(b, "GET", "/admin/pages", nil, false, false, false)
+	if !strings.Contains(nav.Body.String(), `href="/admin/modules/package/contact-card/edit"`) {
+		t.Fatal("enabled package missing from sidebar")
+	}
+	edit := b.request("GET", "/admin/modules/package/contact-card/edit", "", "", false)
+	if !strings.Contains(edit.Body.String(), `data-section="/admin/modules/package/contact-card/edit"`) {
+		t.Fatal("package navigation not active")
+	}
 	body := read()
 	if !strings.Contains(body, "gp-module-contact-card") || !strings.Contains(body, "Personal answer") || strings.Contains(body, "<script>unsafe</script>") || !strings.Contains(body, "&lt;script&gt;") {
 		t.Fatal("unsafe or missing module", body)
@@ -137,6 +145,10 @@ func TestUploadedModuleLifecycleAndBackup(t *testing.T) {
 	if strings.Contains(read(), "gp-module-contact-card") {
 		t.Fatal("disable failed")
 	}
+	if strings.Contains(adminHTML(b, "GET", "/admin/pages", nil, false, false, false).Body.String(), `href="/admin/modules/package/contact-card/edit"`) {
+		t.Fatal("disabled package remained in sidebar")
+	}
+
 	status(t, adminHTML(b, "POST", "/admin/modules/package/delete", url.Values{"id": {p.ID}, "version": {"4"}}, false, false, true), 303)
 	if _, err = s.ModulePackage(p.ID); err == nil {
 		t.Fatal("not deleted")
@@ -237,4 +249,34 @@ func TestModuleSettingsAndTemplateLimits(t *testing.T) {
 	if got := service.Excerpt(fmt.Sprintf(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":%q}]}]}`, moduleCode("test")), 160); got != "" {
 		t.Fatal("shortcode in excerpt", got)
 	}
+}
+
+func TestModuleCatalogSearchAndStatus(t *testing.T) {
+	_, _, b := seoApp(t)
+	check := func(path string, expected int, faq bool) string {
+		w := adminHTML(b, "GET", path, nil, true, false, false)
+		status(t, w, expected)
+		body := w.Body.String()
+		if expected == 200 && strings.Contains(body, `data-module-id="faq"`) != faq {
+			t.Fatalf("wrong catalog result: %s", path)
+		}
+		return body
+	}
+	check("/admin/modules?q=fAq", 200, true)
+	check("/admin/modules?q=gopress&state=disabled", 200, true)
+	check("/admin/modules?state=enabled", 200, false)
+	body := check("/admin/modules?q=no-such-module", 200, false)
+	if !strings.Contains(body, `id="module-results"`) || !strings.Contains(body, `module-empty`) || strings.Contains(body, `module-thumbnail`) {
+		t.Fatal("search panel/empty result is incorrect")
+	}
+	status(t, adminHTML(b, "POST", "/admin/modules/faq/toggle", url.Values{"enabled": {"true"}}, false, false, true), 303)
+	response := adminHTML(b, "POST", "/admin/modules/faq/toggle", url.Values{"enabled": {"true"}, "q": {"FAQ"}, "state": {"enabled"}}, false, false, true)
+	status(t, response, 303)
+	if response.Header().Get("Location") != "/admin/modules?q=FAQ&state=enabled" {
+		t.Fatal("catalog filters lost after toggle")
+	}
+	check("/admin/modules?state=enabled", 200, true)
+	check("/admin/modules?state=disabled", 200, false)
+	check("/admin/modules?state=unknown", 400, false)
+	check("/admin/modules?q="+strings.Repeat("x", 201), 400, false)
 }

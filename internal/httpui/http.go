@@ -424,7 +424,21 @@ func (a *App) auth(next echo.HandlerFunc) echo.HandlerFunc {
 		if err != nil {
 			return err
 		}
-		c.SetRequest(c.Request().WithContext(store.WithActor(i18n.WithLanguage(c.Request().Context(), settings.Language), user)))
+		ctx := store.WithActor(i18n.WithLanguage(c.Request().Context(), settings.Language), user)
+		if user.Role == "admin" {
+			modules, err := a.moduleCatalog()
+			if err != nil {
+				return err
+			}
+			enabled := make([]ModuleInfo, 0, len(modules))
+			for _, module := range modules {
+				if module.Enabled {
+					enabled = append(enabled, module)
+				}
+			}
+			ctx = context.WithValue(ctx, moduleNavigationKey{}, moduleNavigation{Modules: enabled, Path: c.Request().URL.Path})
+		}
+		c.SetRequest(c.Request().WithContext(ctx))
 		return next(c)
 	}
 }

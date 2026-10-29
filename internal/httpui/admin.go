@@ -510,3 +510,33 @@ func sidebarCollapsed(ctx context.Context) bool {
 	collapsed, _ := ctx.Value(sidebarCollapsedKey{}).(bool)
 	return collapsed
 }
+
+type moduleNavigationKey struct{}
+type moduleNavigation struct {
+	Modules []ModuleInfo
+	Path    string
+}
+
+func moduleNavigationData(ctx context.Context) moduleNavigation {
+	nav, _ := ctx.Value(moduleNavigationKey{}).(moduleNavigation)
+	return nav
+}
+func moduleNavigationURL(m ModuleInfo) string {
+	if m.Builtin {
+		return "/admin/modules/faq"
+	}
+	return "/admin/modules/package/" + m.ID + "/edit"
+}
+func adminCurrentSection(ctx context.Context, title string) string {
+	path := moduleNavigationData(ctx).Path
+	if strings.HasPrefix(path, "/admin/modules/faq") {
+		return "/admin/modules/faq"
+	}
+	if strings.HasPrefix(path, "/admin/modules/package/") {
+		parts := strings.Split(path, "/")
+		if len(parts) >= 5 {
+			return "/admin/modules/package/" + parts[4] + "/edit"
+		}
+	}
+	return adminSection(title)
+}

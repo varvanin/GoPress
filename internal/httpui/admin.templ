@@ -20,6 +20,7 @@ import "gopress/internal/ui/components/table"
 templ AdminLayout(site, title, csrf string) {
 	if partialRequest(ctx) {
 		<title>{ i18n.T(ctx, title) } · GoPress</title>
+		@AdminModulesNavigation(title, true)
 		@AdminMain(site, title, csrf) {
 			{ children... }
 		}
@@ -86,7 +87,7 @@ templ AdminLayout(site, title, csrf string) {
 								@sidebar.GroupContent() {
 									@sidebar.Menu() {
 										@AdminNavLink("/admin/themes", i18n.T(ctx, "Шаблоны"), title, icon.Icon("paintbrush"))
-										@AdminNavLink("/admin/modules", i18n.T(ctx, "Модули"), title, icon.Icon("blocks"))
+										@AdminModulesNavigation(title, false)
 										@AdminNavLink("/admin/seo", "SEO", title, icon.Globe)
 										@AdminNavLink("/admin/menus", i18n.T(ctx, "Меню"), title, icon.Icon("list-tree"))
 									}
@@ -110,17 +111,13 @@ if adminRole(ctx)!="admin" {
 						}
 						@sidebar.Footer(sidebar.FooterProps{Class: "gp-nav-footer"}) {
  @AdminThemeToggle(false)
-							@sidebar.Menu() {
-								@sidebar.MenuItem() {
-									@sidebar.MenuButton(sidebar.MenuButtonProps{Href: "/", Attributes: templ.Attributes{"target": "_blank", "rel": "noopener", "title": i18n.T(ctx, "Открыть сайт"), "aria-label": i18n.T(ctx, "Открыть сайт")}}) {
-										@icon.Globe() <span>{ i18n.T(ctx,"Открыть сайт") }</span> @icon.ArrowUpRight(icon.Props{Class: "gp-nav-external"})
-									}
-								}
+							@button.Button(button.Props{Href: "/", Variant: button.VariantGhost, Class: "gp-nav-signout", Attributes: templ.Attributes{"target": "_blank", "rel": "noopener", "title": i18n.T(ctx, "Открыть сайт"), "aria-label": i18n.T(ctx, "Открыть сайт")}}) {
+								@icon.Globe()
 							}
 							<form action="/logout" method="post" hx-boost="false">
 								<input type="hidden" name="csrf" value={ csrf }/>
 								@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Class: "gp-nav-signout", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Выйти"), "title": i18n.T(ctx, "Выйти")}}) {
-									@icon.LogOut() <span>{ i18n.T(ctx,"Выйти") }</span>
+									@icon.LogOut()
 								}
 							</form>
 						}
@@ -135,7 +132,7 @@ if adminRole(ctx)!="admin" {
 }
 
 templ AdminMain(site, title, csrf string) {
-	@sidebar.Inset(sidebar.InsetProps{ID: "main", Class: "gp-main", Attributes: templ.Attributes{"tabindex": "-1", "data-section": adminSection(title)}}) {
+	@sidebar.Inset(sidebar.InsetProps{ID: "main", Class: "gp-main", Attributes: templ.Attributes{"tabindex": "-1", "data-section": adminCurrentSection(ctx, title)}}) {
 		if i18n.Source(title)!="Редактирование страницы" && i18n.Source(title)!="Редактирование записи" {
 			<header class="gp-topbar">
 				<div class="gp-breadcrumb">
@@ -158,7 +155,7 @@ templ AdminMain(site, title, csrf string) {
 templ AdminNavLink(href, label, title string, symbol func(...icon.Props) templ.Component) {
 	if allowNav(ctx,href) {
 	@sidebar.MenuItem() {
-		@sidebar.MenuButton(sidebar.MenuButtonProps{Href: href, IsActive: adminSection(title) == href, Attributes: navAttributes(adminSection(title) == href, label)}) {
+		@sidebar.MenuButton(sidebar.MenuButtonProps{Href: href, IsActive: adminCurrentSection(ctx, title) == href, Attributes: navAttributes(adminCurrentSection(ctx, title) == href, label)}) {
 			@symbol() <span>{ i18n.T(ctx, label) }</span>
 		}
 	}
@@ -213,17 +210,16 @@ templ Pages(site, csrf string, pages []store.Page, view ContentList) {
 				<span data-selection-count aria-live="polite">{ i18n.T(ctx,"Выбрано: 0") }</span>
 				if view.Trash {
 					@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"name": "action", "value": "restore", "data-bulk-action": true, "disabled": true}}) {
-						{ i18n.T(ctx,"Восстановить выбранное ") }
+						@icon.Icon("rotate-ccw")(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Восстановить") }</span>
 					}
 					@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"name": "action", "value": "delete", "data-bulk-action": true, "disabled": true}}) {
-						{ i18n.T(ctx,"Удалить навсегда ") }
+						@icon.Icon("trash-2")(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Удалить навсегда") }</span>
 					}
 				} else {
 					@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"name": "action", "value": "trash", "data-bulk-action": true, "disabled": true}}) {
-						{ i18n.T(ctx,"В корзину ") }
+						@icon.Icon("trash-2")(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"В корзину") }</span>
 					}
 				}
-				<span class="text-muted-foreground text-xs">{ i18n.T(ctx,"Выбор на текущей странице") }</span>
 			</form>
 			<div class="content-table">@PageTable(pages, csrf)</div>
 		}
@@ -642,4 +638,22 @@ templ MediaFileChoices(files []store.MediaFile, selected string) {
 			}
 		</div>
 	</fieldset>
+}
+
+templ AdminModulesNavigation(title string, oob bool) {
+ if allowNav(ctx,"/admin/modules") {
+  {{ attrs := templ.Attributes{"id": "gp-modules-nav"}; if oob { attrs["hx-swap-oob"] = "outerHTML" } }}
+  @sidebar.MenuItem(sidebar.MenuItemProps{Attributes:attrs}) {
+   @sidebar.MenuButton(sidebar.MenuButtonProps{Href:"/admin/modules",IsActive:adminCurrentSection(ctx,title)=="/admin/modules",Attributes:navAttributes(adminCurrentSection(ctx,title)=="/admin/modules",i18n.T(ctx,"Модули"))}) {
+    @icon.Icon("blocks")(icon.Props{})<span>{ i18n.T(ctx,"Модули") }</span>
+   }
+   if len(moduleNavigationData(ctx).Modules)>0 {
+    @sidebar.Menu(sidebar.MenuProps{Class:"gp-nav-submenu",Attributes:templ.Attributes{"aria-label":i18n.T(ctx,"Модули")}}) {
+     for _,m:=range moduleNavigationData(ctx).Modules {
+      @AdminNavLink(moduleNavigationURL(m),m.Name,title,icon.Icon("blocks"))
+     }
+    }
+   }
+  }
+ }
 }

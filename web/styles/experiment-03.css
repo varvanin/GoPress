@@ -207,9 +207,9 @@
 @media(prefers-reduced-motion:reduce) { .gp-admin * { transition:none!important; animation:none!important; } }
 .content-list-toolbar,.content-pagination { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
 .gp-admin .content-heading { padding-top:24px; margin-bottom:0; }
-.content-heading-title { display:flex; align-items:center; gap:10px; }
+.content-heading-title { display:flex; align-items:baseline; gap:5px; }
 .gp-admin .content-heading h1 { font-size:var(--admin-heading-size); margin:0; }
-.content-count { display:inline-flex; align-items:center; justify-content:center; min-width:24px; height:22px; border:1px solid var(--border); border-radius:5px; padding:0 6px; color:var(--muted-foreground); font-size:11px; font-variant-numeric:tabular-nums; }
+.content-count { align-self:flex-start; margin-top:2px; color:var(--muted-foreground); font-size:10px; line-height:1; font-weight:400; font-variant-numeric:tabular-nums; }
 .page-heading-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .content-table { overflow:auto; border:1px solid var(--border); border-radius:8px; }
 .gp-admin .content-table [data-slot="table-head"] { height:36px; font-size:11px; background:#161619; }
@@ -488,7 +488,7 @@
 .content-selection input:indeterminate::after { content:""; width:7px; height:2px; background:var(--primary-foreground); }
 
 .content-bulk [data-selection-count] { min-width:82px; font-variant-numeric:tabular-nums; }
-.content-bulk>span:last-child { color:var(--muted-foreground); }
+
 
 .forms-list,.form-entries,.form-builder,.form-fields { display:grid; gap:14px; }
 .forms-list-row { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:18px; border:1px solid var(--border); border-radius:var(--admin-radius); }
@@ -675,3 +675,27 @@ html:has(body.gp-admin){scrollbar-gutter:stable}
 .forms-workspace .forms-list-row>div:first-child { min-width:0;flex:1 1 180px;overflow-wrap:anywhere; }
 .forms-workspace .forms-list-row>.flex { flex-wrap:wrap; }
 @media(max-width:600px){.gp-admin .forms-empty{min-height:220px;padding:28px 20px}.forms-workspace .forms-list-row{gap:12px}.forms-workspace .forms-list-row>.flex{width:100%}}
+
+/* Sidebar utilities share three equal icon targets. */
+.gp-admin .gp-nav-footer { flex-direction:row;align-items:center;justify-content:center;gap:8px; }
+.gp-admin .gp-nav-footer .gp-nav-signout { width:32px;height:32px;padding:0;gap:0;justify-content:center;flex:none; }
+.gp-admin .gp-nav-footer .gp-theme-toggle>span { display:none; }
+.gp-admin .gp-nav-footer>form { display:flex;margin:0; }
+.gp-admin [data-collapsible="icon"] .gp-nav-footer { flex-direction:column; }
+
+/* Dense module catalog: identity and actions, without large preview images. */
+.module-results { display:grid;gap:20px;min-width:0; }
+.module-controls { display:flex;align-items:center;gap:12px;flex-wrap:wrap; }
+.module-controls .content-search-field { width:100%;max-width:420px; }
+.module-controls .gp-select { width:170px; }
+.module-catalog .theme-card { display:grid;grid-template-columns:36px minmax(0,1fr);align-content:start;gap:12px;padding:18px;border-radius:8px; }
+.module-symbol { width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:8px;color:var(--muted-foreground); }
+.module-catalog .theme-card-info { padding:0;min-width:0; }
+.module-catalog .theme-card-title { align-items:baseline;flex-wrap:wrap;gap:6px 12px; }
+.module-catalog .theme-card-title h2 { font-size:13px;font-weight:500; }
+.module-catalog .theme-active-label { padding:0;background:transparent;font-size:11px;color:var(--muted-foreground); }
+.module-catalog .theme-card-info>p { margin:6px 0;font-size:12px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere; }
+.module-catalog .theme-card-actions { grid-column:2;padding:0;border:0;flex-wrap:wrap;gap:8px; }
+.module-catalog { margin-bottom:0; }
+.module-empty { padding:32px 20px;border:1px solid var(--border);border-radius:8px;text-align:center;color:var(--muted-foreground);font-size:12px; }
+@media(max-width:500px){.module-controls .content-search-field{max-width:none}.module-controls .gp-select{width:100%}.module-catalog .theme-card{padding:16px;gap:12px}.module-catalog .theme-card-actions{grid-column:1/-1}}
