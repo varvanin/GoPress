@@ -9,13 +9,15 @@ export function editFAQ(event) {
  if(action.hasAttribute('data-faq-add')){
   if(list.children.length>=50)return;
   list.append(form.querySelector('[data-faq-template]').content.cloneNode(true));
-  list.lastElementChild.querySelector('input').focus();
+  globalThis.htmx?.process(list.lastElementChild);
+  list.lastElementChild.querySelector('button,summary,input:not([type=hidden]),textarea').focus();
  } else if(action.hasAttribute('data-faq-remove')){
-  if(list.children.length<=1){item.querySelector('input').focus();return;}
+  if(list.children.length<=1){item.querySelector('button,summary,input:not([type=hidden]),textarea').focus();return;}
   item.remove();
  } else if(action.hasAttribute('data-faq-up')&&item.previousElementSibling)list.insertBefore(item,item.previousElementSibling);
  else if(action.hasAttribute('data-faq-down')&&item.nextElementSibling)list.insertBefore(item.nextElementSibling,item);
  else return;
+ if(form.dataset)form.dataset.formDirty='true';
  form.dispatchEvent(new Event('input',{bubbles:true}));
 }
 if(typeof document!=='undefined')document.addEventListener('click',editFAQ);

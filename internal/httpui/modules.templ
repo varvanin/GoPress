@@ -31,13 +31,17 @@ templ Modules(site,csrf string,modules []ModuleInfo,installed bool,query,state s
  for _,m:=range modules {
  <article class="theme-card" data-module-id={ m.ID } data-active={ strconv.FormatBool(m.Enabled) }>
  <div class="module-symbol" aria-hidden="true">
- if m.Builtin {
+ if m.ID=="gallery" && m.Builtin {
+ @icon.Image(icon.Props{Class:"size-5"})
+ } else if m.ID=="testimonials" && m.Builtin {
+ @icon.Icon("users")(icon.Props{Class:"size-5"})
+ } else if m.Builtin {
  @icon.Icon("clipboard-list")(icon.Props{Class:"size-5"})
  } else {
  @icon.Icon("blocks")(icon.Props{Class:"size-5"})
  }
  </div>
- <div class="theme-card-info"><div class="theme-card-title"><h2>{ m.Name }</h2><span class="theme-active-label">
+ <div class="theme-card-info"><div class="theme-card-title"><h2>{ builtinModuleName(ctx,m) }</h2><span class="theme-active-label">
  if m.Enabled {
  @icon.Check(icon.Props{Class:"size-3"})<span>{ i18n.T(ctx,"Включён") }</span>
  } else {
@@ -45,7 +49,7 @@ templ Modules(site,csrf string,modules []ModuleInfo,installed bool,query,state s
  }
  </span></div><p>
  if m.Builtin {
- { i18n.T(ctx,"Вопросы и ответы") }
+ { i18n.T(ctx,m.Description) }
  } else {
  { m.Description }
  }
@@ -82,11 +86,11 @@ templ Modules(site,csrf string,modules []ModuleInfo,installed bool,query,state s
 }
 
 func moduleTogglePath(m ModuleInfo) string {
- if m.Builtin {return "/admin/modules/faq/toggle"}
+ if m.Builtin {return "/admin/modules/"+m.ID+"/toggle"}
  return "/admin/modules/package/toggle"
 }
 func moduleEditorPath(m ModuleInfo) string {
- if m.Builtin {return "/admin/modules/faq"}
+ if m.Builtin {return "/admin/modules/"+m.ID}
  return "/admin/modules/package/"+m.ID+"/edit"
 }
 func moduleButtonVariant(enabled bool) button.Variant {

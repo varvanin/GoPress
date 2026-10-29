@@ -17,7 +17,7 @@ type MediaFile struct {
 }
 
 // Include immutable revisions: restoring an old version must never resurrect a broken image.
-const mediaUsed = `EXISTS(SELECT 1 FROM pages WHERE cover=m.name OR published_cover=m.name
+const mediaUsed = `EXISTS(SELECT 1 FROM module_collection_media WHERE media_name=m.name) OR EXISTS(SELECT 1 FROM pages WHERE cover=m.name OR published_cover=m.name
  OR EXISTS(SELECT 1 FROM json_tree(document) WHERE key='src' AND value='/uploads/'||m.name)
  OR EXISTS(SELECT 1 FROM json_tree(coalesce(published_document,'{}')) WHERE key='src' AND value='/uploads/'||m.name))
  OR EXISTS(SELECT 1 FROM revisions WHERE cover=m.name

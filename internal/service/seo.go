@@ -47,7 +47,7 @@ func (v *Service) SaveAppearance(ctx context.Context, a store.Appearance) error 
 	return v.Store.SaveAppearance(ctx, a)
 }
 
-var embedTextCode = regexp.MustCompile(`^\[(?:(?:form|faq) id=[1-9][0-9]{0,18}|module id="[a-z][a-z0-9-]{0,47}")\]$`)
+var embedTextCode = regexp.MustCompile(`^\[(?:(?:form|faq|gallery|testimonials) id=[1-9][0-9]{0,18}|module id="[a-z][a-z0-9-]{0,47}")\]$`)
 
 // Excerpt reads the document schema, never strips tags from trusted HTML.
 func documentText(raw string) string {

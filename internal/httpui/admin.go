@@ -523,12 +523,17 @@ func moduleNavigationData(ctx context.Context) moduleNavigation {
 }
 func moduleNavigationURL(m ModuleInfo) string {
 	if m.Builtin {
-		return "/admin/modules/faq"
+		return "/admin/modules/" + m.ID
 	}
 	return "/admin/modules/package/" + m.ID + "/edit"
 }
 func adminCurrentSection(ctx context.Context, title string) string {
 	path := moduleNavigationData(ctx).Path
+	for _, kind := range []string{"gallery", "testimonials"} {
+		if path == "/admin/modules/"+kind || strings.HasPrefix(path, "/admin/modules/"+kind+"/") {
+			return "/admin/modules/" + kind
+		}
+	}
 	if strings.HasPrefix(path, "/admin/modules/faq") {
 		return "/admin/modules/faq"
 	}

@@ -546,6 +546,10 @@ func (a *App) render(c *echo.Context, p store.Page, notFound bool, preview ...st
 	if err != nil {
 		return err
 	}
+	body, err = a.renderCollections(c, body)
+	if err != nil {
+		return err
+	}
 	body, err = a.renderFAQ(c, body)
 	if err != nil {
 		return err

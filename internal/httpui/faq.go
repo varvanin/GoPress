@@ -24,6 +24,7 @@ func (a *App) faqEditor(c *echo.Context, status int, f store.FAQGroup, message s
 }
 func (a *App) moduleRoutes(g *echo.Group) {
 	a.packageModuleRoutes(g)
+	a.collectionRoutes(g)
 	g.GET("/modules", func(c *echo.Context) error {
 		site, err := a.Service.Store.Site()
 		if err != nil {
@@ -47,7 +48,7 @@ func (a *App) moduleRoutes(g *echo.Group) {
 			if module.Builtin {
 				description = i18n.T(c.Request().Context(), description)
 			}
-			text := strings.ToLower(strings.Join([]string{module.ID, module.Name, module.Author, description}, " "))
+			text := strings.ToLower(strings.Join([]string{module.ID, module.Name, builtinModuleName(c.Request().Context(), module), module.Author, description}, " "))
 			if strings.Contains(text, strings.ToLower(query)) {
 				filtered = append(filtered, module)
 			}

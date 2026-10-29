@@ -4,7 +4,7 @@ A module is a ZIP containing `module.json`, `template.html` and optional `style.
 
 ## module.json
 
-`id` is unique: a lowercase ASCII letter followed by letters, digits or hyphens, at most 48 characters. `faq` is reserved. `name`, `version`, `author` and `description` appear in the catalog. `fields` defines up to 20 settings.
+`id` is unique: a lowercase ASCII letter followed by letters, digits or hyphens, at most 48 characters. `faq`, `gallery` and `testimonials` are reserved for built-in modules. `name`, `version`, `author` and `description` appear in the catalog. `fields` defines up to 20 settings.
 
 A field has `key` (a letter followed by letters/digits/underscores, at most 40 characters), `label`, `type` (`text`, `textarea`, `url`) and optional `default` / `required`. Values are strings up to 5,000 characters; URLs must be absolute HTTP/HTTPS. Supply valid initial values for required fields. Settings saves use optimistic version checks.
 

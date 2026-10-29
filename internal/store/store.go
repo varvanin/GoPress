@@ -70,6 +70,9 @@ var faqMigration string
 //go:embed module_packages.sql
 var modulePackagesMigration string
 
+//go:embed collections.sql
+var collectionsMigration string
+
 var ErrConflict = errors.New("version or URL conflict")
 var ErrInstalled = errors.New("already installed")
 
@@ -194,16 +197,16 @@ func openWithLock(dir string, held *os.File) (*Store, error) {
 	if err = s.DB.QueryRow("PRAGMA user_version").Scan(&version); err != nil {
 		return nil, fmt.Errorf("read database: %w", err)
 	}
-	if version < 0 || version > 14 || (!fresh && version == 0) {
+	if version < 0 || version > 15 || (!fresh && version == 0) {
 		return nil, fmt.Errorf("unsupported database schema %d; refusing to reinstall", version)
 	}
-	if version < 14 {
+	if version < 15 {
 		tx, e := s.DB.Begin()
 		if e != nil {
 			return nil, e
 		}
 		defer tx.Rollback()
-		scripts := []string{migration, "ALTER TABLE pages ADD COLUMN kind TEXT NOT NULL DEFAULT 'page' CHECK(kind IN ('page','post')); PRAGMA user_version=2;", contentMigration, blogMigration, siteMigration, seoMigration, formsMigration, settingsMigration, usersMigration, searchMigration, pagesMigration, jobsMigration, faqMigration, modulePackagesMigration}
+		scripts := []string{migration, "ALTER TABLE pages ADD COLUMN kind TEXT NOT NULL DEFAULT 'page' CHECK(kind IN ('page','post')); PRAGMA user_version=2;", contentMigration, blogMigration, siteMigration, seoMigration, formsMigration, settingsMigration, usersMigration, searchMigration, pagesMigration, jobsMigration, faqMigration, modulePackagesMigration, collectionsMigration}
 		for _, script := range scripts[version:] {
 			if _, e = tx.Exec(script); e != nil {
 				return nil, e
@@ -722,7 +725,7 @@ func CheckFile(file string) error {
 	if err = db.QueryRow("PRAGMA user_version").Scan(&version); err != nil {
 		return err
 	}
-	if version < 1 || version > 14 {
+	if version < 1 || version > 15 {
 		return errors.New("unsupported schema")
 	}
 	var n int

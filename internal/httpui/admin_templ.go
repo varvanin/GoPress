@@ -4967,7 +4967,7 @@ func AdminModulesNavigation(title string, oob bool) templ.Component {
 						}
 						ctx = templ.InitializeContext(ctx)
 						for _, m := range moduleNavigationData(ctx).Modules {
-							templ_7745c5c3_Err = AdminNavLink(moduleNavigationURL(m), m.Name, title, icon.Icon("blocks")).Render(ctx, templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = AdminNavLink(moduleNavigationURL(m), builtinModuleName(ctx, m), title, icon.Icon("blocks")).Render(ctx, templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}

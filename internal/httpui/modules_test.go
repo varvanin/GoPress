@@ -206,6 +206,12 @@ func TestModulePackageValidation(t *testing.T) {
 		{"reserved", func(f map[string]string) {
 			f["module.json"] = strings.Replace(f["module.json"], "contact-card", "faq", 1)
 		}},
+		{"reserved gallery", func(f map[string]string) {
+			f["module.json"] = strings.Replace(f["module.json"], "contact-card", "gallery", 1)
+		}},
+		{"reserved testimonials", func(f map[string]string) {
+			f["module.json"] = strings.Replace(f["module.json"], "contact-card", "testimonials", 1)
+		}},
 		{"invalid screenshot", func(f map[string]string) { f["screenshot.png"] = "bad" }},
 		{"oversized template", func(f map[string]string) { f["template.html"] = strings.Repeat("x", 129<<10) }},
 	} {

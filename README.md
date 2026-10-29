@@ -119,6 +119,8 @@ Submissions are saved before email delivery. Background notifications use bounde
 
 Modules include the built-in FAQ: question groups, ordering and native expandable answers, embedded using `[faq id=1]`. Custom modules are configurable HTML/CSS ZIP packages with settings and optional previews; insert `[module id="contact-card"]`. Multiple modules can be enabled, and disabling preserves their settings. They do not execute arbitrary Go/PHP server code.
 
+Built-in Gallery and Testimonials manage ordered image collections and manually entered reviews. Choose images from the media library, add captions or names/company/text, and insert `[gallery id=1]` or `[testimonials id=1]` as a separate paragraph. Testimonials support grid/list layouts. Disabling preserves groups; used images are protected from deletion. Group edits update their published blocks immediately.
+
 [Module format and starter](docs/MODULES.md)
 
 ### Search and SEO

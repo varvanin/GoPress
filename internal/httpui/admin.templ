@@ -650,7 +650,7 @@ templ AdminModulesNavigation(title string, oob bool) {
    if len(moduleNavigationData(ctx).Modules)>0 {
     @sidebar.Menu(sidebar.MenuProps{Class:"gp-nav-submenu",Attributes:templ.Attributes{"aria-label":i18n.T(ctx,"Модули")}}) {
      for _,m:=range moduleNavigationData(ctx).Modules {
-      @AdminNavLink(moduleNavigationURL(m),m.Name,title,icon.Icon("blocks"))
+      @AdminNavLink(moduleNavigationURL(m),builtinModuleName(ctx,m),title,icon.Icon("blocks"))
      }
     }
    }

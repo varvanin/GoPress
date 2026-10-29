@@ -15,3 +15,14 @@ test('FAQ moves whole question and answer rows and preserves one question',()=>{
  click('data-faq-remove',a);assert.deepEqual(rows,[a]);assert.equal(changes,3);
 });
 test('FAQ code is selected for copying',()=>{let selected=false;editFAQ({target:{closest(selector){return selector==='[data-faq-code]'?{select(){selected=true;}}:null;}}});assert.equal(selected,true);});
+
+test('new collection rows mount local media controls and mark the editor dirty',t=>{
+ const old=globalThis.htmx;t.after(()=>{globalThis.htmx=old;});let mounted=0,focused=0;
+ globalThis.htmx={process:()=>mounted++};
+ const row={querySelector:()=>({focus:()=>focused++})};
+ const list={children:[],append(){this.children.push(row);},lastElementChild:row};
+ const form={dataset:{},querySelector:s=>s==='[data-faq-items]'?list:{content:{cloneNode:()=>({})}},dispatchEvent(){}};
+ const action={closest:s=>s==='[data-faq-editor]'?form:null,hasAttribute:s=>s==='data-faq-add'};
+ editFAQ({target:{closest:s=>s==='[data-faq-code]'?null:action}});
+ assert.equal(mounted,1);assert.equal(focused,1);assert.equal(form.dataset.formDirty,'true');
+});

@@ -10,7 +10,7 @@ Inspected 2026-10-26.
 | app/layout.tsx | 789dc0ab2f681d6325d437192c049499207887cc |
 | components/app-sidebar.tsx | b95780faa42a4298afa9bdf88d6811b08ac873f8 |
 
-The dark color values and visual composition informed web/styles/experiment-03.css
+The dark color values and visual composition informed web/styles/admin.css
 and internal/httpui/admin.templ. Existing shadcn-templ components supply behavior.
 No React/Next source, logo, images, fonts, or financial chart datasets are bundled.
 Typography uses the local system font stack. The overview shows actual CMS counts.

@@ -1,0 +1,283 @@
+package httpui
+
+import "strconv"
+import "gopress/internal/i18n"
+import "gopress/internal/store"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/card"
+import "gopress/internal/ui/components/icon"
+import selectcomp "gopress/internal/ui/components/select"
+
+templ Collections(site, csrf, kind string, items []store.Collection, enabled bool) {
+	@AdminLayout(site, i18n.T(ctx, "Модули"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, collectionTitle(kind)), len(items)) {
+			@button.Button(button.Props{Href: "/admin/modules/" + kind + "/new", Size: button.SizeSm}) {
+				@icon.Plus()
+				<span>
+					{ i18n.T(ctx,"Создать группу") }
+				</span>
+			}
+		}
+		if !enabled {
+			<p class="field-help">
+				{ i18n.T(ctx,"Модуль отключён. Данные сохраняются и доступны для редактирования.") }
+			</p>
+		}
+		<div class="forms-list">
+			for _,item:=range items {
+				<article class="forms-list-row">
+					<div>
+						<a class="page-title" href={ templ.SafeURL(collectionPath(kind, item.ID)) }>
+							{ item.Name }
+						</a>
+						<p class="field-help">
+							{ i18n.T(ctx,"Элементов: ")+strconv.Itoa(item.ItemCount) }
+						</p>
+					</div>
+					<code>
+						{ collectionCode(item) }
+					</code>
+					@button.Button(button.Props{Href: collectionPath(kind, item.ID), Variant: button.VariantOutline, Size: button.SizeSm}) {
+						@icon.PenLine()
+						<span>
+							{ i18n.T(ctx,"Редактировать") }
+						</span>
+					}
+				</article>
+			}
+			if len(items)==0 {
+				<section class="tool-empty">
+					<h2>
+						{ i18n.T(ctx,"Начните с первой группы") }
+					</h2>
+					<p>
+						{ i18n.T(ctx,"Создайте группу и вставьте её короткий код в страницу или запись.") }
+					</p>
+				</section>
+			}
+		</div>
+	}
+}
+
+templ CollectionEditor(site, csrf string, c store.Collection, message string) {
+	@AdminLayout(site, i18n.T(ctx, "Модули"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, collectionTitle(c.Kind)), -1) {
+			@button.Button(button.Props{Href: "/admin/modules/" + c.Kind, Variant: button.VariantOutline, Size: button.SizeSm}) {
+				<span>
+					{ i18n.T(ctx,"Все группы") }
+				</span>
+			}
+			@button.Button(button.Props{Type: button.TypeSubmit, Form: "collection-editor", Size: button.SizeSm}) {
+				@icon.Save()
+				<span>
+					{ i18n.T(ctx,"Сохранить") }
+				</span>
+			}
+		}
+		if message!="" {
+			<p class={ "notice",templ.KV("notice-error",message!="Изменения сохранены.") } role="status">
+				{ i18n.T(ctx,message) }
+			</p>
+		}
+		<div class="management-workspace">
+			<form id="collection-editor" method="post" action={ templ.SafeURL("/admin/modules/" + c.Kind + "/save") } data-change-form data-faq-editor class="faq-editor">
+				<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="id" value={ strconv.FormatInt(c.ID, 10) }/><input type="hidden" name="version" value={ strconv.FormatInt(c.Version, 10) }/>
+				@card.Card(card.Props{Class: "settings-panel px-4"}) {
+					<label>
+						{ i18n.T(ctx,"Название группы") }
+						<input name="name" class="site-input" value={ c.Name } maxlength="120" required/>
+					</label>
+					if c.Kind=="testimonials" {
+						<label for="collection-layout">
+							{ i18n.T(ctx,"Отображение") }
+						</label>
+						@AdminSelect("collection-layout", "layout", c.Layout, i18n.T(ctx, "Отображение"), []selectcomp.ItemData{{Value: "grid", Label: i18n.T(ctx, "Сетка")}, {Value: "list", Label: i18n.T(ctx, "Список")}}, nil)
+					} else {
+						<input type="hidden" name="layout" value="grid"/>
+					}
+				}
+				<div data-faq-items class="faq-items">
+					for _,item:=range c.Items {
+						@CollectionItemEditor(c.Kind, item)
+					}
+				</div>
+				@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"data-faq-add": true}}) {
+					@icon.Plus()
+					<span>
+						{ i18n.T(ctx,"Добавить элемент") }
+					</span>
+				}
+				<template data-faq-template>@CollectionItemEditor(c.Kind, store.CollectionItem{})</template>
+			</form>
+			<aside class="management-context">
+				<h2>
+					{ i18n.T(ctx,"Код для вставки") }
+				</h2>
+				if c.ID>0 {
+					<input class="site-input" readonly data-faq-code value={ collectionCode(c) } aria-label={ i18n.T(ctx, "Код для вставки") }/>
+				} else {
+					<p>
+						{ i18n.T(ctx,"Код появится после первого сохранения группы.") }
+					</p>
+				}
+				<p>
+					{ i18n.T(ctx,"До 50 элементов. Порядок в редакторе совпадает с порядком на сайте.") }
+				</p>
+				<p>
+					{ i18n.T(ctx,"Вставляйте код отдельным абзацем. Изменения группы сразу появятся на сайте.") }
+				</p>
+				<a class="context-link" href="/admin/media">
+					{ i18n.T(ctx,"Медиатека") }
+				</a>
+				if c.ID>0 {
+					<form method="post" action={ templ.SafeURL("/admin/modules/" + c.Kind + "/delete") } hx-confirm={ i18n.T(ctx, "Удалить группу навсегда? Она исчезнет из всех материалов.") }>
+						<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="id" value={ strconv.FormatInt(c.ID, 10) }/><input type="hidden" name="version" value={ strconv.FormatInt(c.Version, 10) }/>
+						@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm}) {
+							@icon.Icon("trash-2")()
+							<span>
+								{ i18n.T(ctx,"Удалить группу") }
+							</span>
+						}
+					</form>
+				}
+			</aside>
+		</div>
+	}
+}
+
+templ CollectionItemEditor(kind string, item store.CollectionItem) {
+	@card.Card(card.Props{Class: "settings-panel px-4 faq-item collection-item"}) {
+		<div class="faq-item-heading">
+			<span class="field-help">
+				{ i18n.T(ctx,collectionTitle(kind)) }
+			</span>
+			<div class="flex gap-2">
+				@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"data-faq-up": true, "aria-label": i18n.T(ctx, "Выше"), "title": i18n.T(ctx, "Выше")}}) {
+					@icon.ArrowLeft(icon.Props{Class: "size-4 rotate-90"})
+				}
+				@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"data-faq-down": true, "aria-label": i18n.T(ctx, "Ниже"), "title": i18n.T(ctx, "Ниже")}}) {
+					@icon.ArrowRight(icon.Props{Class: "size-4 rotate-90"})
+				}
+				@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"data-faq-remove": true, "aria-label": i18n.T(ctx, "Удалить"), "title": i18n.T(ctx, "Удалить")}}) {
+					@icon.Icon("trash-2")()
+				}
+			</div>
+		</div>
+		<input type="hidden" name="image" value={ item.Image }/>
+		<div class="collection-image-row">
+			<img class="collection-image-preview" src={ "/uploads/" + item.Image } alt="" hidden?={ item.Image=="" }/>
+			<details class="collection-library">
+				<summary hx-get="/admin/modules/media/choices" hx-trigger="click once" hx-target="next .collection-picker" hx-select="unset" hx-swap="outerHTML">
+					{ i18n.T(ctx,"Выбрать изображение") }
+				</summary>
+				<div class="collection-picker"></div>
+			</details>
+			@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"data-collection-clear": true, "aria-label": i18n.T(ctx, "Убрать изображение"), "title": i18n.T(ctx, "Убрать изображение")}}) {
+				@icon.X()
+			}
+		</div>
+		if kind=="gallery" {
+			<label>
+				{ i18n.T(ctx,"Подпись") }
+				<input class="site-input" name="caption" maxlength="500" value={ item.Caption }/>
+			</label>
+			<input type="hidden" name="person" value=""/><input type="hidden" name="company" value=""/><input type="hidden" name="text" value=""/>
+		} else {
+			<input type="hidden" name="caption" value=""/>
+			<label>
+				{ i18n.T(ctx,"Имя") }
+				<input class="site-input" name="person" value={ item.Name } maxlength="120" required/>
+			</label>
+			<label>
+				{ i18n.T(ctx,"Компания") }
+				<input class="site-input" name="company" value={ item.Company } maxlength="200"/>
+			</label>
+			<label>
+				{ i18n.T(ctx,"Текст отзыва") }
+				<textarea class="site-input" name="text" rows="4" maxlength="5000" required>
+					{ item.Text }
+				</textarea>
+			</label>
+		}
+	}
+}
+
+templ CollectionMediaPicker(files []store.MediaFile, total, page int, query string) {
+	<div class="collection-picker" hx-select="unset">
+		<input type="search" name="q" class="site-input" value={ query } maxlength="200" aria-label={ i18n.T(ctx, "Поиск в медиатеке") } placeholder={ i18n.T(ctx, "Поиск изображений…") } hx-get="/admin/modules/media/choices" hx-trigger="search, input changed delay:400ms" hx-target="closest .collection-picker" hx-select="unset" hx-swap="outerHTML" hx-params="q"/>
+		<div class="collection-picker-grid">
+			for _,file:=range files {
+				<button type="button" data-collection-choice={ file.Name } title={ mediaTitle(file) }>
+					<img src={ "/uploads/" + file.Name } alt={ file.Alt } loading="lazy"/>
+					<span>
+						{ mediaTitle(file) }
+					</span>
+				</button>
+			}
+		</div>
+		if len(files)==0 {
+			<p class="field-help">
+				{ i18n.T(ctx,"Совпадений не найдено.") }
+			</p>
+		}
+		<nav class="picker-pagination" aria-label={ i18n.T(ctx, "Страницы изображений") }>
+			if page>1 {
+				<button type="button" hx-get={ collectionPickerURL(query, page-1) } hx-target="closest .collection-picker" hx-swap="outerHTML">
+					{ i18n.T(ctx,"Назад") }
+				</button>
+			}
+			<span class="field-help">
+				{ strconv.Itoa(page)+" · "+strconv.Itoa(total) }
+			</span>
+			if page*24<total {
+				<button type="button" hx-get={ collectionPickerURL(query, page+1) } hx-target="closest .collection-picker" hx-swap="outerHTML">
+					{ i18n.T(ctx,"Далее") }
+				</button>
+			}
+		</nav>
+	</div>
+}
+
+templ PublicCollection(c store.Collection, files map[string]store.MediaFile) {
+	<link rel="stylesheet" href="/assets/collections.css"/>
+	<section class={ "gp-collection","gp-"+c.Kind } data-layout={ c.Layout } aria-label={ c.Name }>
+		<h2>
+			{ c.Name }
+		</h2>
+		<div class="gp-collection-grid">
+			for _,item:=range c.Items {
+				if c.Kind=="gallery" {
+					<figure>
+						<a href={ "/uploads/" + item.Image } target="_blank" rel="noopener"><img src={ "/uploads/" + item.Image } alt={ collectionImageAlt(item, files[item.Image]) } loading="lazy"/></a>
+						if item.Caption!="" {
+							<figcaption>
+								{ item.Caption }
+							</figcaption>
+						}
+					</figure>
+				} else {
+					<figure class="gp-testimonial">
+						<blockquote>
+							{ item.Text }
+						</blockquote>
+						<figcaption>
+							if item.Image!="" {
+								<img src={ "/uploads/" + item.Image } alt="" loading="lazy"/>
+							}
+							<span>
+								<strong>
+									{ item.Name }
+								</strong>
+								if item.Company!="" {
+									<small>
+										{ item.Company }
+									</small>
+								}
+							</span>
+						</figcaption>
+					</figure>
+				}
+			}
+		</div>
+	</section>
+}

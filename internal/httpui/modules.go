@@ -22,6 +22,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/labstack/echo/v5"
+	"gopress/internal/i18n"
 	"gopress/internal/service"
 	"gopress/internal/store"
 )
@@ -72,6 +73,13 @@ func (a *App) moduleCatalog() ([]ModuleInfo, error) {
 		return nil, err
 	}
 	result := []ModuleInfo{{ID: "faq", Name: "FAQ", Version: "1.0", Author: "GoPress", Description: "Вопросы и ответы", Enabled: enabled, Builtin: true}}
+	for _, kind := range []string{"gallery", "testimonials"} {
+		enabled, err := a.Service.Store.ModuleEnabled(kind)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, ModuleInfo{ID: kind, Name: collectionTitle(kind), Version: "1.0", Author: "GoPress", Description: map[string]string{"gallery": "Подборки изображений с подписями", "testimonials": "Отзывы клиентов с фотографиями"}[kind], Enabled: enabled, Builtin: true})
+	}
 	packages, err := a.Service.Store.ModulePackages()
 	if err != nil {
 		return nil, err
@@ -315,7 +323,7 @@ func (a *App) installModule(ctx context.Context, reader io.Reader) (ModuleInfo, 
 	if len(files["module.json"]) > 32<<10 || json.Unmarshal(files["module.json"], &info) != nil {
 		return info, fmt.Errorf("Invalid module.json")
 	}
-	if !moduleID.MatchString(info.ID) || info.ID == "faq" || strings.TrimSpace(info.Name) == "" || utf8.RuneCountInString(info.Name) > 120 || info.Version == "" || len(info.Version) > 40 || len(info.Author) > 120 || utf8.RuneCountInString(info.Description) > 600 || len(info.Fields) > 20 {
+	if !moduleID.MatchString(info.ID) || (info.ID == "faq" || info.ID == "gallery" || info.ID == "testimonials") || strings.TrimSpace(info.Name) == "" || utf8.RuneCountInString(info.Name) > 120 || info.Version == "" || len(info.Version) > 40 || len(info.Author) > 120 || utf8.RuneCountInString(info.Description) > 600 || len(info.Fields) > 20 {
 		return info, fmt.Errorf("Invalid module metadata")
 	}
 	keys := map[string]bool{}
@@ -593,4 +601,11 @@ func moduleStarter() ([]byte, error) {
 		return nil, err
 	}
 	return out.Bytes(), nil
+}
+
+func builtinModuleName(ctx context.Context, m ModuleInfo) string {
+	if m.Builtin {
+		return i18n.T(ctx, m.Name)
+	}
+	return m.Name
 }

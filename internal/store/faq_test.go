@@ -8,7 +8,7 @@ func TestFAQUpgradeFromTwelve(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = s.DB.Exec("DROP TABLE module_packages; DROP TABLE faq_groups; DROP TABLE modules; PRAGMA user_version=12"); err != nil {
+	if _, err = s.DB.Exec("DROP TABLE module_collection_media; DROP TABLE module_collections; DELETE FROM modules WHERE id!='faq'; DROP TABLE module_packages; DROP TABLE faq_groups; DROP TABLE modules; PRAGMA user_version=12"); err != nil {
 		t.Fatal(err)
 	}
 	if err = s.Close(); err != nil {

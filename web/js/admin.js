@@ -2,6 +2,7 @@ import {mediaDrop,mediaChoose} from './media-upload.js';
 import {updateSEOSettings} from './seo-settings.js';
 import {mountTemplateEditor,setTemplatePending} from './template-editor-loader.js';
 import './faq.js';
+import './collections.js';
 import {t} from './i18n.js';
 import {mountFormBuilder,editFormBuilder,updateFormBuilder} from './form-builder.js';
 import {toast,showNotices,confirmAction,deletionPrompt,actionMessage} from './feedback.js';

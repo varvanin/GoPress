@@ -249,7 +249,17 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if m.Builtin {
+				if m.ID == "gallery" && m.Builtin {
+					templ_7745c5c3_Err = icon.Image(icon.Props{Class: "size-5"}).Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else if m.ID == "testimonials" && m.Builtin {
+					templ_7745c5c3_Err = icon.Icon("users")(icon.Props{Class: "size-5"}).Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else if m.Builtin {
 					templ_7745c5c3_Err = icon.Icon("clipboard-list")(icon.Props{Class: "size-5"}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -265,9 +275,9 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var13 string
-				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(m.Name)
+				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(builtinModuleName(ctx, m))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 40, Col: 72}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 44, Col: 90}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -289,7 +299,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Включён"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 42, Col: 76}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 46, Col: 76}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -303,7 +313,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Отключён"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 44, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 48, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
@@ -316,9 +326,9 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 				}
 				if m.Builtin {
 					var templ_7745c5c3_Var16 string
-					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Вопросы и ответы"))
+					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, m.Description))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 48, Col: 47}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 52, Col: 28}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -328,7 +338,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(m.Description)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 50, Col: 16}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 54, Col: 16}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -342,7 +352,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(m.Author)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 52, Col: 40}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 56, Col: 40}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -355,7 +365,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(m.Version)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 52, Col: 57}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 56, Col: 57}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 				if templ_7745c5c3_Err != nil {
@@ -368,7 +378,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 				var templ_7745c5c3_Var20 templ.SafeURL
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(moduleTogglePath(m)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 54, Col: 64}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 58, Col: 64}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
@@ -381,7 +391,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(csrf)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 54, Col: 112}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 58, Col: 112}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 				if templ_7745c5c3_Err != nil {
@@ -394,7 +404,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 				var templ_7745c5c3_Var22 string
 				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(query)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 54, Col: 159}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 58, Col: 159}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 				if templ_7745c5c3_Err != nil {
@@ -407,7 +417,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 				var templ_7745c5c3_Var23 string
 				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(state)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 54, Col: 210}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 58, Col: 210}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 				if templ_7745c5c3_Err != nil {
@@ -420,7 +430,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 				var templ_7745c5c3_Var24 string
 				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 54, Col: 257}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 58, Col: 257}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 				if templ_7745c5c3_Err != nil {
@@ -433,7 +443,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 				var templ_7745c5c3_Var25 string
 				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.FormatInt(m.Revision, 10))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 54, Col: 337}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 58, Col: 337}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 				if templ_7745c5c3_Err != nil {
@@ -446,7 +456,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 				var templ_7745c5c3_Var26 string
 				templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.FormatBool(!m.Enabled))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 54, Col: 415}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 58, Col: 415}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 				if templ_7745c5c3_Err != nil {
@@ -472,7 +482,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 						var templ_7745c5c3_Var28 string
 						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Отключить"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 57, Col: 35}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 61, Col: 35}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 						if templ_7745c5c3_Err != nil {
@@ -482,7 +492,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 						var templ_7745c5c3_Var29 string
 						templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Включить"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 59, Col: 33}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 63, Col: 33}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 						if templ_7745c5c3_Err != nil {
@@ -514,7 +524,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 					var templ_7745c5c3_Var31 string
 					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Настроить"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 64, Col: 35}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 68, Col: 35}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 					if templ_7745c5c3_Err != nil {
@@ -534,7 +544,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 					var templ_7745c5c3_Var32 string
 					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Удалить модуль и его настройки навсегда?"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 67, Col: 161}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 71, Col: 161}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
 					if templ_7745c5c3_Err != nil {
@@ -547,7 +557,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 					var templ_7745c5c3_Var33 string
 					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(csrf)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 67, Col: 209}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 71, Col: 209}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 					if templ_7745c5c3_Err != nil {
@@ -560,7 +570,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 					var templ_7745c5c3_Var34 string
 					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(query)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 67, Col: 256}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 71, Col: 256}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 					if templ_7745c5c3_Err != nil {
@@ -573,7 +583,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 					var templ_7745c5c3_Var35 string
 					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(state)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 67, Col: 307}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 71, Col: 307}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
 					if templ_7745c5c3_Err != nil {
@@ -586,7 +596,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 					var templ_7745c5c3_Var36 string
 					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.ID)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 67, Col: 354}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 71, Col: 354}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
 					if templ_7745c5c3_Err != nil {
@@ -599,7 +609,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 					var templ_7745c5c3_Var37 string
 					templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.FormatInt(m.Revision, 10))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 67, Col: 434}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 71, Col: 434}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
 					if templ_7745c5c3_Err != nil {
@@ -653,7 +663,7 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 				var templ_7745c5c3_Var39 string
 				templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Совпадений не найдено."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 78, Col: 82}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 82, Col: 82}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 				if templ_7745c5c3_Err != nil {
@@ -680,13 +690,13 @@ func Modules(site, csrf string, modules []ModuleInfo, installed bool, query, sta
 
 func moduleTogglePath(m ModuleInfo) string {
 	if m.Builtin {
-		return "/admin/modules/faq/toggle"
+		return "/admin/modules/" + m.ID + "/toggle"
 	}
 	return "/admin/modules/package/toggle"
 }
 func moduleEditorPath(m ModuleInfo) string {
 	if m.Builtin {
-		return "/admin/modules/faq"
+		return "/admin/modules/" + m.ID
 	}
 	return "/admin/modules/package/" + m.ID + "/edit"
 }
@@ -757,7 +767,7 @@ func ModuleUpload(site, csrf, message string) templ.Component {
 					var templ_7745c5c3_Var44 string
 					templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Назад"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 101, Col: 27}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 105, Col: 27}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 					if templ_7745c5c3_Err != nil {
@@ -783,7 +793,7 @@ func ModuleUpload(site, csrf, message string) templ.Component {
 				var templ_7745c5c3_Var45 string
 				templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, message))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 105, Col: 66}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 109, Col: 66}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 				if templ_7745c5c3_Err != nil {
@@ -801,7 +811,7 @@ func ModuleUpload(site, csrf, message string) templ.Component {
 			var templ_7745c5c3_Var46 string
 			templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.ResolveAttributeValue(csrf)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 108, Col: 46}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 112, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var46)
 			if templ_7745c5c3_Err != nil {
@@ -814,7 +824,7 @@ func ModuleUpload(site, csrf, message string) templ.Component {
 			var templ_7745c5c3_Var47 string
 			templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Архив модуля GoPress"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 109, Col: 91}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 113, Col: 91}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 			if templ_7745c5c3_Err != nil {
@@ -827,7 +837,7 @@ func ModuleUpload(site, csrf, message string) templ.Component {
 			var templ_7745c5c3_Var48 string
 			templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "module.json, template.html, style.css и превью PNG/JPEG. ZIP до 8 MiB. После установки модуль выключен."))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 109, Col: 391}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 113, Col: 391}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 			if templ_7745c5c3_Err != nil {
@@ -860,7 +870,7 @@ func ModuleUpload(site, csrf, message string) templ.Component {
 				var templ_7745c5c3_Var50 string
 				templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Установить"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 111, Col: 55}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 115, Col: 55}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 				if templ_7745c5c3_Err != nil {
@@ -950,7 +960,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 					var templ_7745c5c3_Var55 string
 					templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Модули"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 121, Col: 29}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 125, Col: 29}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 					if templ_7745c5c3_Err != nil {
@@ -977,7 +987,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 					var templ_7745c5c3_Var57 string
 					templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Сохранить"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 124, Col: 35}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 128, Col: 35}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
 					if templ_7745c5c3_Err != nil {
@@ -1021,7 +1031,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 				var templ_7745c5c3_Var60 string
 				templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, message))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 128, Col: 146}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 132, Col: 146}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var60))
 				if templ_7745c5c3_Err != nil {
@@ -1039,7 +1049,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 			var templ_7745c5c3_Var61 string
 			templ_7745c5c3_Var61, templ_7745c5c3_Err = templ.ResolveAttributeValue(csrf)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 131, Col: 46}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 135, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var61)
 			if templ_7745c5c3_Err != nil {
@@ -1052,7 +1062,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 			var templ_7745c5c3_Var62 string
 			templ_7745c5c3_Var62, templ_7745c5c3_Err = templ.ResolveAttributeValue(info.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 131, Col: 96}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 135, Col: 96}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var62)
 			if templ_7745c5c3_Err != nil {
@@ -1065,7 +1075,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 			var templ_7745c5c3_Var63 string
 			templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.FormatInt(p.Version, 10))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 131, Col: 175}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 135, Col: 175}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var63)
 			if templ_7745c5c3_Err != nil {
@@ -1083,7 +1093,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 				var templ_7745c5c3_Var64 string
 				templ_7745c5c3_Var64, templ_7745c5c3_Err = templ.ResolveAttributeValue("module-field-" + f.Key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 134, Col: 35}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 138, Col: 35}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var64)
 				if templ_7745c5c3_Err != nil {
@@ -1096,7 +1106,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 				var templ_7745c5c3_Var65 string
 				templ_7745c5c3_Var65, templ_7745c5c3_Err = templ.JoinStringErrs(f.Label)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 134, Col: 47}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 138, Col: 47}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var65))
 				if templ_7745c5c3_Err != nil {
@@ -1114,7 +1124,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 					var templ_7745c5c3_Var66 string
 					templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.ResolveAttributeValue("module-field-" + f.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 136, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 140, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var66)
 					if templ_7745c5c3_Err != nil {
@@ -1127,7 +1137,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 					var templ_7745c5c3_Var67 string
 					templ_7745c5c3_Var67, templ_7745c5c3_Err = templ.ResolveAttributeValue("setting_" + f.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 136, Col: 82}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 140, Col: 82}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var67)
 					if templ_7745c5c3_Err != nil {
@@ -1150,7 +1160,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 					var templ_7745c5c3_Var68 string
 					templ_7745c5c3_Var68, templ_7745c5c3_Err = templ.JoinStringErrs(settings[f.Key])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 136, Col: 153}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 140, Col: 153}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var68))
 					if templ_7745c5c3_Err != nil {
@@ -1168,7 +1178,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 					var templ_7745c5c3_Var69 string
 					templ_7745c5c3_Var69, templ_7745c5c3_Err = templ.ResolveAttributeValue("module-field-" + f.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 138, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 142, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var69)
 					if templ_7745c5c3_Err != nil {
@@ -1181,7 +1191,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 					var templ_7745c5c3_Var70 string
 					templ_7745c5c3_Var70, templ_7745c5c3_Err = templ.ResolveAttributeValue(moduleInputType(f.Type))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 138, Col: 86}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 142, Col: 86}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var70)
 					if templ_7745c5c3_Err != nil {
@@ -1194,7 +1204,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 					var templ_7745c5c3_Var71 string
 					templ_7745c5c3_Var71, templ_7745c5c3_Err = templ.ResolveAttributeValue("setting_" + f.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 138, Col: 112}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 142, Col: 112}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var71)
 					if templ_7745c5c3_Err != nil {
@@ -1207,7 +1217,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 					var templ_7745c5c3_Var72 string
 					templ_7745c5c3_Var72, templ_7745c5c3_Err = templ.ResolveAttributeValue(settings[f.Key])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 138, Col: 138}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 142, Col: 138}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var72)
 					if templ_7745c5c3_Err != nil {
@@ -1241,7 +1251,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 				var templ_7745c5c3_Var73 string
 				templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "У этого модуля нет настраиваемых полей."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 143, Col: 111}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 147, Col: 111}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var73))
 				if templ_7745c5c3_Err != nil {
@@ -1259,7 +1269,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 			var templ_7745c5c3_Var74 string
 			templ_7745c5c3_Var74, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Код для вставки"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 145, Col: 100}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 149, Col: 100}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var74))
 			if templ_7745c5c3_Err != nil {
@@ -1272,7 +1282,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 			var templ_7745c5c3_Var75 string
 			templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.ResolveAttributeValue(moduleCode(info.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 145, Col: 183}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 149, Col: 183}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var75)
 			if templ_7745c5c3_Err != nil {
@@ -1285,7 +1295,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 			var templ_7745c5c3_Var76 string
 			templ_7745c5c3_Var76, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Код для вставки"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 145, Col: 241}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 149, Col: 241}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var76)
 			if templ_7745c5c3_Err != nil {
@@ -1298,7 +1308,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 			var templ_7745c5c3_Var77 string
 			templ_7745c5c3_Var77, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Вставьте код отдельным абзацем в страницу или запись и включите модуль в каталоге."))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 145, Col: 415}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 149, Col: 415}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var77))
 			if templ_7745c5c3_Err != nil {
@@ -1311,7 +1321,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 			var templ_7745c5c3_Var78 string
 			templ_7745c5c3_Var78, templ_7745c5c3_Err = templ.JoinStringErrs(info.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 145, Col: 442}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 149, Col: 442}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var78))
 			if templ_7745c5c3_Err != nil {
