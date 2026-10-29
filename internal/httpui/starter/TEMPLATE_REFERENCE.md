@@ -56,6 +56,7 @@ All parts load before the selected page. Other page bodies are not loaded togeth
 | `.ThemeAssets` | Current asset base: `/theme-assets/ID` for packages, `/assets` for built-ins/legacy local templates |
 | `.Appearance.HomeTitle`, `.Appearance.HomeDescription`, `.Appearance.Theme` | Feed heading/description and selected template identifier |
 | `.SEO.RSS` | Whether RSS links should be visible; wrap custom subscription links in `{{if .SEO.RSS}}` |
+| `.SEO.ContentLanguage` | Selected content language code for `<html lang>`; originals use the language saved with the material |
 | `.SEO` | Prepared metadata for `{{template "seo" .}}`; custom manual output is usually unnecessary |
 | `.Pages` | Published page metadata for automatic navigation, in configured order |
 | `.Posts` | Current page of published posts: Title, Slug, Cover, PublishedAt, SEO and TermIDs |

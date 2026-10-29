@@ -46,7 +46,7 @@ func TestTemplateEditorCopySaveValidationConflictAndRestore(t *testing.T) {
 	status(t, adminHTML(b, "POST", "/admin/themes/editor/copy", url.Values{"theme": {"minimal"}}, false, false, false), 403)
 	status(t, adminHTML(b, "POST", "/admin/themes/editor/copy", url.Values{"theme": {"minimal"}}, false, false, true), 303)
 	id := "theme:minimal-copy"
-	files, dir, err := app.templateFiles(id)
+	files, dir, err := app.templateFiles(id, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -127,7 +127,7 @@ func TestTemplateEditorPermissionsAndSafePaths(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, dir, err := app.templateFiles(id)
+	_, dir, err := app.templateFiles(id, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -140,5 +140,30 @@ func TestTemplateReferenceEscapesExamples(t *testing.T) {
 	sections := templateReferenceSections("# Reference\n\n## Code\n\n<script>alert(1)</script>\n\n```html\n<img onerror=evil>\n```\n")
 	if len(sections) != 1 || strings.Contains(sections[0].HTML, "<script>") || !strings.Contains(sections[0].HTML, "&lt;img") {
 		t.Fatal(sections)
+	}
+}
+
+func TestTemplateSelectionReadsOnlyTheSelectedContents(t *testing.T) {
+	s, app := openApp(t, t.TempDir())
+	defer s.Close()
+	root := filepath.Join(s.Dir, "theme")
+	if err := os.MkdirAll(filepath.Join(root, "assets"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	for name, data := range map[string][]byte{"layout.html": []byte("layout"), "page.html": []byte("page"), "assets/image.webp": make([]byte, 4<<20)} {
+		if err := os.WriteFile(filepath.Join(root, name), data, 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	selected, dir, err := app.templateFiles("custom", "page.html")
+	if err != nil || dir != root || string(selected["page.html"].Data) != "page" {
+		t.Fatal(dir, err)
+	}
+	if len(selected["assets/image.webp"].Data) != 0 || len(selected["layout.html"].Data) != 0 {
+		t.Fatal("selection reads unrelated payloads")
+	}
+	full, _, err := app.templateFiles("custom", "")
+	if err != nil || len(full["assets/image.webp"].Data) != 4<<20 {
+		t.Fatal("copy/validation no longer receives the full package", err)
 	}
 }

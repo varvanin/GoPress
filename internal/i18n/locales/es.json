@@ -821,5 +821,10 @@
   "Текст отзыва": "Texto del testimonio",
   "Удалить группу навсегда? Она исчезнет из всех материалов.": "¿Eliminar este grupo permanentemente? Desaparecerá de todo el contenido.",
   "Проверьте поля и изображения. Допустимо от 1 до 50 элементов.": "Revisa los campos y las imágenes. Se permiten entre 1 y 50 elementos.",
-  "Раздел изменён в другой вкладке. Откройте актуальную версию.": "Este grupo cambió en otra pestaña. Abre la versión actual."
+  "Раздел изменён в другой вкладке. Откройте актуальную версию.": "Este grupo cambió en otra pestaña. Abre la versión actual.",
+  "Язык материала": "Idioma del contenido",
+  "Оригинал": "Original",
+  "Добавить язык": "Añadir idioma",
+  "Язык новой версии": "Idioma de la nueva versión",
+  "Не удалось добавить язык. Попробуйте ещё раз.": "No se pudo añadir el idioma. Inténtalo de nuevo."
 }

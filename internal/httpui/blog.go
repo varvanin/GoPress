@@ -1,6 +1,7 @@
 package httpui
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -17,6 +18,11 @@ func postedPage(c *echo.Context) (store.Page, error) {
 		return store.Page{}, service.ErrInvalid
 	}
 	p := store.Page{Title: c.FormValue("title"), Slug: c.FormValue("slug"), Document: c.FormValue("document"), Cover: c.FormValue("cover"), SEO: store.SEO{Canonical: c.FormValue("seo_canonical"), SocialTitle: c.FormValue("seo_social_title"), SocialDescription: c.FormValue("seo_social_description"), SocialImage: c.FormValue("seo_social_image"), NoFollow: c.FormValue("seo_nofollow") == "1", Title: c.FormValue("seo_title"), Description: c.FormValue("seo_description"), NoIndex: c.FormValue("noindex") == "1"}, Kind: c.FormValue("kind")}
+	if raw := c.FormValue("translations"); raw != "" {
+		if len(raw) > 2*service.MaxContentSize+(1<<20) || json.Unmarshal([]byte(raw), &p.Translations) != nil {
+			return p, service.ErrInvalid
+		}
+	}
 	var err error
 	p.ID, err = strconv.ParseInt(c.FormValue("id"), 10, 64)
 	if err != nil || p.ID < 0 {
@@ -45,6 +51,20 @@ func postedPage(c *echo.Context) (store.Page, error) {
 			return p, service.ErrInvalid
 		}
 		p.TermIDs = append(p.TermIDs, id)
+	}
+	if language := c.FormValue("content_language"); language != "" && language != "original" {
+		var original store.Translation
+		if json.Unmarshal([]byte(c.FormValue("original_translation")), &original) != nil {
+			return p, service.ErrInvalid
+		}
+		if p.Translations == nil {
+			p.Translations = map[string]store.Translation{}
+		}
+		p.Translations[language] = store.Translation{Title: p.Title, Document: p.Document, SEO: p.SEO}
+		p.Title, p.Document, p.SEO = original.Title, original.Document, original.SEO
+	}
+	if source := c.FormValue("source_language"); source != "" {
+		p.SEO.Language = source
 	}
 	return p, nil
 }

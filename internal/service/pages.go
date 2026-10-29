@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+var contentLanguage = regexp.MustCompile(`^[a-z]{2,3}(-[A-Z]{2})?$`)
+
 var pageTemplate = regexp.MustCompile(`^[a-z0-9][a-z0-9_-]{0,63}\.html$`)
 
 func ValidPageTemplate(name string) bool {
@@ -25,3 +27,5 @@ func validContentPath(slug string) bool {
 	}
 	return true
 }
+
+func ValidContentLanguage(language string) bool { return contentLanguage.MatchString(language) }

@@ -352,7 +352,7 @@ templ PageTable(pages []store.Page, csrf string, timezone ...string) {
 	}
 }
 
-templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total int, revisions []store.Revision, terms []store.Term, parents,templates []selectcomp.ItemData, timezone, message string, failed, scheduleFailed bool) {
+templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total int, revisions []store.Revision, terms []store.Term, parents,templates []selectcomp.ItemData, timezone, message, language string, failed, scheduleFailed bool) {
 	@AdminLayout(site, contentLabel(p.Kind, i18n.T(ctx, "Редактирование страницы"), i18n.T(ctx, "Редактирование записи")), csrf) {
 		if p.TrashedAt>0 {
 			<div class="editor-restore">@ContentAction(p, csrf, "restore", i18n.T(ctx, "Восстановить из корзины"))</div>
@@ -376,6 +376,8 @@ templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total i
 			<input type="hidden" name="id" value={ strconv.FormatInt(p.ID, 10) }/>
 			<input type="hidden" name="version" value={ strconv.FormatInt(p.Version, 10) }/>
 			<textarea name="document" data-document hidden>{ p.Document }</textarea>
+            <textarea name="translations" hidden>{ translationJSON(p.Translations) }</textarea>
+            <textarea name="original_translation" hidden></textarea>
 			<header class="editor-commandbar">
 				<div class="editor-commandbar-context">
 					@sidebar.Trigger(sidebar.TriggerProps{Target: "gopress-sidebar", Class: "gp-sidebar-trigger", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Переключить навигацию")}})
@@ -453,11 +455,18 @@ templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total i
 					}
 				</section>
 				<aside class="editor-settings" aria-label={ i18n.T(ctx, "Настройки материала") }>
+                    if p.Kind=="post" {
+                        @card.Card(card.Props{Class:"editor-panel"}) {
+                            <div class="editor-panel-body">@EditorContentLanguage(p,language)</div>
+                        }
+                    }
+
  if p.Kind!="post" {
   @card.Card(card.Props{Class:"editor-panel"}) {
    <details open>
     @EditorPanelSummary(i18n.T(ctx,"Настройки страницы"),icon.FileText)
     <div class="editor-panel-body">
+     @EditorContentLanguage(p,language)
      <label>{ i18n.T(ctx,"Родительская страница") }
       @AdminSelect("page-parent","parent_id",strconv.FormatInt(p.ParentID,10),i18n.T(ctx,"Родительская страница"),parents,nil)
      </label>

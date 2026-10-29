@@ -821,5 +821,10 @@
   "Текст отзыва": "Treść opinii",
   "Удалить группу навсегда? Она исчезнет из всех материалов.": "Trwale usunąć grupę? Zniknie ze wszystkich materiałów.",
   "Проверьте поля и изображения. Допустимо от 1 до 50 элементов.": "Sprawdź pola i obrazy. Dozwolone jest od 1 do 50 elementów.",
-  "Раздел изменён в другой вкладке. Откройте актуальную версию.": "Grupa została zmieniona w innej karcie. Otwórz aktualną wersję."
+  "Раздел изменён в другой вкладке. Откройте актуальную версию.": "Grupa została zmieniona w innej karcie. Otwórz aktualną wersję.",
+  "Язык материала": "Język treści",
+  "Оригинал": "Oryginał",
+  "Добавить язык": "Dodaj język",
+  "Язык новой версии": "Język nowej wersji",
+  "Не удалось добавить язык. Попробуйте ещё раз.": "Nie udało się dodać języka. Spróbuj ponownie."
 }

@@ -184,8 +184,8 @@ func publishScheduled(ctx context.Context, tx *sql.Tx, id, now int64) error {
 		return err
 	}
 	_, err = tx.ExecContext(ctx, `UPDATE pages SET
- (published_title,published_document,published_cover,published_term_ids,published_seo,published_parent_id,published_sort_order,published_template)=
- (SELECT title,document,cover,term_ids,seo,parent_id,sort_order,template FROM revisions WHERE page_id=pages.id AND version=pages.scheduled_version),
+ (published_title,published_document,published_cover,published_term_ids,published_seo,published_parent_id,published_sort_order,published_template,published_translations)=
+ (SELECT title,document,cover,term_ids,seo,parent_id,sort_order,template,(SELECT json_group_object(key,json(value)) FROM json_each(translations) WHERE trim(json_extract(value,'$.title'))!='') FROM revisions WHERE page_id=pages.id AND version=pages.scheduled_version),
  published_slug=?,published_at=CASE WHEN published_slug IS NULL THEN ? ELSE published_at END,published_updated_at=?,scheduled_at=0,scheduled_version=0,updated_at=?,version=version+1 WHERE id=?`, target, now, now, now, id)
 	if err != nil {
 		return err

@@ -14,7 +14,7 @@ func TestCollectionsUpgradeFromFourteen(t *testing.T) {
 	if err = s.SetFAQEnabled(context.Background(), true); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = s.DB.Exec("DROP TABLE module_collection_media; DROP TABLE module_collections; DELETE FROM modules WHERE id!='faq'; PRAGMA user_version=14"); err != nil {
+	if _, err = s.DB.Exec("ALTER TABLE pages DROP COLUMN translations; ALTER TABLE pages DROP COLUMN published_translations; ALTER TABLE revisions DROP COLUMN translations; DROP TABLE module_collection_media; DROP TABLE module_collections; DELETE FROM modules WHERE id!='faq'; PRAGMA user_version=14"); err != nil {
 		t.Fatal(err)
 	}
 	s.Close()
@@ -30,7 +30,7 @@ func TestCollectionsUpgradeFromFourteen(t *testing.T) {
 		}
 	}
 	var version int
-	if err = s.DB.QueryRow("PRAGMA user_version").Scan(&version); err != nil || version != 15 {
+	if err = s.DB.QueryRow("PRAGMA user_version").Scan(&version); err != nil || version != 16 {
 		t.Fatal(version, err)
 	}
 }

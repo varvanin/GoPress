@@ -29,10 +29,6 @@ func CanEdit(ctx context.Context, p store.Page) bool {
 	u, ok := store.Actor(ctx)
 	return !ok || u.Role == "admin" || u.Role == "editor" || u.Role == "author" && p.Kind == "post" && p.OwnerID == u.ID
 }
-func CanMedia(ctx context.Context, owner int64) bool {
-	u, ok := store.Actor(ctx)
-	return !ok || u.Role == "admin" || u.Role == "editor" || u.Role == "author" && u.ID == owner
-}
 func (v *Service) SaveUser(ctx context.Context, u store.User, password string) (int64, error) {
 	if err := RequireAdmin(ctx); err != nil {
 		return 0, err

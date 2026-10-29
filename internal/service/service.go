@@ -15,10 +15,17 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"golang.org/x/crypto/bcrypt"
 	"gopress/internal/store"
 )
+
+const MaxDocumentSize = 1 << 20
+const MaxContentSize = 4 << 20
+
+// JSON escaping and form encoding can expand the bounded documents sixfold.
+const MaxContentRequestSize = 32 << 20
 
 var ErrInvalid = errors.New("invalid input")
 var ErrUnauthorized = errors.New("invalid credentials")
@@ -140,11 +147,17 @@ func (v *Service) Save(ctx context.Context, p store.Page, publish bool) (store.P
 	if p.Kind != "" && p.Kind != "page" && p.Kind != "post" {
 		return p, ErrInvalid
 	}
+	if p.SEO.Language == "" {
+		p.SEO.Language = "ru"
+	}
+	if !contentLanguage.MatchString(p.SEO.Language) {
+		return p, ErrInvalid
+	}
 	if err := cleanSEO(&p.SEO); err != nil {
 		return p, err
 	}
 	p.Title = strings.TrimSpace(p.Title)
-	if p.ID < 0 || len(p.Title) == 0 || len(p.Title) > 200 || len(p.Slug) > 1024 || !validContentPath(p.Slug) || p.Kind == "post" && strings.Contains(p.Slug, "/") {
+	if p.ID < 0 || len(p.Title) == 0 || !utf8.ValidString(p.Title) || utf8.RuneCountInString(p.Title) > 200 || len(p.Slug) > 1024 || !validContentPath(p.Slug) || p.Kind == "post" && strings.Contains(p.Slug, "/") {
 		return p, ErrInvalid
 	}
 	if store.ReservedContentPath(p.Slug) {
@@ -156,7 +169,7 @@ func (v *Service) Save(ctx context.Context, p store.Page, publish bool) (store.P
 	if p.ParentID < 0 || p.ParentID == p.ID && p.ID > 0 || p.Order < -100000 || p.Order > 100000 || !ValidPageTemplate(p.Template) || p.Kind == "post" && (p.ParentID != 0 || p.Template != "page.html") {
 		return p, ErrInvalid
 	}
-	if _, err := render(p.Document, func(name string) error {
+	checkMedia := func(name string) error {
 		if u, ok := store.Actor(ctx); ok && u.Role == "author" {
 			owner, err := v.Store.MediaOwner(name)
 			if err != nil {
@@ -171,8 +184,27 @@ func (v *Service) Save(ctx context.Context, p store.Page, publish bool) (store.P
 			return ErrInvalid
 		}
 		return err
-	}); err != nil {
+	}
+	if _, err := render(p.Document, checkMedia); err != nil {
 		return p, err
+	}
+	if len(p.Translations) > 20 {
+		return p, ErrInvalid
+	}
+	total := len(p.Document)
+	for language, translation := range p.Translations {
+		total += len(translation.Document)
+		translation.Title = strings.TrimSpace(translation.Title)
+		if !contentLanguage.MatchString(language) || !utf8.ValidString(translation.Title) || utf8.RuneCountInString(translation.Title) > 200 || total > MaxContentSize {
+			return p, ErrInvalid
+		}
+		if err := cleanSEO(&translation.SEO); err != nil {
+			return p, err
+		}
+		if _, err := render(translation.Document, checkMedia); err != nil {
+			return p, err
+		}
+		p.Translations[language] = translation
 	}
 	if p.Cover != "" {
 		if u, ok := store.Actor(ctx); ok && u.Role == "author" {

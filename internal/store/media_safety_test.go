@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 )
 
@@ -102,6 +103,46 @@ func TestMediaProtectsSEORevisionsSettingsAndModules(t *testing.T) {
 			e = s.DeleteMedia(ctx, "photo.png")
 			if protected && !errors.Is(e, ErrConflict) || !protected && e != nil {
 				t.Fatal("deletion protection", e)
+			}
+		})
+	}
+}
+
+func TestEscapedDocumentReferencesRemainProtected(t *testing.T) {
+	for _, kind := range []string{"draft", "published", "revision", "translation", "published-translation", "revision-translation"} {
+		t.Run(kind, func(t *testing.T) {
+			s, err := Open(t.TempDir())
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer s.Close()
+			if err = s.Media("photo.png", "image/png", 1); err != nil {
+				t.Fatal(err)
+			}
+			doc := `{"type":"doc","content":[{"type":"image","attrs":{"src":"/uploads/\u0070hoto.png"}}]}`
+			p := Page{Title: "Page", Slug: "page", Document: doc}
+			translated := strings.Contains(kind, "translation")
+			if translated {
+				p.Document = `{"type":"doc"}`
+				p.Translations = map[string]Translation{"en": {Title: "English", Document: doc}}
+			}
+			p, err = s.Save(context.Background(), p, kind != "draft" && kind != "translation")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if kind == "published" || kind == "published-translation" || kind == "revision" || kind == "revision-translation" {
+				p.Document = `{"type":"doc"}`
+				p.Translations = nil
+				if _, err = s.Save(context.Background(), p, strings.HasPrefix(kind, "revision")); err != nil {
+					t.Fatal(err)
+				}
+			}
+			used, err := s.MediaUsed("photo.png")
+			if err != nil || !used {
+				t.Fatal("escaped reference lost", err)
+			}
+			if err = s.DeleteMedia(context.Background(), "photo.png"); !errors.Is(err, ErrConflict) {
+				t.Fatal("deleted a used image", err)
 			}
 		})
 	}

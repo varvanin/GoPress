@@ -158,3 +158,16 @@ test('searching media does not autosave an unchanged material',async()=>{
  form.dispatchEvent(seo);assert.equal(state.dirty,true);
  state.dispose();
 });
+
+
+test('page parent, order and template changes mark the editor dirty',async()=>{
+ const {mountPage}=await import('./admin.js');
+ const {form}=formFixture();const state=mountPage(form);
+ for(const name of ['parent_id','order','template']) {
+  state.dirty=false;
+  const event=new Event('change');Object.defineProperty(event,'target',{value:{name,form}});
+  form.dispatchEvent(event);
+  assert.equal(state.dirty,true,name);
+ }
+ state.dispose();
+});

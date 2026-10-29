@@ -248,7 +248,14 @@ func (a *App) editPage(c *echo.Context, p store.Page, status int, message string
 			return err
 		}
 	}
-	return htmlComponent(c, status, EditPage(site.Title, a.csrfToken(c), p, files, total, revisions, terms, parents, templates, site.Timezone, message, status >= 400, scheduleFailed))
+	language := c.QueryParam("lang")
+	if status >= 400 {
+		language = c.FormValue("content_language")
+	}
+	if language == "" {
+		language = "original"
+	}
+	return htmlComponent(c, status, EditPage(site.Title, a.csrfToken(c), p, files, total, revisions, terms, parents, templates, site.Timezone, message, language, status >= 400, scheduleFailed))
 }
 func (a *App) adminRoutes(g *echo.Group) {
 	a.blogRoutes(g)
@@ -375,6 +382,34 @@ func (a *App) adminRoutes(g *echo.Group) {
 		}
 		return a.editPage(c, p, 200, message)
 	})
+	g.POST("/pages/languages", func(c *echo.Context) error {
+		if err := c.Request().ParseForm(); err != nil {
+			return service.ErrInvalid
+		}
+		source := c.FormValue("source_language")
+		if !service.ValidContentLanguage(source) {
+			return service.ErrInvalid
+		}
+		codes := c.Request().PostForm["languages"]
+		if len(codes) > 20 {
+			return service.ErrInvalid
+		}
+		p := store.Page{SEO: store.SEO{Language: source}, Translations: map[string]store.Translation{}}
+		for _, code := range codes {
+			if !service.ValidContentLanguage(code) {
+				return service.ErrInvalid
+			}
+			if _, exists := p.Translations[code]; exists {
+				return service.ErrInvalid
+			}
+			p.Translations[code] = store.Translation{}
+		}
+		selected := c.FormValue("content_language")
+		if _, exists := p.Translations[selected]; selected != "original" && !exists {
+			return service.ErrInvalid
+		}
+		return htmlComponent(c, 200, EditorContentLanguage(p, selected))
+	}, a.csrf)
 	g.POST("/pages/save", func(c *echo.Context) error {
 		p, err := postedPage(c)
 		if err != nil {
@@ -420,7 +455,7 @@ func (a *App) adminRoutes(g *echo.Group) {
 		if intent == "publish" {
 			done = "published"
 		}
-		return c.Redirect(303, "/admin/pages/"+strconv.FormatInt(saved.ID, 10)+"/edit?done="+done)
+		return c.Redirect(303, "/admin/pages/"+strconv.FormatInt(saved.ID, 10)+"/edit?done="+done+"&lang="+url.QueryEscape(c.FormValue("content_language")))
 	}, a.csrf)
 	g.GET("/media/choices", func(c *echo.Context) error {
 		page, err := mediaPageNumber(c)

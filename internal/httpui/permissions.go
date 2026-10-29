@@ -97,7 +97,7 @@ func (a *App) permissions(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		err := next(c)
 		response, _ := echo.UnwrapResponse(c.Response())
-		contentLogged := path == "/admin/pages" || path == "/admin/pages/:id" || path == "/admin/pages/save" || path == "/admin/pages/:id/publish" || path == "/admin/pages/:id/state" || path == "/admin/content/bulk" || path == "/admin/users/save" || path == "/admin/account/password" || path == "/admin/forms/:form/entries/delete"
+		contentLogged := path == "/admin/pages" || path == "/admin/pages/:id" || path == "/admin/pages/save" || path == "/admin/pages/languages" || path == "/admin/pages/:id/publish" || path == "/admin/pages/:id/state" || path == "/admin/content/bulk" || path == "/admin/users/save" || path == "/admin/account/password" || path == "/admin/forms/:form/entries/delete"
 		if err == nil && !contentLogged && method != "GET" && method != "HEAD" && response != nil && response.Status < 400 {
 			object := c.Param("id")
 			if object == "" {

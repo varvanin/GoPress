@@ -100,6 +100,9 @@ func (s *Store) PrunePrivateData(ctx context.Context, now int64, formDays, audit
 	if _, err = tx.ExecContext(ctx, "DELETE FROM audit_events WHERE at<?", now-int64(auditDays)*86400); err != nil {
 		return err
 	}
+	if _, err = tx.ExecContext(ctx, "DELETE FROM sessions WHERE expires_at<=?", now); err != nil {
+		return err
+	}
 	if _, err = tx.ExecContext(ctx, "DELETE FROM password_resets WHERE expires_at<=?", now); err != nil {
 		return err
 	}

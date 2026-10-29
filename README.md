@@ -93,9 +93,13 @@ Pages and posts have drafts, published snapshots, version checks, revisions, aut
 
 The Tiptap editor supports headings, lists, quotes, links, inline/code blocks, image captions and alt text, alignment, common text marks, undo/redo and search. Autosave serializes requests after a 1.5-second pause. Conflicts or expired sessions stop retries without replacing local text. Unsaved navigation is guarded. There is no browser-disk offline draft store.
 
+Pages and posts start with one content language of their own, independently of the admin language. The **Content language** switcher in the editor’s settings column shows only versions already belonging to that material. Use **Add language** to create another version, then write its title, body and SEO. Once versions have been added, the switcher lists only those versions. The URL slug, cover, categories, template and publication status are shared. Switching preserves local edits and resets undo history across languages. Saving, revisions, scheduled publication and backups include all versions. An added version without a title stays in the draft and is excluded from publication.
+
+A published translation is available at the existing URL with a language parameter, for example `/about?lang=en`; an unavailable translation returns 404. Preview uses the selected language. This does not translate template labels, navigation, feeds or search results, and does not add a public language menu or language-prefixed routes. The original remains at `/about`. See [content languages](docs/CONTENT_LANGUAGES.md).
+
 Publishing is atomic. Saving a newer draft does not change the published body, URL, cover or SEO. Scheduled publishing pins a particular revision; later draft edits cannot replace it. Times are entered in the site's timezone. The worker catches up after downtime and checks every 15 seconds; ambiguous or nonexistent local times are rejected. Each due job is isolated. A parent/URL conflict stops that job, preserves its draft and pinned revision, and reports the failure in the editor and action log; fix the conflict and schedule it again.
 
-Documents use a strict shared JSON schema, not arbitrary client HTML: up to 1 MiB, 10,000 nodes and depth 32. Links are restricted to supported schemes and local/anchor URLs. Inline images must reference existing uploads.
+Documents use a strict shared JSON schema, not arbitrary client HTML: up to 1 MiB per language, 4 MiB across all language versions, 10,000 nodes per document and depth 32. Content writes accept at most 32 MiB of encoded request data to allow JSON/form escaping; the smaller document limits are still enforced. Titles are limited to 200 Unicode code points. Links are restricted to supported schemes and local/anchor URLs. Inline images must reference existing uploads.
 
 ### Media and menus
 

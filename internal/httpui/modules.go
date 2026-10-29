@@ -523,7 +523,13 @@ func (a *App) packageModuleRoutes(g *echo.Group) {
 		return c.Redirect(303, location)
 	}, a.csrf)
 	a.Echo.GET("/module-assets/:module/:asset", func(c *echo.Context) error {
-		p, err := a.Service.Store.ModulePackage(c.Param("module"))
+		var p store.ModulePackage
+		var err error
+		if c.Param("asset") == "screenshot" {
+			p, err = a.Service.Store.ModulePackage(c.Param("module"))
+		} else {
+			p, err = a.Service.Store.ModuleContent(c.Param("module"))
+		}
 		if err != nil {
 			return err
 		}
@@ -547,28 +553,21 @@ func (a *App) packageModuleRoutes(g *echo.Group) {
 var moduleShortcode = regexp.MustCompile(`<p(?: [^>]*)?>\[module id=(?:"|&quot;|&#34;)([a-z][a-z0-9-]{0,47})(?:"|&quot;|&#34;)\]</p>`)
 
 func (a *App) renderModules(c *echo.Context, body string) (string, error) {
-	var renderErr error
-	body = moduleShortcode.ReplaceAllStringFunc(body, func(code string) string {
-		if renderErr != nil {
-			return ""
-		}
+	return replaceContentBlocks(body, moduleShortcode, func(code string) (string, error) {
 		id := moduleShortcode.FindStringSubmatch(code)[1]
-		p, err := a.Service.Store.ModulePackage(id)
+		p, err := a.Service.Store.ModuleContent(id)
 		if errors.Is(err, sql.ErrNoRows) || err == nil && !p.Enabled {
-			return ""
+			return "", nil
 		}
 		if err != nil {
-			renderErr = err
-			return ""
+			return "", err
 		}
 		rendered, err := renderModule(p)
 		if err != nil {
-			renderErr = fmt.Errorf("module %s: %w", id, err)
-			return ""
+			return "", fmt.Errorf("module %s: %w", id, err)
 		}
-		return `<link rel="stylesheet" href="/module-assets/` + id + `/style.css"><section class="gp-module gp-module-` + id + `">` + rendered + `</section>`
+		return `<link rel="stylesheet" href="/module-assets/` + id + `/style.css"><section class="gp-module gp-module-` + id + `">` + rendered + `</section>`, nil
 	})
-	return body, renderErr
 }
 
 //go:embed module-starter/*

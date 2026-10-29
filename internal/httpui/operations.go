@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -18,7 +17,7 @@ import (
 func (a *App) operationGuard(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		path := c.Request().URL.Path
-		exclusive := c.Request().Method == "POST" && (path == "/admin/tools/backups/create" || path == "/admin/tools/backups/restore" || path == "/admin/tools/backups/delete" || path == "/admin/tools/backups/import")
+		exclusive := c.Request().Method == "POST" && (path == "/admin/tools/backups/create" || path == "/admin/tools/backups/restore" || path == "/admin/tools/backups/delete")
 		if exclusive {
 			a.Service.Operations.Lock()
 			defer a.Service.Operations.Unlock()
@@ -204,10 +203,6 @@ func (a *App) toolsRoutes(g *echo.Group) {
 			return service.ErrInvalid
 		}
 		defer file.Close()
-		root := filepath.Join(a.Service.Store.Dir, "backups")
-		if err = os.MkdirAll(root, 0700); err != nil {
-			return err
-		}
 		id, err := a.Service.ImportBackup(file, header.Size)
 		if errors.Is(err, service.ErrInvalid) {
 			return a.toolsPage(c, 400, "Некорректный архив бэкапа.")

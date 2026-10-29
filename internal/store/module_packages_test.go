@@ -8,7 +8,7 @@ func TestModulePackagesUpgradeFromThirteen(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = s.DB.Exec("UPDATE modules SET enabled=1 WHERE id='faq'; INSERT INTO faq_groups(name,items) VALUES('Existing FAQ','[]'); DROP TABLE module_collection_media; DROP TABLE module_collections; DELETE FROM modules WHERE id!='faq'; DROP TABLE module_packages; PRAGMA user_version=13"); err != nil {
+	if _, err = s.DB.Exec("UPDATE modules SET enabled=1 WHERE id='faq'; INSERT INTO faq_groups(name,items) VALUES('Existing FAQ','[]'); ALTER TABLE pages DROP COLUMN translations; ALTER TABLE pages DROP COLUMN published_translations; ALTER TABLE revisions DROP COLUMN translations; DROP TABLE module_collection_media; DROP TABLE module_collections; DELETE FROM modules WHERE id!='faq'; DROP TABLE module_packages; PRAGMA user_version=13"); err != nil {
 		t.Fatal(err)
 	}
 	if err = s.Close(); err != nil {

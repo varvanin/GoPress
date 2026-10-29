@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"database/sql"
 	"errors"
-	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -189,7 +188,6 @@ func (a *App) publicFormPage(c *echo.Context, status int, message string) error 
 	return c.HTML(status, out.String())
 }
 func (a *App) submitForm(c *echo.Context) error {
-	c.Request().Body = http.MaxBytesReader(c.Response(), c.Request().Body, 128<<10)
 	if err := c.Request().ParseForm(); err != nil {
 		return service.ErrInvalid
 	}
@@ -232,35 +230,25 @@ func (a *App) submitForm(c *echo.Context) error {
 var formShortcode = regexp.MustCompile(`<p(?: [^>]*)?>\[form id=([1-9][0-9]{0,18})\]</p>`)
 
 func (a *App) renderForms(c *echo.Context, body string) (string, error) {
-	var renderErr error
 	var csrf string
-	body = formShortcode.ReplaceAllStringFunc(body, func(code string) string {
-		if renderErr != nil {
-			return ""
-		}
-		match := formShortcode.FindStringSubmatch(code)
-		id, err := strconv.ParseInt(match[1], 10, 64)
+	return replaceContentBlocks(body, formShortcode, func(code string) (string, error) {
+		id, err := strconv.ParseInt(formShortcode.FindStringSubmatch(code)[1], 10, 64)
 		if err != nil {
-			return code
+			return code, nil
 		}
 		f, err := a.Service.Store.Form(id)
 		if errors.Is(err, sql.ErrNoRows) || err == nil && !f.Enabled {
-			return ""
+			return "", nil
 		}
 		if err != nil {
-			renderErr = err
-			return ""
+			return "", err
 		}
 		c.Response().Header().Set("Cache-Control", "no-store")
-		var out bytes.Buffer
 		if csrf == "" {
 			csrf = a.csrfToken(c)
 		}
-		if err = PublicForm(f, csrf, nil).Render(c.Request().Context(), &out); err != nil {
-			renderErr = err
-			return ""
-		}
-		return out.String()
+		out := themeOutput{limit: 2 << 20}
+		err = PublicForm(f, csrf, nil).Render(c.Request().Context(), &out)
+		return out.String(), err
 	})
-	return body, renderErr
 }

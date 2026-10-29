@@ -1,7 +1,6 @@
 package httpui
 
 import (
-	"bytes"
 	"database/sql"
 	"errors"
 	"github.com/labstack/echo/v5"
@@ -161,26 +160,23 @@ func (a *App) renderFAQ(c *echo.Context, body string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var renderErr error
-	body = faqShortcode.ReplaceAllStringFunc(body, func(code string) string {
-		if !enabled || renderErr != nil {
-			return ""
-		}
+	if !enabled {
+		return faqShortcode.ReplaceAllString(body, ""), nil
+	}
+	return replaceContentBlocks(body, faqShortcode, func(code string) (string, error) {
 		id, err := strconv.ParseInt(faqShortcode.FindStringSubmatch(code)[1], 10, 64)
 		if err != nil {
-			return code
+			return code, nil
 		}
 		f, err := a.Service.Store.FAQ(id)
 		if errors.Is(err, sql.ErrNoRows) {
-			return ""
+			return "", nil
 		}
 		if err != nil {
-			renderErr = err
-			return ""
+			return "", err
 		}
-		var out bytes.Buffer
-		renderErr = PublicFAQ(f).Render(c.Request().Context(), &out)
-		return out.String()
+		out := themeOutput{limit: 2 << 20}
+		err = PublicFAQ(f).Render(c.Request().Context(), &out)
+		return out.String(), err
 	})
-	return body, renderErr
 }

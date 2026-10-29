@@ -8,7 +8,7 @@ function setup(t,id='5'){
  const version={value:'1'},scheduleVersion={value:'1'};
  const preview={hidden:true},controls={hidden:true},scheduleForm={action:''};
  const root={querySelectorAll:()=>[version,scheduleVersion],querySelector:selector=>({'[data-saved-preview]':preview,'[data-schedule-controls]':controls,'#schedule-form':scheduleForm})[selector]||null};
- const form={action:'http://example.com/admin/pages/save',dataset:{},elements:{id:{value:id},version,title:{value:'Title'},slug:{value:'title'},document:{value:'original'},csrf:{value:'token'}},closest:()=>root};
+ const form=Object.assign(new EventTarget(),{action:'http://example.com/admin/pages/save',dataset:{},elements:{id:{value:id},version,title:{value:'Title'},slug:{value:'title'},document:{value:'original'},csrf:{value:'token'}},closest:()=>root});
  const urls=[];globalThis.window={history:{state:{htmx:true,gpIndex:2},replaceState(state,title,url){urls.push(url);}}};
  const state={dirty:true,editor:{},pending:false,uploading:false};
  const controller=new AbortController();const messages=[];
@@ -93,4 +93,12 @@ test('server-generated initial draft fields fill only fields that were already e
  await s.saver.flush();
  assert.equal(s.form.elements.title.value,'Title');
  assert.equal(s.form.elements.slug.value,'title');
+});
+
+test('autosave preserves the selected translation in preview and the first draft URL',async(t)=>{
+ const s=setup(t,'0');s.form.elements.content_language={value:'en'};
+ globalThis.fetch=async()=>ok();
+ assert.equal(await s.saver.flush(),true);
+ assert.equal(s.preview.href,'/admin/pages/5/preview?lang=en');
+ assert.equal(s.urls[0],'/admin/pages/5/edit?lang=en');
 });

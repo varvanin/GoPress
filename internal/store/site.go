@@ -25,6 +25,12 @@ const mediaUsed = `EXISTS(SELECT 1 FROM module_collection_media WHERE media_name
  OR EXISTS(SELECT 1 FROM pages p,json_tree(p.seo) j WHERE j.key='social_image' AND gopress_upload_name(j.value,(SELECT base_url FROM installation WHERE id=1))=m.name)
  OR EXISTS(SELECT 1 FROM pages p,json_tree(coalesce(p.published_seo,'{}')) j WHERE j.key='social_image' AND gopress_upload_name(j.value,(SELECT base_url FROM installation WHERE id=1))=m.name)
  OR EXISTS(SELECT 1 FROM revisions r,json_tree(r.seo) j WHERE j.key='social_image' AND gopress_upload_name(j.value,(SELECT base_url FROM installation WHERE id=1))=m.name)
+ OR EXISTS(SELECT 1 FROM pages p,json_each(p.translations) t,json_tree(json_extract(t.value,'$.document')) j WHERE j.key='src' AND j.value='/uploads/'||m.name)
+ OR EXISTS(SELECT 1 FROM pages p,json_each(p.published_translations) t,json_tree(json_extract(t.value,'$.document')) j WHERE j.key='src' AND j.value='/uploads/'||m.name)
+ OR EXISTS(SELECT 1 FROM revisions r,json_each(r.translations) t,json_tree(json_extract(t.value,'$.document')) j WHERE j.key='src' AND j.value='/uploads/'||m.name)
+ OR EXISTS(SELECT 1 FROM pages p,json_tree(p.translations) j WHERE j.key='social_image' AND gopress_upload_name(j.value,(SELECT base_url FROM installation WHERE id=1))=m.name)
+ OR EXISTS(SELECT 1 FROM pages p,json_tree(p.published_translations) j WHERE j.key='social_image' AND gopress_upload_name(j.value,(SELECT base_url FROM installation WHERE id=1))=m.name)
+ OR EXISTS(SELECT 1 FROM revisions r,json_tree(r.translations) j WHERE j.key='social_image' AND gopress_upload_name(j.value,(SELECT base_url FROM installation WHERE id=1))=m.name)
  OR EXISTS(SELECT 1 FROM appearance a,json_tree(a.value) j WHERE j.key IN('DefaultImage','LogoURL') AND gopress_upload_name(j.value,(SELECT base_url FROM installation WHERE id=1))=m.name)
  OR EXISTS(SELECT 1 FROM module_packages p,json_tree(p.settings) j WHERE j.type='text' AND gopress_upload_name(j.value,(SELECT base_url FROM installation WHERE id=1))=m.name)`
 
@@ -63,6 +69,30 @@ func (s *Store) MediaFile(name string) (MediaFile, error) {
 	err := s.DB.QueryRow(`SELECT m.name,coalesce(d.title,''),coalesce(d.alt,''),coalesce(d.caption,''),m.size,coalesce(d.created_at,0) FROM media m LEFT JOIN media_details d ON d.name=m.name WHERE m.name=?`, name).Scan(&f.Name, &f.Title, &f.Alt, &f.Caption, &f.Size, &f.CreatedAt)
 	f.Revision = mediaRevision(f)
 	return f, err
+}
+func (s *Store) MediaFiles(names []string) (map[string]MediaFile, error) {
+	result := map[string]MediaFile{}
+	if len(names) == 0 {
+		return result, nil
+	}
+	raw, err := json.Marshal(names)
+	if err != nil {
+		return nil, err
+	}
+	rows, err := s.DB.Query(`SELECT m.name,coalesce(d.title,''),coalesce(d.alt,''),coalesce(d.caption,''),m.size,coalesce(d.created_at,0) FROM media m LEFT JOIN media_details d ON d.name=m.name WHERE m.name IN(SELECT value FROM json_each(?))`, string(raw))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var f MediaFile
+		if err = rows.Scan(&f.Name, &f.Title, &f.Alt, &f.Caption, &f.Size, &f.CreatedAt); err != nil {
+			return nil, err
+		}
+		f.Revision = mediaRevision(f)
+		result[f.Name] = f
+	}
+	return result, rows.Err()
 }
 func mediaRevision(f MediaFile) string {
 	raw, _ := json.Marshal([]string{f.Name, f.Title, f.Alt, f.Caption})

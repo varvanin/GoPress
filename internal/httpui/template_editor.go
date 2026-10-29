@@ -43,7 +43,7 @@ func templateFileHash(raw []byte) string {
 	sum := sha256.Sum256(raw)
 	return hex.EncodeToString(sum[:])
 }
-func (a *App) templateFiles(id string) (fstest.MapFS, string, error) {
+func (a *App) templateFiles(id, selected string) (fstest.MapFS, string, error) {
 	if !service.ValidTheme(id) || id == "" {
 		return nil, "", service.ErrInvalid
 	}
@@ -84,11 +84,17 @@ func (a *App) templateFiles(id string) (fstest.MapFS, string, error) {
 		if !stat.Mode().IsRegular() || stat.Size() > 8<<20 {
 			return service.ErrInvalid
 		}
-		raw, err := fs.ReadFile(source, name)
-		if err != nil {
-			return err
+		var raw []byte
+		if selected == "" || rel == selected {
+			if selected != "" && stat.Size() > 512<<10 {
+				return echo.NewHTTPError(400, "Файл превышает 512 KiB")
+			}
+			raw, err = fs.ReadFile(source, name)
+			if err != nil {
+				return err
+			}
 		}
-		total += len(raw)
+		total += int(stat.Size())
 		if total > 32<<20 || len(result) >= 256 {
 			return service.ErrInvalid
 		}
@@ -114,9 +120,12 @@ func (a *App) templateFiles(id string) (fstest.MapFS, string, error) {
 			assets = append(assets, "journal-cover-1.webp", "journal-cover-2.webp", "journal-cover-3.webp")
 		}
 		for _, name := range assets {
-			raw, err := resources.ReadFile("assets/" + name)
-			if err != nil {
-				return nil, "", err
+			var raw []byte
+			if selected == "" || selected == "assets/"+name {
+				raw, err = resources.ReadFile("assets/" + name)
+				if err != nil {
+					return nil, "", err
+				}
 			}
 			result["assets/"+name] = &fstest.MapFile{Data: raw, Mode: 0600}
 		}
@@ -135,7 +144,14 @@ func (a *App) templateEditor(c *echo.Context, status int, message, submitted str
 	if c.Request().Method == "POST" {
 		id = c.FormValue("theme")
 	}
-	files, dir, err := a.templateFiles(id)
+	selected := c.QueryParam("file")
+	if c.Request().Method == "POST" {
+		selected = c.FormValue("file")
+	}
+	if selected == "" {
+		selected = "layout.html"
+	}
+	files, dir, err := a.templateFiles(id, selected)
 	if err != nil {
 		return err
 	}
@@ -146,13 +162,6 @@ func (a *App) templateEditor(c *echo.Context, status int, message, submitted str
 		}
 	}
 	sort.Strings(names)
-	selected := c.QueryParam("file")
-	if c.Request().Method == "POST" {
-		selected = c.FormValue("file")
-	}
-	if selected == "" {
-		selected = "layout.html"
-	}
 	file, ok := files[selected]
 	if !ok || !editableTemplateFile(selected) {
 		return echo.NewHTTPError(404, "Файл не найден")
@@ -205,7 +214,7 @@ func atomicTemplateFile(filename string, data []byte) error {
 func (a *App) saveTemplateFile(id, name, revision, content string, restore bool) error {
 	a.themeMu.Lock()
 	defer a.themeMu.Unlock()
-	files, dir, err := a.templateFiles(id)
+	files, dir, err := a.templateFiles(id, "")
 	if err != nil {
 		return err
 	}
@@ -251,7 +260,7 @@ func (a *App) copyBuiltinTemplate(id string) (string, error) {
 	if id != "journal" && id != "minimal" && id != "studio" {
 		return "", service.ErrInvalid
 	}
-	files, _, err := a.templateFiles(id)
+	files, _, err := a.templateFiles(id, "")
 	if err != nil {
 		return "", err
 	}

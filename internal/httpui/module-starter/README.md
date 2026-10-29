@@ -30,3 +30,5 @@ Limits: 8 MiB ZIP, 16 MiB unpacked, 32 files/directories, and 128 KiB each for H
 This format provides configurable public blocks, not arbitrary server extensions. Go/PHP, request handlers, background tasks and JavaScript files are not supported. An author's static HTML/CSS is trusted site content: install trusted packages. The site's CSP still applies.
 
 The built-in FAQ remains separate and uses `[faq id=1]`; installing a package does not change its groups. Multiple modules can be enabled simultaneously.
+
+Public pages allow at most 50 blocks of each shortcode kind and enforce an 8 MiB assembled-document limit during expansion. A custom module keeps its individual 256 KiB output limit.

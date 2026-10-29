@@ -1,6 +1,7 @@
 package httpui
 
 import "gopress/internal/i18n"
+import "gopress/internal/store"
 
 import "gopress/internal/ui/components/button"
 import "gopress/internal/ui/components/icon"
@@ -55,4 +56,30 @@ templ EditorToolButton(tool editorTool, label bool) {
 templ EditorToolIcon(name string) {
 	{{ symbol := icon.Icon(name) }}
 	@symbol(icon.Props{Class: "size-4", Attributes: templ.Attributes{"aria-hidden": "true"}})
+}
+
+
+templ EditorContentLanguage(p store.Page, language string) {
+    <div class="field" data-editor-languages>
+        <label class="editor-language" for="content-language">
+            @icon.Icon("languages")(icon.Props{Class:"size-4"})
+            <span>{ i18n.T(ctx,"Язык материала") }</span>
+        </label>
+        <input type="hidden" name="source_language" value={ sourceContentLanguage(p) }/>
+        @AdminSelect("content-language", "content_language", language, i18n.T(ctx,"Язык материала"), contentLanguageOptions(p), nil)
+        if available:=availableContentLanguages(p); len(available)>0 {
+            <details class="editor-add-language">
+                <summary class={ button.Variants(button.Props{Variant:button.VariantGhost,Size:button.SizeSm}) }>
+                    <span>{ i18n.T(ctx,"Добавить язык") }</span>
+                </summary>
+                <div class="field">
+                    <label for="new-content-language">{ i18n.T(ctx,"Язык новой версии") }</label>
+                    @AdminSelect("new-content-language", "new_content_language", available[0].Value, i18n.T(ctx,"Язык новой версии"), available, nil)
+                    @button.Button(button.Props{Variant:button.VariantGhost,Size:button.SizeSm,Class:"editor-add-language-action",Disabled:true,Attributes:templ.Attributes{"data-add-content-language":true}}) {
+                        <span>{ i18n.T(ctx,"Добавить язык") }</span>
+                    }
+                </div>
+            </details>
+        }
+    </div>
 }

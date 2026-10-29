@@ -2,9 +2,11 @@ package httpui
 
 import (
 	"context"
+	"encoding/json"
 	"gopress/internal/i18n"
 	"io/fs"
 	"path"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -78,4 +80,50 @@ func (a *App) checkPageTemplate(p store.Page) error {
 		return service.ErrInvalid
 	}
 	return nil
+}
+
+func translationJSON(value any) string {
+	data, _ := json.Marshal(value)
+	return string(data)
+}
+func sourceContentLanguage(p store.Page) string {
+	if p.SEO.Language != "" {
+		return p.SEO.Language
+	}
+	return "ru"
+}
+func materialLanguages() []selectcomp.ItemData {
+	return []selectcomp.ItemData{{Value: "en", Label: "English"}, {Value: "ru", Label: "Русский"}, {Value: "pl", Label: "Polski"}, {Value: "de", Label: "Deutsch"}, {Value: "uk", Label: "Українська"}, {Value: "it", Label: "Italiano"}, {Value: "es", Label: "Español"}, {Value: "cs", Label: "Čeština"}}
+}
+func materialLanguageLabel(code string) string {
+	for _, item := range materialLanguages() {
+		if item.Value == code {
+			return item.Label.(string)
+		}
+	}
+	return code
+}
+func contentLanguageOptions(p store.Page) []selectcomp.ItemData {
+	items := []selectcomp.ItemData{{Value: "original", Label: materialLanguageLabel(sourceContentLanguage(p))}}
+	for _, language := range sortedTranslationLanguages(p.Translations) {
+		items = append(items, selectcomp.ItemData{Value: language, Label: materialLanguageLabel(language)})
+	}
+	return items
+}
+func availableContentLanguages(p store.Page) []selectcomp.ItemData {
+	items := []selectcomp.ItemData{}
+	for _, item := range materialLanguages() {
+		if _, exists := p.Translations[item.Value]; !exists && item.Value != sourceContentLanguage(p) {
+			items = append(items, item)
+		}
+	}
+	return items
+}
+func sortedTranslationLanguages(translations map[string]store.Translation) []string {
+	languages := make([]string, 0, len(translations))
+	for language := range translations {
+		languages = append(languages, language)
+	}
+	sort.Strings(languages)
+	return languages
 }

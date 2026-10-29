@@ -73,6 +73,9 @@ var modulePackagesMigration string
 //go:embed collections.sql
 var collectionsMigration string
 
+//go:embed translations.sql
+var translationsMigration string
+
 var ErrConflict = errors.New("version or URL conflict")
 var ErrInstalled = errors.New("already installed")
 
@@ -87,6 +90,7 @@ type Site struct {
 	Timezone string
 }
 type SEO struct {
+	Language          string `json:"language,omitempty"`
 	Canonical         string `json:"canonical,omitempty"`
 	SocialTitle       string `json:"social_title,omitempty"`
 	SocialDescription string `json:"social_description,omitempty"`
@@ -97,30 +101,37 @@ type SEO struct {
 	NoIndex           bool   `json:"noindex"`
 }
 
+type Translation struct {
+	Title    string `json:"title"`
+	Document string `json:"document"`
+	SEO      SEO    `json:"seo"`
+}
+
 type Page struct {
-	ParentID           int64   `json:"parent_id"`
-	Order              int     `json:"order"`
-	Template           string  `json:"template"`
-	PublishedParentID  int64   `json:"published_parent_id"`
-	OwnerID            int64   `json:"owner_id"`
-	SEO                SEO     `json:"seo"`
-	PublishedUpdatedAt int64   `json:"published_updated_at"`
-	TermIDs            []int64 `json:"term_ids"`
-	ScheduledAt        int64   `json:"scheduled_at"`
-	ScheduledVersion   int64   `json:"scheduled_version"`
-	CreatedAt          int64   `json:"created_at"`
-	UpdatedAt          int64   `json:"updated_at"`
-	PublishedAt        int64   `json:"published_at"`
-	TrashedAt          int64   `json:"trashed_at"`
-	Kind               string  `json:"kind"`
-	ID                 int64   `json:"id"`
-	Slug               string  `json:"slug"`
-	Version            int64   `json:"version"`
-	Title              string  `json:"title"`
-	Document           string  `json:"document"`
-	Cover              string  `json:"cover"`
-	Published          bool    `json:"published"`
-	PublishedSlug      string  `json:"published_slug"`
+	Translations       map[string]Translation `json:"translations"`
+	ParentID           int64                  `json:"parent_id"`
+	Order              int                    `json:"order"`
+	Template           string                 `json:"template"`
+	PublishedParentID  int64                  `json:"published_parent_id"`
+	OwnerID            int64                  `json:"owner_id"`
+	SEO                SEO                    `json:"seo"`
+	PublishedUpdatedAt int64                  `json:"published_updated_at"`
+	TermIDs            []int64                `json:"term_ids"`
+	ScheduledAt        int64                  `json:"scheduled_at"`
+	ScheduledVersion   int64                  `json:"scheduled_version"`
+	CreatedAt          int64                  `json:"created_at"`
+	UpdatedAt          int64                  `json:"updated_at"`
+	PublishedAt        int64                  `json:"published_at"`
+	TrashedAt          int64                  `json:"trashed_at"`
+	Kind               string                 `json:"kind"`
+	ID                 int64                  `json:"id"`
+	Slug               string                 `json:"slug"`
+	Version            int64                  `json:"version"`
+	Title              string                 `json:"title"`
+	Document           string                 `json:"document"`
+	Cover              string                 `json:"cover"`
+	Published          bool                   `json:"published"`
+	PublishedSlug      string                 `json:"published_slug"`
 }
 
 // Open holds the data-directory lock until Close, including during maintenance.
@@ -197,16 +208,16 @@ func openWithLock(dir string, held *os.File) (*Store, error) {
 	if err = s.DB.QueryRow("PRAGMA user_version").Scan(&version); err != nil {
 		return nil, fmt.Errorf("read database: %w", err)
 	}
-	if version < 0 || version > 15 || (!fresh && version == 0) {
+	if version < 0 || version > 16 || (!fresh && version == 0) {
 		return nil, fmt.Errorf("unsupported database schema %d; refusing to reinstall", version)
 	}
-	if version < 15 {
+	if version < 16 {
 		tx, e := s.DB.Begin()
 		if e != nil {
 			return nil, e
 		}
 		defer tx.Rollback()
-		scripts := []string{migration, "ALTER TABLE pages ADD COLUMN kind TEXT NOT NULL DEFAULT 'page' CHECK(kind IN ('page','post')); PRAGMA user_version=2;", contentMigration, blogMigration, siteMigration, seoMigration, formsMigration, settingsMigration, usersMigration, searchMigration, pagesMigration, jobsMigration, faqMigration, modulePackagesMigration, collectionsMigration}
+		scripts := []string{migration, "ALTER TABLE pages ADD COLUMN kind TEXT NOT NULL DEFAULT 'page' CHECK(kind IN ('page','post')); PRAGMA user_version=2;", contentMigration, blogMigration, siteMigration, seoMigration, formsMigration, settingsMigration, usersMigration, searchMigration, pagesMigration, jobsMigration, faqMigration, modulePackagesMigration, collectionsMigration, translationsMigration}
 		for _, script := range scripts[version:] {
 			if _, e = tx.Exec(script); e != nil {
 				return nil, e
@@ -293,18 +304,6 @@ func (s *Store) Password(email string) ([]byte, error) {
 	err := s.DB.QueryRow("SELECT password_hash FROM users WHERE email=? AND blocked=0", email).Scan(&h)
 	return h, err
 }
-func (s *Store) Session(hash string, users ...int64) error {
-	userID := int64(1)
-	if len(users) > 0 {
-		userID = users[0]
-	}
-	_, err := s.DB.Exec("DELETE FROM sessions WHERE expires_at<=unixepoch()")
-	if err != nil {
-		return err
-	}
-	_, err = s.DB.Exec("INSERT INTO sessions(hash,expires_at,user_id) VALUES(?,unixepoch()+43200,?)", hash, userID)
-	return err
-}
 func (s *Store) Authorized(hash string) (bool, error) {
 	var n int
 	err := s.DB.QueryRow("SELECT count(*) FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.hash=? AND s.expires_at>unixepoch() AND u.blocked=0", hash).Scan(&n)
@@ -362,16 +361,19 @@ func (s *Store) MediaNames(owners ...int64) ([]string, error) {
 	return names, rows.Err()
 }
 
-const pageColumns = "id,slug,version,title,document,coalesce(cover,''),published_slug IS NOT NULL,coalesce(published_slug,''),kind,created_at,updated_at,published_at,trashed_at,term_ids,scheduled_at,scheduled_version,seo,published_updated_at,owner_id,parent_id,sort_order,template,published_parent_id"
+const pageColumns = "id,slug,version,title,document,coalesce(cover,''),published_slug IS NOT NULL,coalesce(published_slug,''),kind,created_at,updated_at,published_at,trashed_at,term_ids,scheduled_at,scheduled_version,seo,published_updated_at,owner_id,parent_id,sort_order,template,published_parent_id,translations"
 
 func scanPage(row interface{ Scan(...any) error }) (Page, error) {
 	var p Page
-	var termJSON, seoJSON string
-	err := row.Scan(&p.ID, &p.Slug, &p.Version, &p.Title, &p.Document, &p.Cover, &p.Published, &p.PublishedSlug, &p.Kind, &p.CreatedAt, &p.UpdatedAt, &p.PublishedAt, &p.TrashedAt, &termJSON, &p.ScheduledAt, &p.ScheduledVersion, &seoJSON, &p.PublishedUpdatedAt, &p.OwnerID, &p.ParentID, &p.Order, &p.Template, &p.PublishedParentID)
+	var termJSON, seoJSON, translationsJSON string
+	err := row.Scan(&p.ID, &p.Slug, &p.Version, &p.Title, &p.Document, &p.Cover, &p.Published, &p.PublishedSlug, &p.Kind, &p.CreatedAt, &p.UpdatedAt, &p.PublishedAt, &p.TrashedAt, &termJSON, &p.ScheduledAt, &p.ScheduledVersion, &seoJSON, &p.PublishedUpdatedAt, &p.OwnerID, &p.ParentID, &p.Order, &p.Template, &p.PublishedParentID, &translationsJSON)
 	if err == nil {
 		err = json.Unmarshal([]byte(termJSON), &p.TermIDs)
 		if err == nil {
 			err = json.Unmarshal([]byte(seoJSON), &p.SEO)
+		}
+		if err == nil {
+			err = json.Unmarshal([]byte(translationsJSON), &p.Translations)
 		}
 	}
 	return p, err
@@ -411,6 +413,7 @@ func (s *Store) ListContent(kind, query string, trash bool, limit, offset int, t
 }
 func (s *Store) contentRows(where string, args []any, limit, offset int) ([]Page, error) {
 	columns := strings.Replace(pageColumns, ",document,", ",'' AS document,", 1)
+	columns = strings.Replace(columns, ",translations", ",'{}' AS translations", 1)
 	rows, err := s.DB.Query("SELECT "+columns+" FROM pages WHERE "+where+" ORDER BY id DESC LIMIT ? OFFSET ?", append(args, limit, offset)...)
 	if err != nil {
 		return nil, err
@@ -431,12 +434,15 @@ func (s *Store) Page(id int64) (Page, error) {
 }
 func (s *Store) Public(slug string) (Page, error) {
 	var p Page
-	var termJSON, seoJSON string
-	err := s.DB.QueryRow("SELECT id,published_slug,version,published_title,published_document,coalesce(published_cover,''),kind,published_term_ids,published_at,published_seo,published_updated_at,owner_id,published_parent_id,published_sort_order,published_template FROM pages WHERE trashed_at=0 AND published_slug=?", slug).Scan(&p.ID, &p.Slug, &p.Version, &p.Title, &p.Document, &p.Cover, &p.Kind, &termJSON, &p.PublishedAt, &seoJSON, &p.PublishedUpdatedAt, &p.OwnerID, &p.ParentID, &p.Order, &p.Template)
+	var termJSON, seoJSON, translationsJSON string
+	err := s.DB.QueryRow("SELECT id,published_slug,version,published_title,published_document,coalesce(published_cover,''),kind,published_term_ids,published_at,published_seo,published_updated_at,owner_id,published_parent_id,published_sort_order,published_template,published_translations FROM pages WHERE trashed_at=0 AND published_slug=?", slug).Scan(&p.ID, &p.Slug, &p.Version, &p.Title, &p.Document, &p.Cover, &p.Kind, &termJSON, &p.PublishedAt, &seoJSON, &p.PublishedUpdatedAt, &p.OwnerID, &p.ParentID, &p.Order, &p.Template, &translationsJSON)
 	if err == nil {
 		err = json.Unmarshal([]byte(termJSON), &p.TermIDs)
 		if err == nil {
 			err = json.Unmarshal([]byte(seoJSON), &p.SEO)
+		}
+		if err == nil {
+			err = json.Unmarshal([]byte(translationsJSON), &p.Translations)
 		}
 	}
 	return p, err
@@ -486,6 +492,13 @@ func (s *Store) Save(ctx context.Context, p Page, publish bool) (Page, error) {
 			return p, ErrInvalidTerms
 		}
 	}
+	if p.Translations == nil {
+		p.Translations = map[string]Translation{}
+	}
+	translationsJSON, e := json.Marshal(p.Translations)
+	if e != nil {
+		return p, e
+	}
 	seoJSON, e := json.Marshal(p.SEO)
 	if e != nil {
 		return p, e
@@ -494,7 +507,7 @@ func (s *Store) Save(ctx context.Context, p Page, publish bool) (Page, error) {
 		if p.Version != 0 {
 			return p, ErrConflict
 		}
-		res, e := tx.ExecContext(ctx, "INSERT INTO pages(slug,version,title,document,cover,kind,created_at,updated_at,term_ids,seo,owner_id,parent_id,sort_order,template) VALUES(?,1,?,?,nullif(?,''),?,unixepoch(),unixepoch(),?,?,?,?,?,?)", p.Slug, p.Title, p.Document, p.Cover, p.Kind, string(termJSON), string(seoJSON), Owner(ctx), p.ParentID, p.Order, p.Template)
+		res, e := tx.ExecContext(ctx, "INSERT INTO pages(slug,version,title,document,cover,kind,created_at,updated_at,term_ids,seo,owner_id,parent_id,sort_order,template,translations) VALUES(?,1,?,?,nullif(?,''),?,unixepoch(),unixepoch(),?,?,?,?,?,?,?)", p.Slug, p.Title, p.Document, p.Cover, p.Kind, string(termJSON), string(seoJSON), Owner(ctx), p.ParentID, p.Order, p.Template, string(translationsJSON))
 		if e != nil {
 			return p, e
 		}
@@ -504,7 +517,7 @@ func (s *Store) Save(ctx context.Context, p Page, publish bool) (Page, error) {
 		}
 		p.Version = 1
 	} else {
-		res, e := tx.ExecContext(ctx, "UPDATE pages SET slug=?,title=?,document=?,cover=nullif(?,''),term_ids=?,seo=?,parent_id=?,sort_order=?,template=?,version=version+1,updated_at=unixepoch() WHERE id=? AND version=? AND trashed_at=0", p.Slug, p.Title, p.Document, p.Cover, string(termJSON), string(seoJSON), p.ParentID, p.Order, p.Template, p.ID, p.Version)
+		res, e := tx.ExecContext(ctx, "UPDATE pages SET slug=?,title=?,document=?,cover=nullif(?,''),term_ids=?,seo=?,parent_id=?,sort_order=?,template=?,translations=?,version=version+1,updated_at=unixepoch() WHERE id=? AND version=? AND trashed_at=0", p.Slug, p.Title, p.Document, p.Cover, string(termJSON), string(seoJSON), p.ParentID, p.Order, p.Template, string(translationsJSON), p.ID, p.Version)
 		if e != nil {
 			return p, e
 		}
@@ -537,9 +550,9 @@ func (s *Store) Save(ctx context.Context, p Page, publish bool) (Page, error) {
 	return s.Page(p.ID)
 }
 
-const publishSQL = "UPDATE pages SET published_parent_id=parent_id,published_sort_order=sort_order,published_template=template,published_slug=slug,published_title=title,published_document=document,published_cover=cover,published_term_ids=term_ids,published_seo=seo,published_updated_at=unixepoch(),scheduled_at=0,scheduled_version=0,published_at=CASE WHEN published_slug IS NULL THEN unixepoch() ELSE published_at END,updated_at=unixepoch(),version=version+1 WHERE id=? AND version=? AND trashed_at=0"
+const publishSQL = "UPDATE pages SET published_parent_id=parent_id,published_sort_order=sort_order,published_template=template,published_slug=slug,published_title=title,published_document=document,published_translations=(SELECT json_group_object(key,json(value)) FROM json_each(translations) WHERE trim(json_extract(value,'$.title'))!=''),published_cover=cover,published_term_ids=term_ids,published_seo=seo,published_updated_at=unixepoch(),scheduled_at=0,scheduled_version=0,published_at=CASE WHEN published_slug IS NULL THEN unixepoch() ELSE published_at END,updated_at=unixepoch(),version=version+1 WHERE id=? AND version=? AND trashed_at=0"
 
-const revisionSQL = "INSERT INTO revisions(page_id,version,slug,title,document,cover,created_at,term_ids,seo,parent_id,sort_order,template) SELECT id,version,slug,title,document,cover,updated_at,term_ids,seo,parent_id,sort_order,template FROM pages WHERE id=?"
+const revisionSQL = "INSERT INTO revisions(page_id,version,slug,title,document,cover,created_at,term_ids,seo,parent_id,sort_order,template,translations) SELECT id,version,slug,title,document,cover,updated_at,term_ids,seo,parent_id,sort_order,template,translations FROM pages WHERE id=?"
 
 func (s *Store) Publish(ctx context.Context, id, version int64) error {
 	return s.ChangeContent(ctx, id, version, "publish")
@@ -593,11 +606,10 @@ func changeContent(ctx context.Context, tx *sql.Tx, id, version int64, action st
 			return ErrConflict
 		}
 	}
-	query := publishSQL
+	var query string
 	switch action {
-	case "publish":
 	case "unpublish", "trash":
-		query = "UPDATE pages SET published_slug=NULL,published_title=NULL,published_document=NULL,published_cover=NULL,published_term_ids='[]',published_seo='{}',published_updated_at=0,scheduled_at=0,scheduled_version=0,published_at=0,updated_at=unixepoch(),version=version+1"
+		query = "UPDATE pages SET published_slug=NULL,published_title=NULL,published_document=NULL,published_translations='{}',published_cover=NULL,published_term_ids='[]',published_seo='{}',published_updated_at=0,scheduled_at=0,scheduled_version=0,published_at=0,updated_at=unixepoch(),version=version+1"
 		if action == "trash" {
 			query += ",trashed_at=unixepoch()"
 		}
@@ -695,12 +707,15 @@ func (s *Store) Revisions(id int64) ([]Revision, error) {
 }
 func (s *Store) Revision(id, version int64) (Page, error) {
 	var p Page
-	var terms, seoJSON string
-	err := s.DB.QueryRow("SELECT page_id,version,slug,title,document,coalesce(cover,''),term_ids,seo,(SELECT kind FROM pages WHERE id=page_id),parent_id,sort_order,template FROM revisions WHERE page_id=? AND version=?", id, version).Scan(&p.ID, &p.Version, &p.Slug, &p.Title, &p.Document, &p.Cover, &terms, &seoJSON, &p.Kind, &p.ParentID, &p.Order, &p.Template)
+	var terms, seoJSON, translationsJSON string
+	err := s.DB.QueryRow("SELECT page_id,version,slug,title,document,coalesce(cover,''),term_ids,seo,(SELECT kind FROM pages WHERE id=page_id),parent_id,sort_order,template,translations FROM revisions WHERE page_id=? AND version=?", id, version).Scan(&p.ID, &p.Version, &p.Slug, &p.Title, &p.Document, &p.Cover, &terms, &seoJSON, &p.Kind, &p.ParentID, &p.Order, &p.Template, &translationsJSON)
 	if err == nil {
 		err = json.Unmarshal([]byte(terms), &p.TermIDs)
 		if err == nil {
 			err = json.Unmarshal([]byte(seoJSON), &p.SEO)
+		}
+		if err == nil {
+			err = json.Unmarshal([]byte(translationsJSON), &p.Translations)
 		}
 	}
 	return p, err
@@ -725,7 +740,7 @@ func CheckFile(file string) error {
 	if err = db.QueryRow("PRAGMA user_version").Scan(&version); err != nil {
 		return err
 	}
-	if version < 1 || version > 15 {
+	if version < 1 || version > 16 {
 		return errors.New("unsupported schema")
 	}
 	var n int

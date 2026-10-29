@@ -23,6 +23,7 @@ func (s *Store) Dashboard() (DashboardData, error) {
 	}
 	// Only these fixed queries use the order clause; documents stay out of the overview.
 	columns := strings.Replace(pageColumns, ",document,", ",'' AS document,", 1)
+	columns = strings.Replace(columns, ",translations", ",'{}' AS translations", 1)
 	read := func(columns, where, order string, limit int) ([]Page, error) {
 		rows, e := s.DB.Query("SELECT "+columns+" FROM pages WHERE "+where+" ORDER BY "+order+" LIMIT ?", limit)
 		if e != nil {

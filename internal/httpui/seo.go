@@ -19,6 +19,7 @@ import (
 )
 
 type PageMeta struct {
+	ContentLanguage                                                                    string
 	Title, Description, Canonical, Image, Type                                         string
 	NoIndex                                                                            bool
 	Robots, SocialTitle, SocialDescription, SiteName, Locale, TwitterSite, TwitterCard string

@@ -3,7 +3,6 @@ package httpui
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"github.com/labstack/echo/v5"
 	"gopress/internal/service"
 	"gopress/internal/store"
@@ -162,61 +161,52 @@ func (a *App) renderCollections(c *echo.Context, body string) (string, error) {
 	if !collectionShortcode.MatchString(body) {
 		return body, nil
 	}
-	if len(collectionShortcode.FindAllStringIndex(body, 51)) > 50 {
-		return "", fmt.Errorf("too many collection blocks")
-	}
 	cache := map[string]string{}
-	var renderErr error
-	size := len(body)
-	body = collectionShortcode.ReplaceAllStringFunc(body, func(code string) string {
-		if renderErr != nil {
-			return ""
+	return replaceContentBlocks(body, collectionShortcode, func(code string) (string, error) {
+		if value, ok := cache[code]; ok {
+			return value, nil
 		}
-		value, ok := cache[code]
-		if !ok {
-			parts := collectionShortcode.FindStringSubmatch(code)
-			enabled, err := a.Service.Store.ModuleEnabled(parts[1])
+		parts := collectionShortcode.FindStringSubmatch(code)
+		enabled, err := a.Service.Store.ModuleEnabled(parts[1])
+		if err != nil {
+			return "", err
+		}
+		value := ""
+		if enabled {
+			id, err := strconv.ParseInt(parts[2], 10, 64)
 			if err != nil {
-				renderErr = err
-				return ""
+				return "", nil
 			}
-			if enabled {
-				id, err := strconv.ParseInt(parts[2], 10, 64)
-				if err != nil {
-					return ""
-				}
-				item, err := a.Service.Store.Collection(parts[1], id)
-				if err != nil && !errors.Is(err, sql.ErrNoRows) {
-					renderErr = err
-					return ""
-				}
-				if err == nil {
-					files := map[string]store.MediaFile{}
-					for _, row := range item.Items {
-						if row.Image != "" {
-							file, err := a.Service.Store.MediaFile(row.Image)
-							if err != nil {
-								renderErr = err
-								return ""
-							}
-							files[row.Image] = file
-						}
+			item, err := a.Service.Store.Collection(parts[1], id)
+			if err != nil && !errors.Is(err, sql.ErrNoRows) {
+				return "", err
+			}
+			if err == nil {
+				names := []string{}
+				for _, row := range item.Items {
+					if row.Image != "" {
+						names = append(names, row.Image)
 					}
-					out := themeOutput{limit: 2 << 20}
-					renderErr = PublicCollection(item, files).Render(c.Request().Context(), &out)
-					value = out.String()
 				}
+				files, err := a.Service.Store.MediaFiles(names)
+				if err != nil {
+					return "", err
+				}
+				for _, name := range names {
+					if _, ok := files[name]; !ok {
+						return "", sql.ErrNoRows
+					}
+				}
+				out := themeOutput{limit: 2 << 20}
+				if err = PublicCollection(item, files).Render(c.Request().Context(), &out); err != nil {
+					return "", err
+				}
+				value = out.String()
 			}
-			cache[code] = value
 		}
-		size += len(value) - len(code)
-		if size > 8<<20 {
-			renderErr = fmt.Errorf("collection output exceeds 8 MiB")
-			return ""
-		}
-		return value
+		cache[code] = value
+		return value, nil
 	})
-	return body, renderErr
 }
 func collectionImageAlt(item store.CollectionItem, file store.MediaFile) string {
 	if strings.TrimSpace(file.Alt) != "" {

@@ -73,7 +73,7 @@ func readAttrs(attrs json.RawMessage, value any) error {
 func Render(raw string) (string, error) { return render(raw, nil) }
 
 func render(raw string, checkMedia func(string) error) (string, error) {
-	if len(raw) > 1<<20 {
+	if len(raw) > MaxDocumentSize {
 		return "", fmt.Errorf("%w: document too large", ErrInvalid)
 	}
 	var doc Node

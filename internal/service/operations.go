@@ -205,8 +205,13 @@ func (v *Service) ImportBackup(r io.ReaderAt, size int64) (string, error) {
 		return "", err
 	}
 	id := time.Now().UTC().Format("20060102T150405") + "-" + Token()[:8]
-	if err := backup.ReadZIP(r, size, filepath.Join(root, id)); err != nil {
+	stage := filepath.Join(root, ".import-"+Token()[:16])
+	defer os.RemoveAll(stage)
+	if err := backup.ReadZIP(r, size, stage); err != nil {
 		return "", fmt.Errorf("%w: %v", ErrInvalid, err)
+	}
+	if err := os.Rename(stage, filepath.Join(root, id)); err != nil {
+		return "", err
 	}
 	return id, nil
 }

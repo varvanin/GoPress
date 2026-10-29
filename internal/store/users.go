@@ -33,18 +33,14 @@ func (s *Store) User(id int64) (User, error) {
 	return u, err
 }
 func (s *Store) UserByEmail(email string) (User, error) {
-	var id int64
-	if err := s.DB.QueryRow("SELECT id FROM users WHERE email=? AND blocked=0", email).Scan(&id); err != nil {
-		return User{}, err
-	}
-	return s.User(id)
+	var u User
+	err := s.DB.QueryRow("SELECT id,email,name,role,blocked,version,created_at FROM users WHERE email=? AND blocked=0", email).Scan(&u.ID, &u.Email, &u.Name, &u.Role, &u.Blocked, &u.Version, &u.CreatedAt)
+	return u, err
 }
 func (s *Store) SessionUser(hash string) (User, error) {
-	var id int64
-	if err := s.DB.QueryRow("SELECT u.id FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.hash=? AND s.expires_at>unixepoch() AND u.blocked=0", hash).Scan(&id); err != nil {
-		return User{}, err
-	}
-	return s.User(id)
+	var u User
+	err := s.DB.QueryRow("SELECT u.id,u.email,u.name,u.role,u.blocked,u.version,u.created_at FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.hash=? AND s.expires_at>unixepoch() AND u.blocked=0", hash).Scan(&u.ID, &u.Email, &u.Name, &u.Role, &u.Blocked, &u.Version, &u.CreatedAt)
+	return u, err
 }
 func (s *Store) Users(page int) ([]User, int, error) {
 	var total int

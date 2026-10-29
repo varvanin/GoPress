@@ -821,5 +821,10 @@
   "Текст отзыва": "Text reference",
   "Удалить группу навсегда? Она исчезнет из всех материалов.": "Trvale odstranit tuto skupinu? Zmizí ze všech materiálů.",
   "Проверьте поля и изображения. Допустимо от 1 до 50 элементов.": "Zkontrolujte pole a obrázky. Povoleno je 1 až 50 položek.",
-  "Раздел изменён в другой вкладке. Откройте актуальную версию.": "Skupina byla změněna na jiné kartě. Otevřete aktuální verzi."
+  "Раздел изменён в другой вкладке. Откройте актуальную версию.": "Skupina byla změněna na jiné kartě. Otevřete aktuální verzi.",
+  "Язык материала": "Jazyk obsahu",
+  "Оригинал": "Originál",
+  "Добавить язык": "Přidat jazyk",
+  "Язык новой версии": "Jazyk nové verze",
+  "Не удалось добавить язык. Попробуйте ещё раз.": "Jazyk se nepodařilo přidat. Zkuste to znovu."
 }

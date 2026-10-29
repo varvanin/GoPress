@@ -1,3 +1,4 @@
+import {mountEditorLanguages} from "./editor-languages.js";
 import {mediaDrop,mediaChoose} from './media-upload.js';
 import {updateSEOSettings} from './seo-settings.js';
 import {mountTemplateEditor,setTemplatePending} from './template-editor-loader.js';
@@ -38,7 +39,7 @@ export function mountPage(form) {
   saver=createAutosave(form,state,signal,message=>{status.textContent=message;});
  state.autosave=saver;
   const markDirty = () => { state.dirty = true; status.textContent = t('Есть несохранённые изменения.'); saver.schedule(); };
-  const fieldChange=event=>{if(['title','slug','cover','term_ids','seo_title','seo_description','seo_canonical','seo_social_title','seo_social_description','seo_social_image','seo_nofollow','noindex'].includes(event.target?.name)&&(!event.target.form||event.target.form===form))markDirty();};
+  const fieldChange=event=>{if(['title','slug','cover','term_ids','seo_title','seo_description','seo_canonical','seo_social_title','seo_social_description','seo_social_image','seo_nofollow','noindex','parent_id','order','template'].includes(event.target?.name)&&(!event.target.form||event.target.form===form))markDirty();};
   form.addEventListener('input', fieldChange, { signal });
   form.addEventListener('change', fieldChange, { signal });
   form.addEventListener('submit', (event) => {
@@ -56,11 +57,14 @@ export function mountPage(form) {
       return;
     }
     form.elements.document.value = JSON.stringify(state.editor.getJSON());
+    form.dispatchEvent(new Event('editor:serialize'));
     state.submitting = true;
   }, { signal, capture: true });
   import('/assets/editor.bundle.js').then(({ mountEditor }) => {
     if (signal.aborted) return;
     state.editor = mountEditor(form, markDirty);
+    mountEditorLanguages(form,state.editor,signal);
+    form.addEventListener('editor:language-added',markDirty,{signal});
     if (!state.dirty) status.textContent = '';
     state.setPending(state.pending);
   }).catch(() => {

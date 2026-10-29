@@ -11,6 +11,7 @@ import (
 	"io/fs"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -96,11 +97,7 @@ func New(v *service.Service) *App {
 				h.Set("Content-Security-Policy", "default-src 'self'; style-src 'self' 'nonce-"+nonce+"'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
 			}
 
-			limit := int64(service.MaxUpload + 1<<20)
-			if c.Request().URL.Path == "/admin/tools/backups/import" {
-				limit = 1 << 30
-			}
-			c.Request().Body = http.MaxBytesReader(c.Response(), c.Request().Body, limit)
+			c.Request().Body = http.MaxBytesReader(c.Response(), c.Request().Body, requestBodyLimit(c.Request().URL.Path))
 			err := next(c)
 			slog.Info("request", "id", requestID, "method", c.Request().Method, "route", c.Path(), "duration_ms", time.Since(start).Milliseconds())
 			return err
@@ -283,13 +280,13 @@ func New(v *service.Service) *App {
 		slug := strings.Trim(c.Request().URL.Path, "/")
 		normalized := strings.ToLower(slug)
 		if normalized != "" && (slug != normalized || c.Request().URL.Path != "/"+normalized) {
-			return c.Redirect(301, "/"+normalized)
+			return c.Redirect(301, contentRedirectURL(normalized, c.Request().URL.RawQuery))
 		}
 		p, err := v.Store.Public(normalized)
 		if errors.Is(err, sql.ErrNoRows) {
 			target, e := v.Store.Redirect(normalized)
 			if e == nil && target != normalized {
-				return c.Redirect(301, "/"+target)
+				return c.Redirect(301, contentRedirectURL(target, c.Request().URL.RawQuery))
 			}
 			if e != nil && !errors.Is(e, sql.ErrNoRows) {
 				return e
@@ -303,11 +300,28 @@ func New(v *service.Service) *App {
 	})
 	return a
 }
+func requestBodyLimit(path string) int64 {
+	switch {
+	case path == "/admin/tools/backups/import":
+		return 1 << 30
+	case path == "/admin/pages/languages":
+		return 16 << 10
+	case strings.HasPrefix(path, "/forms/"):
+		return 128 << 10
+	case path == "/admin/pages" || strings.HasPrefix(path, "/admin/pages/"):
+		return service.MaxContentRequestSize
+	default:
+		return service.MaxUpload + 1<<20
+	}
+}
+func contentRedirectURL(path string, query string) string {
+	return (&url.URL{Path: "/" + path, RawQuery: query}).String()
+}
 func decode(c *echo.Context, v any) error {
 	if !strings.HasPrefix(c.Request().Header.Get("Content-Type"), "application/json") {
 		return service.ErrInvalid
 	}
-	d := json.NewDecoder(io.LimitReader(c.Request().Body, (1<<20)+1))
+	d := json.NewDecoder(http.MaxBytesReader(c.Response(), c.Request().Body, requestBodyLimit(c.Request().URL.Path)))
 	d.DisallowUnknownFields()
 	if err := d.Decode(v); err != nil {
 		return service.ErrInvalid
@@ -501,6 +515,15 @@ func (a *App) render(c *echo.Context, p store.Page, notFound bool, preview ...st
 			p = store.Page{Title: site.Title, Document: emptyDocument}
 		}
 	}
+	originalLanguage := sourceContentLanguage(p)
+	language := c.QueryParam("lang")
+	if language != "" && language != "original" && !notFound {
+		translation, exists := p.Translations[language]
+		if !exists {
+			return echo.NewHTTPError(http.StatusNotFound, "Translation not found")
+		}
+		p.Title, p.Document, p.SEO = translation.Title, translation.Document, translation.SEO
+	}
 	a.themeMu.RLock()
 	defer a.themeMu.RUnlock()
 	appearance, err := a.Service.Store.Appearance()
@@ -617,11 +640,28 @@ func (a *App) render(c *echo.Context, p store.Page, notFound bool, preview ...st
 	if e != nil {
 		zone = time.UTC
 	}
-	meta := pageMetadata(site, appearance, p, home, private, notFound, blogPage, blogTerm)
+	meta := pageMetadata(site, appearance, p, home && (language == "" || language == "original"), private, notFound, blogPage, blogTerm)
 	if settings.HomeMode == "page" && p.ID == settings.HomePageID && !private && !notFound {
 		meta.Canonical = site.BaseURL + "/"
 	}
-	applySEOOptions(&meta, site, appearance, p, home, private, notFound, blogPage, blogTerm, terms, search, pages)
+	meta.ContentLanguage = originalLanguage
+	if language != "" && language != "original" && !notFound {
+		meta.ContentLanguage = language
+		if meta.Canonical != "" && p.SEO.Canonical == "" {
+			canonical, e := url.Parse(meta.Canonical)
+			if e != nil {
+				return e
+			}
+			query := canonical.Query()
+			query.Set("lang", language)
+			canonical.RawQuery = query.Encode()
+			meta.Canonical = canonical.String()
+		}
+	}
+	applySEOOptions(&meta, site, appearance, p, home && (language == "" || language == "original"), private, notFound, blogPage, blogTerm, terms, search, pages)
+	if language != "" && language != "original" && !notFound {
+		meta.Locale = strings.ReplaceAll(language, "-", "_")
+	}
 	if !home && meta.Description == "" {
 		meta.Description = settings.Description
 	}

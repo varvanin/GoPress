@@ -153,6 +153,29 @@ try{
   await send('Input.insertText',{text:'Browser acceptance edit. '});
   await until(async()=>{const r=await admin.request('/admin/pages/'+page.id);return r.status===200&&JSON.parse(r.body).document.includes('Browser acceptance edit.');},'browser edit autosaved');
   assert(!(await anon.request('/smoke-page')).body.includes('Browser acceptance edit.'),'browser edit leaked before publication');
+  const language=async value=>evaluate(`(()=>{const field=document.querySelector('[name="content_language"]');window.templ.select.setValue(document.getElementById('content-language'),${JSON.stringify(value)});field.dispatchEvent(new Event('change',{bubbles:true}));return field.value;})()`);
+  assert.equal(await evaluate('document.querySelector("[name=source_language]").value'),'ru');
+  assert.equal(await evaluate('document.querySelectorAll("#content-language-popup [role=option]").length'),1,'an untranslated material offers unadded languages');
+  await evaluate('document.querySelector(".editor-add-language").open=true;document.querySelector("[data-add-content-language]").click()');
+  await until(()=>evaluate('document.querySelector("[name=content_language]").value==="en" && !!document.getElementById("content-language")'),'language added');
+  assert.equal(await evaluate('document.querySelectorAll("#content-language-popup [role=option]").length'),2,'language switcher contains unadded languages');
+  assert.equal(await evaluate('document.querySelector("[name=title]").value'),'');
+  await evaluate('(()=>{const title=document.querySelector("[name=title]");title.value="English browser title";title.dispatchEvent(new Event("input",{bubbles:true}));document.querySelector(".prose-editor[contenteditable=true]").focus();})()');
+  await send('Input.insertText',{text:'English browser body.'});
+  await until(async()=>{const r=await admin.request('/admin/pages/'+page.id);return JSON.parse(r.body).translations?.en?.document.includes('English browser body.');},'translation autosaved');
+  assert(await evaluate('document.querySelector("[data-saved-preview]").href.endsWith("?lang=en")'),'autosave lost preview language');
+  assert.equal(await language('original'),'original');
+  assert(!(await evaluate('JSON.parse(document.querySelector("[name=translations]").value).pl')),'unadded language exists');
+  assert(await evaluate('document.querySelector(".prose-editor").textContent.includes("Browser acceptance edit.")'));
+  assert(!(await evaluate('document.querySelector(".prose-editor").textContent.includes("English browser body.")')));
+  await evaluate('document.querySelector(".editor-add-language").open=true');
+  assert(await evaluate('(()=>{const button=document.querySelector("[data-add-content-language]").getBoundingClientRect();const field=document.querySelector(".editor-add-language>.field").getBoundingClientRect();return button.width<field.width&&Math.abs(button.right-field.right)<2;})()'),'add-language action is not compact and aligned right');
+  for(const palette of ['dark','light']) {
+   await evaluate(`document.documentElement.dataset.adminTheme=${JSON.stringify(palette)}`);
+   assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),'editor horizontal overflow');
+   const screenshot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await mkdir('artifacts',{recursive:true});await writeFile('artifacts/editor-'+palette+'.png',Buffer.from(screenshot.data,'base64'));
+  }
+
 
   await navigate('/admin/forms/'+formID+'/edit');await until(()=>evaluate('document.querySelector("[data-form-preview]")?.children.length>0'),'form builder');
   const initial=await evaluate('document.querySelectorAll("[data-form-fields]>[data-form-field]").length');await evaluate('document.querySelector("[data-add-form-field]").click()');assert.equal(await evaluate('document.querySelectorAll("[data-form-fields]>[data-form-field]").length'),initial+1);

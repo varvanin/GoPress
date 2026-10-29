@@ -32,6 +32,13 @@ func (s *Store) ModulePackage(id string) (ModulePackage, error) {
 	err := s.DB.QueryRow("SELECT id,version,enabled,manifest,template,css,settings,screenshot,screenshot_mime FROM module_packages WHERE id=?", id).Scan(&p.ID, &p.Version, &p.Enabled, &p.Manifest, &p.Template, &p.CSS, &p.Settings, &p.Screenshot, &p.ScreenshotMIME)
 	return p, err
 }
+
+// ModuleContent excludes binary previews from public rendering and CSS requests.
+func (s *Store) ModuleContent(id string) (ModulePackage, error) {
+	var p ModulePackage
+	err := s.DB.QueryRow("SELECT id,version,enabled,template,css,settings FROM module_packages WHERE id=?", id).Scan(&p.ID, &p.Version, &p.Enabled, &p.Template, &p.CSS, &p.Settings)
+	return p, err
+}
 func (s *Store) InstallModulePackage(ctx context.Context, p ModulePackage) error {
 	_, err := s.DB.ExecContext(ctx, "INSERT INTO module_packages(id,manifest,template,css,settings,screenshot,screenshot_mime) VALUES(?,?,?,?,?,?,?)", p.ID, p.Manifest, p.Template, p.CSS, p.Settings, p.Screenshot, p.ScreenshotMIME)
 	return err
