@@ -19,20 +19,15 @@ templ Forms(site, csrf string, forms []store.Form, smtp bool,settings store.Sett
 				@icon.Plus()<span>{ i18n.T(ctx,"Создать форму") }</span>
 			}
 		}
-		if !smtp {
-			<p class="notice">{ i18n.T(ctx,"Почтовые уведомления не настроены. Заявки сохраняются в админке.") } <a href="/admin/settings?tab=mail" class="underline">{ i18n.T(ctx,"Настроить почту") }</a></p>
-		}
-		if len(forms)==0 {
-			<section class="empty-state"><h2>{ i18n.T(ctx,"Создайте первую форму") }</h2><p>{ i18n.T(ctx,"Добавьте поля, укажите email получателя и вставьте короткий код в страницу или запись.") }</p></section>
-		}
-		<form method="post" action="/admin/forms/retention" class="mail-test-form">
-<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="version" value={ strconv.FormatInt(settings.Version,10) }/>
-<label>{ i18n.T(ctx,"Хранить заявки, дней") }<input type="number" name="days" class="site-input" required min="1" max="3650" value={ strconv.Itoa(settings.FormRetentionDays) }/></label>
-@button.Button(button.Props{Type:button.TypeSubmit,Size:button.SizeSm,Variant:button.VariantOutline}) {
-{ i18n.T(ctx,"Сохранить") }
-}
-<p class="field-help">{ i18n.T(ctx,"Заявки старше выбранного срока удаляются автоматически вместе с очередью уведомлений.") }</p>
-</form>
+		<div class="management-workspace forms-workspace">
+			<div>
+				if len(forms)==0 {
+					@card.Card(card.Props{Class: "forms-empty"}) {
+						@icon.FileText(icon.Props{Class: "size-6"})
+						<h2>{ i18n.T(ctx,"Создайте первую форму") }</h2>
+						<p>{ i18n.T(ctx,"Добавьте поля, укажите email получателя и вставьте короткий код в страницу или запись.") }</p>
+					}
+				}
 		<div class="forms-list">
 			for _, f := range forms {
 				<article class="forms-list-row">
@@ -63,6 +58,29 @@ templ Forms(site, csrf string, forms []store.Form, smtp bool,settings store.Sett
 					</div>
 				</article>
 			}
+		</div>
+			</div>
+			<aside class="forms-context">
+				@card.Card(card.Props{Class: "forms-retention"}) {
+					<h2>@icon.Icon("database")(icon.Props{Class: "size-4"})<span>{ i18n.T(ctx,"Заявки") }</span></h2>
+					<form method="post" action="/admin/forms/retention" data-change-form>
+						<input type="hidden" name="csrf" value={ csrf }/>
+						<input type="hidden" name="version" value={ strconv.FormatInt(settings.Version,10) }/>
+						<label for="form-retention-days">{ i18n.T(ctx,"Хранить заявки, дней") }</label>
+						<input id="form-retention-days" type="number" name="days" class="site-input" required min="1" max="3650" value={ strconv.Itoa(settings.FormRetentionDays) }/>
+						<p class="field-help">{ i18n.T(ctx,"Заявки старше выбранного срока удаляются автоматически вместе с очередью уведомлений.") }</p>
+						@button.Button(button.Props{Type:button.TypeSubmit,Size:button.SizeSm,Variant:button.VariantOutline}) {
+							{ i18n.T(ctx,"Сохранить") }
+						}
+					</form>
+				}
+				if !smtp {
+					<div class="forms-mail-status">
+						<p class="field-help">{ i18n.T(ctx,"Почтовые уведомления не настроены. Заявки сохраняются в админке.") }</p>
+						<a href="/admin/settings?tab=mail" class="context-link">{ i18n.T(ctx,"Настроить почту") }</a>
+					</div>
+				}
+			</aside>
 		</div>
 	}
 }
