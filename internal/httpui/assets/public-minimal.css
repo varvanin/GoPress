@@ -230,3 +230,5 @@ main { flex:1; min-width:0; }
 .minimal-reading .gp-public-form{font-family:var(--sans);font-size:14px;line-height:1.7;border-radius:3px}
 .minimal-brand{padding-block:4px}
 .minimal-footer a{padding-block:4px}
+
+[id^="section-"] { scroll-margin-block-start:80px; }

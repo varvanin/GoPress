@@ -32,6 +32,11 @@ type Diagnostics struct {
 }
 
 func (v *Service) Maintenance() (bool, error) {
+	if _, err := os.Stat(filepath.Join(v.Store.Dir, "update-in-progress")); err == nil {
+		return true, nil
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return false, err
+	}
 	_, err := os.Stat(filepath.Join(v.Store.Dir, "maintenance"))
 	if errors.Is(err, os.ErrNotExist) {
 		return false, nil

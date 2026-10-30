@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -24,6 +25,13 @@ func (a *App) operationGuard(next echo.HandlerFunc) echo.HandlerFunc {
 		} else {
 			a.Service.Operations.RLock()
 			defer a.Service.Operations.RUnlock()
+		}
+		if c.Request().Method != "GET" && c.Request().Method != "HEAD" && path != "/login" && path != "/logout" {
+			if _, err := os.Stat(filepath.Join(a.Service.Store.Dir, "update-in-progress")); err == nil {
+				return echo.NewHTTPError(503, "Update in progress")
+			} else if !errors.Is(err, os.ErrNotExist) {
+				return err
+			}
 		}
 		active, err := a.Service.Maintenance()
 		if err != nil {
@@ -58,7 +66,7 @@ func isSystemPath(path string) bool {
 	return path == "/login" || path == "/logout" || path == "/forgot-password" || path == "/reset-password" || path == "/healthz" || path == "/readyz" || path == "/install" || len(path) >= 7 && path[:7] == "/admin/" || path == "/admin" || len(path) >= 8 && path[:8] == "/assets/"
 }
 func allowedMaintenanceWrite(path string) bool {
-	return len(path) >= 13 && path[:13] == "/admin/tools/" || path == "/login" || path == "/logout" || path == "/forgot-password" || path == "/reset-password"
+	return strings.HasPrefix(path, "/admin/updates/") || len(path) >= 13 && path[:13] == "/admin/tools/" || path == "/login" || path == "/logout" || path == "/forgot-password" || path == "/reset-password"
 }
 func (a *App) toolsPage(c *echo.Context, status int, message string) error {
 	site, err := a.Service.Store.Site()

@@ -334,3 +334,5 @@ summary::-webkit-details-marker { display:none; }
 @media(max-width:800px){.featured-cover{aspect-ratio:3/2}.featured-cover img{height:100%;aspect-ratio:auto}}
 @media(prefers-reduced-motion:reduce){.cover-link:hover img,.text-link:hover>svg,.read-link:hover>svg{transform:none}}
 .site-brand>span:last-child{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+
+[id^="section-"] { scroll-margin-block-start:80px; }

@@ -107,7 +107,8 @@ templ Menus(site, csrf string, menu store.Menu, pages []store.Page, message stri
 				{ i18n.T(ctx, message) }
 			</p>
 		}
-		<nav class="content-list-tabs" aria-label={ i18n.T(ctx, "Позиция меню") }><a href="/admin/menus?position=header" aria-current={ activeTab(menu.Position == "header") }>@icon.Icon("panel-top")(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Шапка сайта") }</span></a><a href="/admin/menus?position=footer" aria-current={ activeTab(menu.Position == "footer") }>@icon.Icon("panel-bottom")(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Подвал") }</span></a></nav>
+		<p class="field-help">{ i18n.T(ctx,"Для раздела на текущей странице используйте #section-contacts, для главной — /#section-contacts. Якорь задаётся в редакторе текста.") }</p>
+ <nav class="content-list-tabs" aria-label={ i18n.T(ctx, "Позиция меню") }><a href="/admin/menus?position=header" aria-current={ activeTab(menu.Position == "header") }>@icon.Icon("panel-top")(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Шапка сайта") }</span></a><a href="/admin/menus?position=footer" aria-current={ activeTab(menu.Position == "footer") }>@icon.Icon("panel-bottom")(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Подвал") }</span></a></nav>
 		if menu.Position=="header"&&menu.Version==0 {
 			<p class="field-help">{ i18n.T(ctx,"Пока сайт показывает стандартное меню: главную и опубликованные страницы. Сохранение заменит его списком ниже.") }</p>
 		}

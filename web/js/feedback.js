@@ -56,10 +56,12 @@ export function deletionPrompt(element, parameters={}) {
  if(action==='trash')return {message:t('Переместить выбранные материалы в корзину? Их можно будет восстановить.'),label:t('В корзину')};
  if(action==='delete'&&/\/(content\/bulk|pages\/\d+\/state)$/.test(form?.getAttribute('action')||''))return {message:t('Удалить выбранные материалы навсегда вместе с историей изменений? Восстановление будет невозможно.'),label:t('Удалить навсегда')};
  if(action==='delete')return {message:t('Удалить выбранную категорию или тег? Связи с материалами будут удалены.'),label:t('Удалить')};
+ if(form?.getAttribute('action')==='/admin/updates/install')return {message:t('Установить обновление? GoPress создаст резервную копию и временно включит обслуживание сайта.'),label:t('Обновить')};
  const question=element?.closest?.('[hx-confirm]')?.getAttribute('hx-confirm');
  return question?{message:question,label:form?.getAttribute('action')?.endsWith('/backups/restore')?t('Восстановить'):t('Удалить')}:null;
 }
 export function actionMessage(element, parameters={}) {
+ if(element?.closest?.('form')?.getAttribute('action')==='/admin/updates/install')return t('Проверка перед обновлением начата.');
  const action=parameters.action;
  if(action==='trash')return t('Материал перемещён в корзину.');
  if(action==='restore')return t('Материал восстановлен.');

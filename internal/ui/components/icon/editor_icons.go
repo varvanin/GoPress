@@ -2,6 +2,8 @@ package icon
 
 // Additional toolbar SVGs from lucide v1.8.0 (ISC); see third_party/lucide.
 func init() {
+	internalSvgData["hash"] = `<path d="M4 9h16M3 15h16M10 3 8 21M16 3l-2 18"/>`
+
 	internalSvgData["undo-2"] = `<path d="M9 14 4 9l5-5" />
 <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" />`
 	internalSvgData["redo-2"] = `<path d="m15 14 5-5-5-5" />

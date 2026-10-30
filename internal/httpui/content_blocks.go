@@ -5,6 +5,8 @@ import (
 	"regexp"
 )
 
+var contentBlockAnchor = regexp.MustCompile(`^<p(?: class="align-(?:left|center|right|justify)")? id="(section-[a-z][a-z0-9-]{0,63})">`)
+
 // Bound expansion before the outer template receives the assembled document.
 func replaceContentBlocks(body string, pattern *regexp.Regexp, render func(string) (string, error)) (string, error) {
 	if len(body) > 8<<20 {
@@ -27,6 +29,11 @@ func replaceContentBlocks(body string, pattern *regexp.Regexp, render func(strin
 		if err != nil {
 			renderErr = err
 			return ""
+		}
+		if value != "" && value != code {
+			if anchor := contentBlockAnchor.FindStringSubmatch(code); anchor != nil {
+				value = `<div id="` + anchor[1] + `">` + value + `</div>`
+			}
 		}
 		size += len(value) - len(code)
 		if size > 8<<20 {

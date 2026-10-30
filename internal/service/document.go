@@ -29,6 +29,8 @@ type Mark struct {
 var imagePath = regexp.MustCompile(`^/uploads/([a-f0-9]{64}\.(?:png|jpg))$`)
 var markTags = map[string]string{"bold": "strong", "italic": "em", "code": "code", "strike": "s", "underline": "u", "highlight": "mark", "superscript": "sup", "subscript": "sub"}
 
+var anchorName = regexp.MustCompile(`^[a-z][a-z0-9-]{0,63}$`)
+
 var codeLanguage = regexp.MustCompile(`^[a-zA-Z0-9_+-]{1,32}$`)
 
 // SafeLink allows public web/mail links and local paths, never script/data URLs.
@@ -85,6 +87,7 @@ func render(raw string, checkMedia func(string) error) (string, error) {
 	}
 	var out strings.Builder
 	nodes := 0
+	anchors := map[string]bool{}
 	var write func(Node, string, int) error
 	write = func(n Node, parent string, depth int) error {
 		nodes++
@@ -156,15 +159,16 @@ func render(raw string, checkMedia func(string) error) (string, error) {
 		} else if n.Type == "listItem" {
 			return ErrInvalid
 		}
-		tag, attrs := "", ""
+		tag, attrs, anchor := "", "", ""
 		switch n.Type {
 		case "paragraph":
 			tag = "p"
-			var a struct{ TextAlign string }
+			var a struct{ TextAlign, Anchor string }
 			if readAttrs(n.Attrs, &a) != nil {
 				return ErrInvalid
 			}
 			var err error
+			anchor = a.Anchor
 			attrs, err = alignmentClass(a.TextAlign)
 			if err != nil {
 				return err
@@ -173,12 +177,14 @@ func render(raw string, checkMedia func(string) error) (string, error) {
 			var a struct {
 				Level     int
 				TextAlign string
+				Anchor    string
 			}
 			if readAttrs(n.Attrs, &a) != nil || a.Level < 1 || a.Level > 3 {
 				return ErrInvalid
 			}
 			tag = "h" + strconv.Itoa(a.Level)
 			var err error
+			anchor = a.Anchor
 			attrs, err = alignmentClass(a.TextAlign)
 			if err != nil {
 				return err
@@ -269,6 +275,13 @@ func render(raw string, checkMedia func(string) error) (string, error) {
 			return nil
 		default:
 			return ErrInvalid
+		}
+		if anchor != "" {
+			if !anchorName.MatchString(anchor) || anchors[anchor] {
+				return ErrInvalid
+			}
+			anchors[anchor] = true
+			attrs += ` id="section-` + anchor + `"`
 		}
 		out.WriteString("<" + tag + attrs + ">")
 		for _, child := range n.Content {

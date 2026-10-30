@@ -134,6 +134,12 @@ func adminSection(title string) string {
 	if title == "Инструменты" {
 		return "/admin/tools"
 	}
+	if title == "Обновления" {
+		return "/admin/settings"
+	}
+	if title == "ИИ" {
+		return "/admin/settings"
+	}
 	if title == "Настройки" {
 		return "/admin/settings"
 	}
@@ -262,6 +268,8 @@ func (a *App) adminRoutes(g *echo.Group) {
 	a.formRoutes(g)
 	a.moduleRoutes(g)
 	a.settingsRoutes(g)
+	a.aiRoutes(g)
+	a.updateRoutes(g)
 	a.usersRoutes(g)
 	a.toolsRoutes(g)
 	a.siteRoutes(g)

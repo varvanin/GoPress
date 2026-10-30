@@ -1,0 +1,75 @@
+package httpui
+
+import "strconv"
+import "gopress/internal/i18n"
+import "gopress/internal/service"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/card"
+import "gopress/internal/ui/components/input"
+import "gopress/internal/ui/components/icon"
+
+templ AIPage(site, csrf string, value service.AISettings, configured bool, message string, failed, dirty bool) {
+ @AdminLayout(site,i18n.T(ctx,"ИИ"),csrf) {
+  @AdminPageHeader(i18n.T(ctx,"ИИ"),-1) {
+   @button.Button(button.Props{Type:button.TypeSubmit,Form:"ai-settings-form",Size:button.SizeSm}) {
+ { i18n.T(ctx,"Сохранить настройки") }
+ }
+  }
+  @SettingsTabs("ai")
+  if message!="" {
+ <p class={"notice",templ.KV("notice-error",failed)} role="status">{ i18n.T(ctx,message) }</p>
+ }
+  <div class="management-workspace settings-workspace">
+   <div class="site-settings">
+    <form id="ai-settings-form" method="post" action="/admin/ai/settings" data-change-form data-form-dirty={strconv.FormatBool(dirty)}>
+     <input type="hidden" name="csrf" value={csrf}/><input type="hidden" name="version" value={value.Version}/>
+     @card.Card(card.Props{Class:"settings-panel"}) {
+      <h2>OpenRouter</h2>
+      <label>{ i18n.T(ctx,"API-ключ OpenRouter") }
+       @input.Input(input.Props{Name:"key",Type:"password",Attributes:templ.Attributes{"autocomplete":"new-password","maxlength":"4096"}})
+      </label>
+      if configured {
+       <p class="field-help">{ i18n.T(ctx,"Ключ сохранён. Оставьте поле пустым, чтобы сохранить его.") }</p>
+       <label class="settings-checkbox"><input type="checkbox" name="clear_key" value="1"/>{ i18n.T(ctx,"Удалить API-ключ") }</label>
+      }
+      <label>{ i18n.T(ctx,"Модель") }
+       @input.Input(input.Props{Name:"model",Value:value.Model,Required:true,Placeholder:"openrouter/auto",Attributes:templ.Attributes{"maxlength":"200","autocomplete":"off"}})
+      </label>
+      <p class="field-help">{ i18n.T(ctx,"Укажите идентификатор модели из OpenRouter. Стоимость зависит от выбранной модели и вашего аккаунта.") }</p>
+     }
+    </form>
+   </div>
+   <aside class="management-context">
+    <h2>{ i18n.T(ctx,"Помощник в редакторе") }</h2>
+    <p class="field-help">{ i18n.T(ctx,"Откройте страницу или запись и разверните блок ИИ. Опишите задание, проверьте результат и вставьте текст.") }</p>
+    <p class="field-help">{ i18n.T(ctx,"Задание и выбранный контекст отправляются в OpenRouter. Ключ хранится на сервере отдельно от обычных бэкапов.") }</p>
+    <a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener noreferrer">{ i18n.T(ctx,"Получить API-ключ") }</a>
+   </aside>
+  </div>
+ }
+}
+
+templ EditorAI() {
+ @card.Card(card.Props{Class:"editor-panel"}) {
+  <details data-editor-ai>
+   @EditorPanelSummary(i18n.T(ctx,"ИИ"),icon.Icon("openai"))
+   <div class="editor-panel-body">
+    <label>{ i18n.T(ctx,"Задание для ИИ") }
+     <textarea class="input ai-prompt" rows="4" maxlength="2000" data-ai-prompt placeholder={i18n.T(ctx,"Напишите тему, структуру и желаемый стиль текста.")}></textarea>
+    </label>
+    <label class="settings-checkbox"><input type="checkbox" data-ai-context/>{ i18n.T(ctx,"Учитывать текст материала") }</label>
+    <p class="field-help">{ i18n.T(ctx,"Задание и заголовок отправляются в OpenRouter. Текст материала — только при включённом контексте.") }</p>
+    @button.Button(button.Props{Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"data-ai-generate":true}}) {
+ { i18n.T(ctx,"Сгенерировать") }
+ }
+    <p class="field-help" role="status" aria-live="polite" data-ai-status></p>
+    <div data-ai-result hidden>
+     <label>{ i18n.T(ctx,"Результат") }<textarea class="input ai-output" rows="8" readonly data-ai-output></textarea></label>
+     @button.Button(button.Props{Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"data-ai-insert":true}}) {
+ { i18n.T(ctx,"Вставить в конец текста") }
+ }
+    </div>
+   </div>
+  </details>
+ }
+}

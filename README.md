@@ -91,7 +91,10 @@ The script first creates and verifies an offline backup under the data directory
 
 Pages and posts have drafts, published snapshots, version checks, revisions, autosave, previews, scheduling, trash and bulk actions. Pages support parents, ordering, custom templates, nested URLs and permanent redirects after published address changes. Posts support categories and tags.
 
-The Tiptap editor supports headings, lists, quotes, links, inline/code blocks, image captions and alt text, alignment, common text marks, undo/redo and search. Autosave serializes requests after a 1.5-second pause. Conflicts or expired sessions stop retries without replacing local text. Unsaved navigation is guarded. There is no browser-disk offline draft store.
+The Tiptap editor supports section anchors, headings, lists, quotes, links, inline/code blocks, image captions and alt text, alignment, common text marks, undo/redo and search. Autosave serializes requests after a 1.5-second pause. Conflicts or expired sessions stop retries without replacing local text. Unsaved navigation is guarded. There is no browser-disk offline draft store.
+
+For a one-page site, select a heading or paragraph and click **Anchor** in the text toolbar. Give it a unique lowercase name such as `contacts`; the panel provides `#section-contacts`. Use that URL in the existing Link tool or as a custom menu link. Use `/#section-contacts` in a shared menu targeting the homepage, or `/about#section-contacts` for another page. Anchor names allow up to 64 ASCII letters, digits and hyphens, starting with a letter. They are explicit and remain stable when the heading text changes. **Remove anchor** removes the target; update any links to it manually. Copies pasted into the editor and newly split paragraphs do not duplicate the original anchor. Drafts, translations, revisions and publication snapshots keep their own anchors with their document. The `section-` prefix separates content targets from template IDs. Custom templates should avoid IDs starting with `section-` and can add scroll margin for fixed headers.
+
 
 Pages and posts start with one content language of their own, independently of the admin language. The **Content language** switcher in the editor’s settings column shows only versions already belonging to that material. Use **Add language** to create another version, then write its title, body and SEO. Once versions have been added, the switcher lists only those versions. The URL slug, cover, categories, template and publication status are shared. Switching preserves local edits and resets undo history across languages. Saving, revisions, scheduled publication and backups include all versions. An added version without a title stays in the draft and is excluded from publication.
 
@@ -178,6 +181,36 @@ Backups include a consistent SQLite snapshot, uploads, installed templates/edito
 
 [Operations, trusted proxies, recovery and release checks](docs/OPERATIONS.md)
 
+## AI writing assistant
+
+Open **Settings → AI**, save an OpenRouter API key and a model ID such as `openrouter/auto`. Only administrators can change these settings. The key is stored in `ai.json` with owner-only permissions, outside SQLite and ordinary backups; configure it again after restoring to another installation. Keep the data directory private as with SMTP credentials.
+
+Pages and posts have an **AI** panel. Enter a task to draft, continue, rewrite or translate text. The task, title and active material language are sent to [OpenRouter](https://openrouter.ai/docs/api/api-reference/chat/create-a-chat-completion); existing text is included only when **Include existing text** is checked. The interface language does not control the writing language. Review the plain-text result, then explicitly append it to the current language version. The helper never publishes or automatically replaces content; normal editing, undo and autosave apply after insertion. Results are temporary and disappear when leaving the editor.
+
+Administrators, editors and authors can use the helper within their existing editing permissions. Requests use a fixed HTTPS endpoint, a 75-second timeout, one concurrent generation per site, at most 30 attempts per user per 15 minutes and a 4096-token output ceiling. Context is limited to 64,000 UTF-8 bytes; large materials can be generated without context. Charges and model availability depend on your OpenRouter account. Tests use mocked responses and never spend API credits.
+
+## Updates through Dokploy
+
+**Settings → Updates** checks for a signed stable release and offers an **Update** button. Installation is opt-in; there is no scheduled installation or background release polling. This first integration supports an official Docker image deployed as a Dokploy **Application** with a Docker source, rather than a Dokploy Compose project or a native binary.
+
+The publisher must first publish signed releases and public GHCR images; see [.github/RELEASING.md](.github/RELEASING.md). Development builds do not ship a production signing key. A button cannot install an unpublished release.
+
+In Dokploy, keep one replica, mount a persistent named volume or bind directory at `/data`, use local storage and pin the application to its data node in Advanced → Placement (for example `node.hostname==site-node`). Keep the image’s default entrypoint, command and port 8080; custom command/argument profiles are rejected by this first updater. Restrict the Dokploy API key to the GoPress application where possible. Set these variables in the application's environment, with the actual application ID unquoted:
+
+```dotenv
+GOPRESS_DOKPLOY_URL=https://dokploy.example.com
+GOPRESS_DOKPLOY_API_KEY=YOUR_DOKPLOY_API_KEY
+GOPRESS_DOKPLOY_APPLICATION_ID=YOUR_APPLICATION_ID
+```
+
+Official release images embed the release feed and public signing key. For a bootstrap build or a private release channel, the operator may set `GOPRESS_UPDATE_PUBLIC_KEY` (base64 Ed25519 public key) and `GOPRESS_UPDATE_FEED` (HTTPS URL of `update.json`, with a detached base64 signature at `update.json.sig`). The feed is consulted only on administrator request and is never allowed to nominate an image outside the image repository compiled into that build. Never put the private release signing key in a site, Docker build argument or container environment.
+
+The update job rechecks the signed release, checks the Dokploy target and persistent storage, freezes writes, creates and verifies a backup, and requests deployment of an immutable image digest. It enforces `stop-first`, one replicated task, paused deployment failures, disabled automatic rollback and a local readiness probe. Site secrets stay in Dokploy's environment; no Docker socket or root access is given to GoPress. Brief downtime is expected.
+
+The new process removes the update maintenance lock only after binding its listener, checking SQLite integrity and matching the expected application version/schema. A pre-existing operator maintenance state is retained. A queued deployment is not reported as installed. If Dokploy times out or fails after a remote mutation, GoPress keeps maintenance and blocks background writes; inspect Dokploy before taking further action. Status polling lasts at most five minutes; it does not retry deployment.
+
+For recovery, stop the failed application in Dokploy. Keep the recorded previous image reference and verified pre-update backup. Restore compatible data using the documented offline backup recovery procedure, select the compatible previous image in Dokploy, then check the restored site. After verification, remove `update-in-progress` and archive/remove `updates/state.json` while the application is stopped; leave ordinary maintenance enabled until the checks are complete. Do not simply roll back an image against a migrated database. Backups and environment secrets remain separate. See [operations](docs/OPERATIONS.md).
+
 ## Internal HTTP interface
 
 These are implementation endpoints, not a stable external SDK. Mutations require a session, CSRF and applicable role/object permissions. A token is available from authenticated `GET /admin/csrf`; setup/sign-in forms contain a hidden `csrf`. GET never mutates state.
@@ -188,6 +221,10 @@ These are implementation endpoints, not a stable external SDK. Mutations require
 | `GET /admin/pages/{id}` | Full working document |
 | `POST /admin/pages/save` | Browser save/publish/autosave with optimistic version |
 | `POST /admin/pages`, `/admin/pages/{id}` | Internal JSON content writes |
+| `POST /admin/pages/ai` | Generate plain text for an authorized editor; does not save content |
+| `GET /admin/ai`, `POST /admin/ai/settings` | Administrator-only OpenRouter configuration |
+| `GET /admin/updates`, `/admin/updates/status` | Administrator-only update metadata and deployment status |
+| `POST /admin/updates/check`, `/admin/updates/install` | Verify a release or start an explicit Dokploy update job |
 | `POST /admin/media` | Raw PNG/JPEG bytes, not multipart; returns the stored name |
 | `GET /admin/pages/{id}/preview` | Authorized, non-cacheable draft preview |
 | `POST /admin/pages/{id}/publish`, `/schedule`, `/state` | Versioned publication and lifecycle changes |

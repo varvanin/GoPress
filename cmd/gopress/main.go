@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -41,6 +42,7 @@ func run(args []string) error {
 	flags := flag.NewFlagSet(args[0], flag.ContinueOnError)
 	data := flags.String("data", env("GOPRESS_DATA", "./data"), "local persistent data directory")
 	addr := flags.String("addr", env("GOPRESS_ADDR", "127.0.0.1:8080"), "listen address")
+	installed := flags.Bool("installed", false, "require a completed site installation for healthcheck")
 	email := flags.String("email", "", "account email for password reset")
 	passwordStdin := flags.Bool("password-stdin", false, "read the new password from stdin")
 	output := flags.String("output", "", "new backup directory outside data")
@@ -140,6 +142,21 @@ func run(args []string) error {
 			return v.AdminResetPassword(context.Background(), strings.ToLower(strings.TrimSpace(*email)), strings.TrimRight(string(raw), "\r\n"))
 		}
 		return nil
+	case "healthcheck":
+		client := &http.Client{Timeout: 3 * time.Second}
+		path := "/readyz"
+		if *installed {
+			path += "?installed=1"
+		}
+		response, err := client.Get("http://" + *addr + path)
+		if err != nil {
+			return errors.New("readiness check failed")
+		}
+		defer response.Body.Close()
+		if response.StatusCode != 200 {
+			return errors.New("readiness check failed")
+		}
+		return nil
 	case "serve":
 		s, err := store.Open(*data)
 		if err != nil {
@@ -159,15 +176,23 @@ func run(args []string) error {
 			return err
 		}
 		srv := &http.Server{Addr: *addr, Handler: app.Echo, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 32 << 10}
+		listener, err := net.Listen("tcp", *addr)
+		if err != nil {
+			return err
+		}
+		defer listener.Close()
+		if err = v.CompleteUpdate(); err != nil {
+			return err
+		}
 		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 		defer stop()
 		schedulerDone := make(chan struct{})
 		go func() { defer close(schedulerDone); v.RunScheduler(ctx) }()
 		mailDone := make(chan struct{})
 		go func() { defer close(mailDone); v.RunMailWorker(ctx) }()
-		defer func() { stop(); <-schedulerDone; <-mailDone; v.Background.Wait() }()
+		defer func() { v.StopUpdates(); stop(); <-schedulerDone; <-mailDone; v.Background.Wait() }()
 		done := make(chan error, 1)
-		go func() { slog.Info("GoPress listening", "address", *addr); done <- srv.ListenAndServe() }()
+		go func() { slog.Info("GoPress listening", "address", *addr); done <- srv.Serve(listener) }()
 		select {
 		case err = <-done:
 			if errors.Is(err, http.ErrServerClosed) {
@@ -175,6 +200,7 @@ func run(args []string) error {
 			}
 			return err
 		case <-ctx.Done():
+			v.StopUpdates()
 			shutdown, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()
 			if err = srv.Shutdown(shutdown); err != nil {

@@ -29,7 +29,7 @@ for (const name of [...packages].sort()) {
   if (!license) throw new Error(`Missing license for ${name}`);
   notices.push(`${name}@${pkg.version}\n${license.trim()}`);
 }
-for (const name of ['shadcn-templ','shadcn-ui','base-ui','floating-ui','lucide','tailwindcss']) {
+for (const name of ['shadcn-templ','shadcn-ui','base-ui','floating-ui','lucide','tailwindcss','lobe-icons']) {
  notices.push(`${name}\n${readFileSync(`third_party/${name}/LICENSE`, 'utf8').trim()}`);
 }
 await build({entryPoints:['web/js/components.js'],bundle:true,format:'iife',minify:true,legalComments:'eof',outfile:'internal/httpui/assets/components.bundle.js',banner:{js:'/*! shadcn-templ sidebar runtime; licenses: /assets/frontend-LICENSES.txt */'}});

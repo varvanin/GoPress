@@ -31,6 +31,9 @@ func TestBackupExcludesMailSecrets(t *testing.T) {
 	if err = v.SaveMailSettings(service.MailSettings{Enabled: true, Host: "smtp.example.com", Port: "587", From: "sender@example.com", Password: "PRIVATE-SMTP-SECRET"}, false); err != nil {
 		t.Fatal(err)
 	}
+	if err = v.SaveAISettings(context.Background(), service.AISettings{Model: "openrouter/auto", Key: "PRIVATE-AI-SECRET"}, false); err != nil {
+		t.Fatal(err)
+	}
 	if err = s.Close(); err != nil {
 		t.Fatal(err)
 	}
@@ -44,8 +47,11 @@ func TestBackupExcludesMailSecrets(t *testing.T) {
 	if _, err = os.Stat(filepath.Join(dest, "mail.json")); !os.IsNotExist(err) {
 		t.Fatal("SMTP file included in backup", err)
 	}
+	if _, err = os.Stat(filepath.Join(dest, "ai.json")); !os.IsNotExist(err) {
+		t.Fatal("AI secret included in backup", err)
+	}
 	manifest, err := os.ReadFile(filepath.Join(dest, "manifest.json"))
-	if err != nil || strings.Contains(string(manifest), "mail.json") {
+	if err != nil || strings.Contains(string(manifest), "mail.json") || strings.Contains(string(manifest), "ai.json") {
 		t.Fatal("mail file in manifest", err)
 	}
 	restored := filepath.Join(root, "restored")

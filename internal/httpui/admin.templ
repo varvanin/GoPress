@@ -435,7 +435,7 @@ templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total i
 						<fieldset class="editor-link-fields" data-link-panel hidden>
 							<legend>{ i18n.T(ctx,"Ссылка") }</legend>
 							<label class="sr-only" for="link-url">{ i18n.T(ctx,"Адрес ссылки") }</label>
-							@input.Input(input.Props{ID: "link-url", Placeholder: i18n.T(ctx, "https://example.com или /contacts"), Attributes: templ.Attributes{"data-link-url": true, "maxlength": "2048"}})
+							@input.Input(input.Props{ID: "link-url", Placeholder: i18n.T(ctx, "https://example.com, /contacts или #section-contacts"), Attributes: templ.Attributes{"data-link-url": true, "maxlength": "2048"}})
 							@button.Button(button.Props{Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"data-link-apply": true}}) {
 								{ i18n.T(ctx,"Применить ") }
 							}
@@ -443,7 +443,17 @@ templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total i
 								{ i18n.T(ctx,"Убрать ссылку ") }
 							}
 						</fieldset>
-						<fieldset class="editor-link-fields" data-search-panel hidden>
+						<fieldset class="editor-link-fields" data-anchor-panel hidden>
+ <legend>{ i18n.T(ctx,"Якорь раздела") }</legend>
+ <label for="anchor-name">{ i18n.T(ctx,"Имя якоря") }</label>
+ @input.Input(input.Props{ID:"anchor-name",Placeholder:"contacts",Attributes:templ.Attributes{"data-anchor-name":true,"maxlength":"64","autocomplete":"off","aria-describedby":"anchor-help"}})
+ @button.Button(button.Props{Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"data-anchor-apply":true}}) {<span>{ i18n.T(ctx,"Применить") }</span>}
+ @button.Button(button.Props{Variant:button.VariantGhost,Size:button.SizeSm,Attributes:templ.Attributes{"data-anchor-remove":true}}) {<span>{ i18n.T(ctx,"Убрать якорь") }</span>}
+ <p id="anchor-help" class="field-help">{ i18n.T(ctx,"Латинские буквы, цифры и дефисы. Начните с буквы. Ссылку ниже можно использовать в тексте или меню сайта.") }</p>
+ <label for="anchor-link">{ i18n.T(ctx,"Ссылка на раздел") }</label>
+ @input.Input(input.Props{ID:"anchor-link",Attributes:templ.Attributes{"data-anchor-link":true,"readonly":true}})
+ </fieldset>
+ <fieldset class="editor-link-fields" data-search-panel hidden>
 							<legend>{ i18n.T(ctx,"Поиск в тексте") }</legend>
 							<label class="sr-only" for="editor-search">{ i18n.T(ctx,"Найти в тексте") }</label>
 							@input.Input(input.Props{ID: "editor-search", Type: "search", Placeholder: i18n.T(ctx, "Найти…"), Attributes: templ.Attributes{"data-editor-search": true, "maxlength": "256"}})
@@ -455,6 +465,7 @@ templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total i
 					}
 				</section>
 				<aside class="editor-settings" aria-label={ i18n.T(ctx, "Настройки материала") }>
+ @EditorAI()
                     if p.Kind=="post" {
                         @card.Card(card.Props{Class:"editor-panel"}) {
                             <div class="editor-panel-body">@EditorContentLanguage(p,language)</div>

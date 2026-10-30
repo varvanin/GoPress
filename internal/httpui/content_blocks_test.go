@@ -35,3 +35,22 @@ func TestContentBlocksStopAtOutputBudgetOrRenderError(t *testing.T) {
 		t.Fatal(calls, err)
 	}
 }
+
+func TestContentBlocksKeepSectionAnchor(t *testing.T) {
+	for _, test := range []struct {
+		pattern *regexp.Regexp
+		code    string
+	}{
+		{faqShortcode, "[faq id=1]"}, {formShortcode, "[form id=1]"}, {collectionShortcode, "[gallery id=1]"}, {moduleShortcode, `[module id=&#34;example&#34;]`},
+	} {
+		source := `<p class="align-center" id="section-contacts">` + test.code + `</p>`
+		output, err := replaceContentBlocks(source, test.pattern, func(string) (string, error) { return "<section>Content</section>", nil })
+		if err != nil || output != `<div id="section-contacts"><section>Content</section></div>` {
+			t.Fatal(output, err)
+		}
+		output, err = replaceContentBlocks(source, test.pattern, func(code string) (string, error) { return code, nil })
+		if err != nil || output != source {
+			t.Fatal("duplicated unchanged anchor", output, err)
+		}
+	}
+}

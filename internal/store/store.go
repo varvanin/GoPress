@@ -135,6 +135,9 @@ type Page struct {
 }
 
 // Open holds the data-directory lock until Close, including during maintenance.
+// SchemaVersion is the schema produced by this build, including all migrations below.
+const SchemaVersion = 16
+
 func Open(dir string) (*Store, error) { return openWithLock(dir, nil) }
 func openWithLock(dir string, held *os.File) (*Store, error) {
 	abs, err := filepath.Abs(dir)
@@ -208,10 +211,10 @@ func openWithLock(dir string, held *os.File) (*Store, error) {
 	if err = s.DB.QueryRow("PRAGMA user_version").Scan(&version); err != nil {
 		return nil, fmt.Errorf("read database: %w", err)
 	}
-	if version < 0 || version > 16 || (!fresh && version == 0) {
+	if version < 0 || version > SchemaVersion || (!fresh && version == 0) {
 		return nil, fmt.Errorf("unsupported database schema %d; refusing to reinstall", version)
 	}
-	if version < 16 {
+	if version < SchemaVersion {
 		tx, e := s.DB.Begin()
 		if e != nil {
 			return nil, e

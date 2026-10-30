@@ -132,3 +132,5 @@ Built-ins open read-only. Create an editable copy to install a separate package 
 Before replacement, the server renders the HTML template set. A failed check leaves the live file untouched and retains edits on screen. A stale file hash raises a conflict: copy your edits and reopen the current version rather than overwriting another tab.
 
 Restore previous version revalidates and restores the last saved content of that file. Only one previous version is kept; this is not a substitute for a full backup. History is included in normal backups. Edits to an active template are immediately public; use an inactive copy and preview for experiments. CSS/JS highlighting is not server-side syntax validation or browser verification.
+
+Content headings and paragraphs may carry editor-defined anchors, rendered as `id="section-NAME"`. Reserve the `section-` ID prefix for these content targets. Navigation links such as `/#section-contacts` work for one-page homepages. Preserve IDs in `.Body`; add scroll margin if your header is fixed.

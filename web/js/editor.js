@@ -1,3 +1,4 @@
+import {sectionAnchors,mountAnchors} from './editor-anchors.js';
 import {t} from './i18n.js';
 import { Editor, Node } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
@@ -44,7 +45,7 @@ export function mountEditor(form, onChange) {
       link: { openOnClick: false, autolink: false, HTMLAttributes: { target: null, rel: 'noopener noreferrer', class: null }, isAllowedUri: safeLink },
       trailingNode: false,
       gapcursor: false, dropcursor: false,
-    }), Image,textAlignment,...inlineMarks],
+    }), Image,textAlignment,sectionAnchors,...inlineMarks],
     editorProps: { attributes: { class: 'prose-editor', role: 'textbox', 'aria-label': t('Текст материала'), 'aria-multiline': 'true' } },
     onUpdate({ editor }) {
       form.elements.document.value = JSON.stringify(editor.getJSON());
@@ -54,7 +55,9 @@ export function mountEditor(form, onChange) {
   const linkPanel = form.querySelector('[data-link-panel]');
   const linkURL = form.querySelector('[data-link-url]');
   const report = (message) => { const status = form.querySelector('#editor-status'); if (status) status.textContent = message; };
+  const openAnchor=mountAnchors(form,editor,report);
   const commands = {
+    anchor:openAnchor,
     paragraph: () => editor.chain().focus().setParagraph().run(),
     heading1: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
     heading2: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
@@ -89,7 +92,7 @@ export function mountEditor(form, onChange) {
     toolbar.forEach((button) => {
       const command = button.dataset.editorCommand;
       const align={alignLeft:'left',alignCenter:'center',alignRight:'right',alignJustify:'justify'}[command];
-      const active = align ? editor.isActive({textAlign:align}) : command.startsWith('heading') ? editor.isActive('heading', { level: Number(command.at(-1)) }) : editor.isActive(command);
+      const active = command==='anchor' ? !!editor.state.selection.$from.parent.attrs.anchor : align ? editor.isActive({textAlign:align}) : command.startsWith('heading') ? editor.isActive('heading', { level: Number(command.at(-1)) }) : editor.isActive(command);
       button.setAttribute('aria-pressed', String(active));
       button.disabled = !editor.isEditable || command === 'undo' && !editor.can().undo() || command === 'redo' && !editor.can().redo();
     });
@@ -111,6 +114,7 @@ export function mountEditor(form, onChange) {
     if(event.key!=='Escape')return;
     form.querySelectorAll('.editor-menu[open]').forEach(menu=>menu.removeAttribute('open'));
     if(linkPanel)linkPanel.hidden=true;
+    const anchors=form.querySelector('[data-anchor-panel]');if(anchors)anchors.hidden=true;
     const panel=form.querySelector('[data-search-panel]');if(panel)panel.hidden=true;
   });
   form.querySelector('[data-link-apply]')?.addEventListener('click', () => {

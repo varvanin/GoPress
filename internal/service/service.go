@@ -37,17 +37,23 @@ type attempt struct {
 	Until time.Time
 }
 type Service struct {
-	Store        *store.Store
-	Operations   sync.RWMutex
-	Background   sync.WaitGroup
-	resetSlots   chan struct{}
-	InstallToken string
-	mu           sync.Mutex
-	attempts     map[string]attempt
-	dummy        []byte
-	uploadMu     sync.Mutex
-	mediaMu      sync.RWMutex
-	mailConfigMu sync.Mutex
+	Store             *store.Store
+	Operations        sync.RWMutex
+	updateMu          sync.Mutex
+	updateLifecycleMu sync.Mutex
+	updateStopping    bool
+	updateCancel      context.CancelFunc
+	Background        sync.WaitGroup
+	resetSlots        chan struct{}
+	InstallToken      string
+	mu                sync.Mutex
+	attempts          map[string]attempt
+	dummy             []byte
+	uploadMu          sync.Mutex
+	mediaMu           sync.RWMutex
+	mailConfigMu      sync.Mutex
+	aiConfigMu        sync.Mutex
+	aiRequestMu       sync.Mutex
 }
 
 func New(s *store.Store) (*Service, error) {

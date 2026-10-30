@@ -937,3 +937,6 @@ html[data-admin-theme=light] .gp-admin .library-upload.is-dragging{background:#e
 .editor-add-language>.field { display:grid; gap:8px; margin-top:8px; }
 
 .gp-admin .editor-add-language .editor-add-language-action { width:auto; justify-self:end; }
+
+[data-editor-ai] textarea { width:100%; min-width:0; resize:vertical; background:var(--background); color:var(--foreground); border:1px solid var(--border); border-radius:var(--admin-radius); padding:8px; font:inherit; }
+[data-ai-result]:not([hidden]) { display:grid; gap:12px; }

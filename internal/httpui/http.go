@@ -136,6 +136,11 @@ func New(v *service.Service) *App {
 	}
 	e.GET("/healthz", func(c *echo.Context) error { return c.String(200, "ok") })
 	e.GET("/readyz", func(c *echo.Context) error {
+		if c.QueryParam("installed") == "1" {
+			if _, err := v.Store.Site(); err != nil {
+				return echo.NewHTTPError(503, "Site is not installed")
+			}
+		}
 		if err := v.Store.DB.PingContext(c.Request().Context()); err != nil {
 			return echo.NewHTTPError(503, "Unavailable")
 		}
@@ -304,6 +309,8 @@ func requestBodyLimit(path string) int64 {
 	switch {
 	case path == "/admin/tools/backups/import":
 		return 1 << 30
+	case path == "/admin/pages/ai":
+		return 96 << 10
 	case path == "/admin/pages/languages":
 		return 16 << 10
 	case strings.HasPrefix(path, "/forms/"):

@@ -89,6 +89,8 @@ try{
  await admin.request('/login');
  let response=await admin.request('/login',{method:'POST',data:new URLSearchParams({email,password})});assert.equal(response.status,303);
  assert.equal((await admin.request('/admin')).status,200);
+ if(!docker)cli(['healthcheck','--addr','127.0.0.1:'+port,'--installed']);
+ assert.equal((await admin.request('/admin/updates')).status,200);
  const png=await readFile(new URL('./fixtures/smoke.png',import.meta.url));
  assert.equal((await anon.request('/admin/media',{method:'POST',raw:png,contentType:'image/png'})).status,401);
  assert.equal((await admin.request('/admin/media',{method:'POST',raw:png,contentType:'image/png',csrf:false})).status,403);
@@ -131,11 +133,15 @@ try{
  response=await admin.request('/admin/tools/backups/create',{method:'POST'});assert.equal(response.status,200,response.body);
  response=await admin.request('/admin/tools/maintenance',{method:'POST',data:new URLSearchParams({enabled:'true'})});assert.equal(response.status,303);assert.equal((await anon.request('/smoke-page')).status,503);
  assert.equal((await admin.request('/admin/tools/maintenance',{method:'POST',data:new URLSearchParams({enabled:'false'})})).status,303);
+ response=await admin.request('/admin/ai');assert.equal(response.status,200);
+ const aiSettings=new URLSearchParams({version:field(response.body,'version'),model:'openrouter/auto',key:'smoke-ai-test-key'});
+ assert.equal((await admin.request('/admin/ai/settings',{method:'POST',data:aiSettings})).status,303);
+ response=await admin.request('/admin/ai');assert(!response.body.includes('smoke-ai-test-key'),'AI key leaked into settings HTML');
  if(browserQA){
   const binary=process.env.GOPRESS_BROWSER||(process.platform==='darwin'?'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome':'google-chrome');
   chrome=spawn(binary,['--headless=new','--no-sandbox','--disable-dev-shm-usage','--no-first-run','--remote-debugging-port=0','--user-data-dir='+join(work,'chrome'),'about:blank'],{stdio:['ignore','ignore','pipe']});
-  let websocketURL='';chrome.stderr.on('data',chunk=>{const match=chunk.toString().match(/DevTools listening on (ws:\/\/[^\s]+)/);if(match)websocketURL=match[1];});chrome.on('error',error=>{logs+=error.message;});
-  await until(()=>websocketURL,'Chrome DevTools');chromeSocket=new WebSocket(websocketURL);await once(chromeSocket,'open');
+  let websocketURL='',chromeDiagnostics='';chrome.stderr.on('data',chunk=>{chromeDiagnostics=(chromeDiagnostics+chunk.toString()).slice(-8192);const match=chromeDiagnostics.match(/DevTools listening on (ws:\/\/[^\s]+)/);if(match)websocketURL=match[1];});chrome.on('error',error=>{chromeDiagnostics+=error.message;});
+  await until(()=>{if(chrome.exitCode!==null)throw new Error(chromeDiagnostics||'Chrome exited');return websocketURL;},'Chrome DevTools',30000);chromeSocket=new WebSocket(websocketURL);await once(chromeSocket,'open');
   let commandID=0;const pending=new Map(),exceptions=[];
   chromeSocket.addEventListener('message',event=>{const message=JSON.parse(event.data);if(message.id){const promise=pending.get(message.id);if(!promise)return;pending.delete(message.id);clearTimeout(promise.timer);message.error?promise.reject(new Error(message.error.message)):promise.resolve(message.result);}else if(message.method==='Runtime.exceptionThrown')exceptions.push(message.params.exceptionDetails.text);});
   const command=(method,params={},sessionId)=>new Promise((resolve,reject)=>{const id=++commandID;const timer=setTimeout(()=>{pending.delete(id);reject(new Error('CDP timeout: '+method));},10000);pending.set(id,{resolve,reject,timer});chromeSocket.send(JSON.stringify({id,method,params,...(sessionId?{sessionId}:{})}));});
@@ -147,6 +153,22 @@ try{
   await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   await send('Network.setCookies',{cookies:[...admin.cookies].map(([name,value])=>({name,value,url:base}))});
   const navigate=async path=>{await send('Page.navigate',{url:base+path});await until(()=>evaluate('document.readyState==="complete" && location.pathname==='+JSON.stringify(path)),'page load');};
+  await navigate('/admin/updates');
+  assert(await evaluate('Array.from(document.forms).some(form=>form.getAttribute("action")==="/admin/updates/check")'),'update check action missing');
+  for(const palette of ['dark','light']) {
+   await evaluate(`document.documentElement.dataset.adminTheme=${JSON.stringify(palette)}`);
+   assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),'updates settings overflow');
+   const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await mkdir('artifacts',{recursive:true});await writeFile('artifacts/updates-'+palette+'.png',Buffer.from(shot.data,'base64'));
+  }
+  await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+  assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),'updates mobile overflow');
+  await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+  await navigate('/admin/ai');
+  for(const palette of ['dark','light']) {
+   await evaluate(`document.documentElement.dataset.adminTheme=${JSON.stringify(palette)}`);
+   assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),'AI settings overflow');
+   const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await mkdir('artifacts',{recursive:true});await writeFile('artifacts/ai-'+palette+'.png',Buffer.from(shot.data,'base64'));
+  }
   await navigate(`/admin/pages/${page.id}/edit`);await until(()=>evaluate('!!document.querySelector(".tiptap[contenteditable=true],.prose-editor[contenteditable=true]")'),'Tiptap mount');
   assert(await evaluate('!!document.querySelector("[data-editor-command=bold]")'));
   await evaluate('document.querySelector(".tiptap[contenteditable=true],.prose-editor[contenteditable=true]").focus()');
@@ -164,11 +186,49 @@ try{
   await send('Input.insertText',{text:'English browser body.'});
   await until(async()=>{const r=await admin.request('/admin/pages/'+page.id);return JSON.parse(r.body).translations?.en?.document.includes('English browser body.');},'translation autosaved');
   assert(await evaluate('document.querySelector("[data-saved-preview]").href.endsWith("?lang=en")'),'autosave lost preview language');
+  // Mock only the provider-facing generation response: no external API usage or paid request.
+  await send('Fetch.enable',{patterns:[{urlPattern:base+'/admin/pages/ai',requestStage:'Request'}]});
+  let aiRequest;
+  const interceptAI=event=>{const message=JSON.parse(event.data);if(message.method!=='Fetch.requestPaused')return;aiRequest=JSON.parse(message.params.request.postData);void send('Fetch.fulfillRequest',{requestId:message.params.requestId,responseCode:200,responseHeaders:[{name:'Content-Type',value:'application/json'}],body:Buffer.from(JSON.stringify({text:'AI browser text. <script>literal</script>'})).toString('base64')});};
+  chromeSocket.addEventListener('message',interceptAI);
+  await evaluate('document.querySelector("[data-editor-ai]").open=true;document.querySelector("[data-ai-prompt]").value="Write an introduction";document.querySelector("[data-ai-generate]").click()');
+  await until(()=>evaluate('!document.querySelector("[data-ai-result]").hidden'),'AI result');
+  assert.equal(aiRequest.language,'en');assert.equal(aiRequest.text,'');
+  assert(!(await evaluate('document.querySelector(".prose-editor").textContent.includes("AI browser text.")')),'AI changed content without insertion');
+  for(const palette of ['dark','light']) {
+   await evaluate(`document.documentElement.dataset.adminTheme=${JSON.stringify(palette)}`);
+   assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),'AI editor overflow');
+   const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await mkdir('artifacts',{recursive:true});await writeFile('artifacts/editor-ai-'+palette+'.png',Buffer.from(shot.data,'base64'));
+  }
+  await evaluate('document.querySelector("[data-ai-insert]").click()');
+  assert(await evaluate('document.querySelector(".prose-editor").textContent.includes("AI browser text.")'));
+  assert.equal(await evaluate('document.querySelectorAll(".prose-editor script").length'),0,'AI output interpreted as HTML');
+  await until(async()=>{const r=await admin.request('/admin/pages/'+page.id);return JSON.parse(r.body).translations?.en?.document.includes('AI browser text.');},'AI insertion autosaved');
+  await send('Fetch.disable');chromeSocket.removeEventListener('message',interceptAI);
   assert.equal(await language('original'),'original');
   assert(!(await evaluate('JSON.parse(document.querySelector("[name=translations]").value).pl')),'unadded language exists');
+  await until(()=>evaluate('!document.querySelector("[data-editor-fields]").disabled'),'editor ready for anchor');
+  await evaluate('(()=>{const paragraph=document.querySelector(".prose-editor p");const range=document.createRange();range.selectNodeContents(paragraph);range.collapse(true);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);document.querySelector(".prose-editor").focus();})()');
+  await evaluate('document.querySelector("[data-editor-command=anchor]").click()');
+  assert(await evaluate('!document.querySelector("[data-anchor-panel]").hidden'),'anchor panel did not open');
+  await evaluate('const anchorName=document.querySelector("[data-anchor-name]");anchorName.value="contacts";anchorName.dispatchEvent(new Event("input",{bubbles:true}))');
+  assert.equal(await evaluate('document.querySelector("[data-anchor-link]").value'),'#section-contacts');
+  await evaluate('document.querySelector("[data-anchor-apply]").click()');
+  assert(await evaluate('!!document.querySelector(".prose-editor #section-contacts")'),'anchor not applied');
+  await until(async()=>{const r=await admin.request('/admin/pages/'+page.id);return JSON.parse(r.body).document.includes('"anchor":"contacts"');},'anchor autosaved');
+  const anchoredPreview=await admin.request('/admin/pages/'+page.id+'/preview');assert(anchoredPreview.body.includes('id="section-contacts"'),'preview lost anchor');
+  assert(!(await anon.request('/smoke-page')).body.includes('id="section-contacts"'),'draft anchor leaked');
+  await until(()=>evaluate('!document.querySelector("[data-editor-fields]").disabled'),'anchor save finished');
+  for(const palette of ['dark','light']) {
+   await evaluate(`document.documentElement.dataset.adminTheme=${JSON.stringify(palette)}`);
+   await evaluate('document.querySelector("[data-editor-command=anchor]").click()');
+   const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await mkdir('artifacts',{recursive:true});await writeFile('artifacts/anchor-'+palette+'.png',Buffer.from(shot.data,'base64'));
+   await evaluate('document.querySelector("[data-anchor-panel]").hidden=true');
+  }
+
   assert(await evaluate('document.querySelector(".prose-editor").textContent.includes("Browser acceptance edit.")'));
   assert(!(await evaluate('document.querySelector(".prose-editor").textContent.includes("English browser body.")')));
-  await evaluate('document.querySelector(".editor-add-language").open=true');
+  await evaluate('document.querySelector("[data-editor-ai]").open=false;document.querySelector(".editor-add-language").open=true');
   assert(await evaluate('(()=>{const button=document.querySelector("[data-add-content-language]").getBoundingClientRect();const field=document.querySelector(".editor-add-language>.field").getBoundingClientRect();return button.width<field.width&&Math.abs(button.right-field.right)<2;})()'),'add-language action is not compact and aligned right');
   for(const palette of ['dark','light']) {
    await evaluate(`document.documentElement.dataset.adminTheme=${JSON.stringify(palette)}`);
@@ -211,7 +271,7 @@ try{
  response=await admin.request('/admin/pages/'+page.id);assert.equal(response.status,200);assert.deepEqual(JSON.parse(response.body),workingSnapshot,'restore lost working revision');
  assert.equal((await admin.request('/logout',{method:'POST'})).status,303);
  assert.equal((await admin.request('/admin/pages/'+page.id)).status,401);
- console.log('PASS: protected concurrent install, sign-in, image upload, draft/preview, publish, restart, offline CLI backup/verify/restore and restored site launch; forms, search and maintenance'+(browserQA?'; browser editing/autosave and mobile layout':''));
+ console.log('PASS: protected concurrent install, sign-in, image upload, draft/preview, publish, restart, offline CLI backup/verify/restore and restored site launch; forms, search and maintenance'+(browserQA?'; browser editing/autosave, AI insertion (mock response), section anchors and mobile layout':''));
 }finally{
  chromeSocket?.close();chrome?.kill('SIGTERM');
  try{await stopSite();}finally{

@@ -1,3 +1,4 @@
+import {mountEditorAI} from './editor-ai.js';
 import {mountEditorLanguages} from "./editor-languages.js";
 import {mediaDrop,mediaChoose} from './media-upload.js';
 import {updateSEOSettings} from './seo-settings.js';
@@ -64,6 +65,7 @@ export function mountPage(form) {
     if (signal.aborted) return;
     state.editor = mountEditor(form, markDirty);
     mountEditorLanguages(form,state.editor,signal);
+    mountEditorAI(form,state.editor,state,signal);
     form.addEventListener('editor:language-added',markDirty,{signal});
     if (!state.dirty) status.textContent = '';
     state.setPending(state.pending);

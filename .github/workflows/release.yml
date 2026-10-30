@@ -1,0 +1,99 @@
+name: Publish signed Docker release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing stable tag, e.g. v0.2.0
+        required: true
+      minimum_version:
+        description: Oldest supported source version (without v)
+        required: true
+        default: '0.2.0'
+permissions:
+  contents: write
+  packages: write
+concurrency:
+  group: gopress-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag }}
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+      - run: npm ci
+      - run: go install github.com/a-h/templ/cmd/templ@v0.3.1070
+      - run: make release
+      - run: npm test && go vet ./... && go test -race -timeout=20m ./...
+      - run: node scripts/smoke.mjs --browser
+      - name: Validate release and public signing key
+        id: metadata
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          GOPRESS_RELEASE_PRIVATE_KEY: ${{ secrets.GOPRESS_RELEASE_PRIVATE_KEY }}
+        run: |
+          set -eu
+          case "$RELEASE_TAG" in v[0-9]*.[0-9]*.[0-9]*) ;; *) exit 1;; esac
+          version="${RELEASE_TAG#v}"
+          go run ./cmd/release-manifest validate-version "$version"
+          test "$(git rev-parse --verify "$RELEASE_TAG^{commit}")" = "$(git rev-parse HEAD)"
+          image="ghcr.io/$(printf '%s' "$RELEASE_REPOSITORY" | tr '[:upper:]' '[:lower:]')"
+          key="$(go run ./cmd/release-manifest public-key)"
+          schema="$(go run ./cmd/release-manifest schema)"
+          printf 'version=%s\nimage=%s\nkey=%s\nschema=%s\n' "$version" "$image" "$key" "$schema" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - name: Build and publish immutable image
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ steps.metadata.outputs.version }}
+          IMAGE: ${{ steps.metadata.outputs.image }}
+          UPDATE_PUBLIC_KEY: ${{ steps.metadata.outputs.key }}
+        run: |
+          set -eu
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          docker buildx build --platform linux/amd64,linux/arm64 --push \
+            --tag "$IMAGE:v$RELEASE_VERSION" --metadata-file /tmp/gopress-image.json \
+            --build-arg "RELEASE_VERSION=$RELEASE_VERSION" \
+            --build-arg "UPDATE_PUBLIC_KEY=$UPDATE_PUBLIC_KEY" \
+            --build-arg "IMAGE_REPOSITORY=$IMAGE" \
+            --build-arg "UPDATE_FEED=https://github.com/$GITHUB_REPOSITORY/releases/latest/download/update.json" .
+      - name: Verify local image and Docker lifecycle
+        env:
+          RELEASE_VERSION: ${{ steps.metadata.outputs.version }}
+          UPDATE_PUBLIC_KEY: ${{ steps.metadata.outputs.key }}
+        run: |
+          docker build --build-arg "RELEASE_VERSION=$RELEASE_VERSION" --build-arg "UPDATE_PUBLIC_KEY=$UPDATE_PUBLIC_KEY" -t gopress:ci .
+          node scripts/smoke.mjs --docker
+      - name: Sign and publish release metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          RELEASE_VERSION: ${{ steps.metadata.outputs.version }}
+          IMAGE: ${{ steps.metadata.outputs.image }}
+          MINIMUM_VERSION: ${{ inputs.minimum_version }}
+          RELEASE_SCHEMA: ${{ steps.metadata.outputs.schema }}
+          GOPRESS_RELEASE_PRIVATE_KEY: ${{ secrets.GOPRESS_RELEASE_PRIVATE_KEY }}
+        run: |
+          set -eu
+          mkdir -p dist
+          git log -12 --format='- %s' > dist/RELEASE_NOTES.txt
+          digest="$(python3 -c 'import json; print(json.load(open("/tmp/gopress-image.json"))["containerimage.digest"])')"
+          test "$(docker run --rm "$IMAGE@$digest" version)" = "GoPress $RELEASE_VERSION"
+          go run ./cmd/release-manifest sign --version "$RELEASE_VERSION" \
+            --minimum-version "$MINIMUM_VERSION" --schema "$RELEASE_SCHEMA" \
+            --image "$IMAGE@$digest" --notes-file dist/RELEASE_NOTES.txt --output dist/update.json
+          gh release create "$RELEASE_TAG" dist/update.json dist/update.json.sig \
+            --verify-tag --title "GoPress $RELEASE_VERSION" --notes-file dist/RELEASE_NOTES.txt

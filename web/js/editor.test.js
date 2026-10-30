@@ -117,3 +117,21 @@ test('library insertion uses metadata without replacing the chosen cover',t=>{
  assert.deepEqual(inserted,{type:'image',attrs:{src:'/uploads/'+name,alt:'Пейзаж',caption:'Подпись'}});
  assert.equal(cover.value,'old-cover.png');
 });
+
+test('section anchors round-trip and splitting or pasting never duplicates targets', async t=>{
+ const {stripPastedAnchors,validAnchor}=await import('./editor-anchors.js');
+ const content=JSON.parse(readFileSync(new URL('../testdata/editor-anchor-document.json',import.meta.url),'utf8'));
+ const {editor}=setup(t,content);
+ assert.deepEqual(JSON.parse(JSON.stringify(editor.getJSON())),content);
+ const slice=editor.state.doc.slice(0,editor.state.doc.content.size);
+ const cleaned=stripPastedAnchors(slice);
+ assert.equal(cleaned.content.child(1).attrs.anchor,null);
+ assert.equal(cleaned.content.child(2).attrs.anchor,null);
+ assert.equal(editor.state.doc.child(1).attrs.anchor,'contacts');
+ editor.commands.setTextSelection(editor.state.doc.content.size-1);
+ editor.commands.splitBlock();
+ const anchors=editor.getJSON().content.map(node=>node.attrs?.anchor).filter(Boolean);
+ assert.deepEqual(anchors,['contacts','details']);
+ for(const name of ['contacts','a','about-us','section-1'])assert.equal(validAnchor(name),true);
+ for(const name of [null,undefined,'','UPPER','1name','bad name','<script>','a'.repeat(65)])assert.equal(validAnchor(name),false);
+});

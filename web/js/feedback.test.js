@@ -74,3 +74,11 @@ test('publishing and saving ignore the trash submit button, including a button o
  assert.equal(deletionPrompt(remove).label,'Удалить навсегда');
  assert.equal(deletionPrompt({form:editor,closest:()=>null},{action:'trash'}).label,'В корзину');
 });
+
+
+test('updating uses its own confirmation label and reports preparation rather than success',()=>{
+ const updateForm={querySelector:()=>null,getAttribute:name=>name==='action'?'/admin/updates/install':null};
+ const submitter={form:updateForm,closest:selector=>selector==='form'?updateForm:null};
+ assert.equal(deletionPrompt(submitter).label,'Обновить');
+ assert.equal(actionMessage(submitter),'Проверка перед обновлением начата.');
+});
