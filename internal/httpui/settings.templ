@@ -174,7 +174,7 @@ templ SettingsTabs(tab string) {
 			<a href="/admin/settings?tab=general" aria-current={ activeTab(tab == "general") }>@icon.Icon("settings-2")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Общие") }</span></a>
 			<a href="/admin/settings?tab=home" aria-current={ activeTab(tab == "home") }>@icon.Icon("house")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Главная страница") }</span></a>
 			<a href="/admin/settings?tab=mail" aria-current={ activeTab(tab == "mail") }>@icon.Icon("mail")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Почта") }</span></a>
-			<a href="/admin/ai" aria-current={ activeTab(tab == "ai") }>@icon.Icon("openai")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"ИИ") }</span></a>
+			<a href="/admin/ai" aria-current={ activeTab(tab == "ai") }>@icon.Icon("bot")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"ИИ") }</span></a>
 <a href="/admin/settings?tab=language" aria-current={ activeTab(tab == "language") }>@icon.Icon("languages")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Язык интерфейса") }</span></a>
 			<a href="/admin/updates" aria-current={activeTab(tab=="updates")}>@icon.Icon("refresh-cw")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Обновления") }</span></a>
 		</nav>

@@ -1202,7 +1202,7 @@ func SettingsTabs(tab string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = icon.Icon("openai")(icon.Props{Class: "size-3.5"}).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = icon.Icon("bot")(icon.Props{Class: "size-3.5"}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1213,7 +1213,7 @@ func SettingsTabs(tab string) templ.Component {
 		var templ_7745c5c3_Var75 string
 		templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "ИИ"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/settings.templ`, Line: 177, Col: 139}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/settings.templ`, Line: 177, Col: 136}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var75))
 		if templ_7745c5c3_Err != nil {

@@ -468,7 +468,10 @@ templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total i
  @EditorAI()
                     if p.Kind=="post" {
                         @card.Card(card.Props{Class:"editor-panel"}) {
-                            <div class="editor-panel-body">@EditorContentLanguage(p,language)</div>
+                            <details open>
+                                @EditorPanelSummary(i18n.T(ctx,"Настройки материала"),icon.FileText)
+                                <div class="editor-panel-body">@EditorContentLanguage(p,language)</div>
+                            </details>
                         }
                     }
 
@@ -493,14 +496,10 @@ templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total i
   }
  }
 
-					<h2 class="editor-inspector-title">{ i18n.T(ctx,"Настройки") }</h2>
 					@card.Card(card.Props{Class: "editor-panel editor-publish"}) {
-						@card.Header() {
-							@card.Title() {
-								<h2>{ i18n.T(ctx,"Публикация") }</h2>
-							}
-						}
-						@card.Content() {
+                        <details open>
+                            @EditorPanelSummary(i18n.T(ctx,"Публикация"),icon.FileText)
+						<div class="editor-panel-body">
 							<dl class="editor-facts">
 								<div>
 									<dt>{ i18n.T(ctx,"Статус") }</dt>
@@ -541,7 +540,7 @@ templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total i
 							if p.PublishedSlug!="" {
 								<a class="preview-link" href={ templ.SafeURL("/" + p.PublishedSlug) } target="_blank" rel="noopener">{ i18n.T(ctx,"Открыть на сайте") } @icon.ArrowUpRight(icon.Props{Class: "size-3.5"})</a>
 							}
-						}
+						</div>
 						if p.ID>0 && p.TrashedAt==0 && (service.CanPublish(ctx)||!p.Published) {
 							@card.Footer(card.FooterProps{Class: "editor-publish-footer"}) {
 								if p.Published {
@@ -554,6 +553,7 @@ templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total i
 								}
 							}
 						}
+                        </details>
 					}
 					if p.Kind=="post" {
 						@card.Card(card.Props{Class: "editor-panel"}) {

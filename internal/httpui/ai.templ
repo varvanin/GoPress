@@ -52,7 +52,7 @@ templ AIPage(site, csrf string, value service.AISettings, configured bool, messa
 templ EditorAI() {
  @card.Card(card.Props{Class:"editor-panel"}) {
   <details data-editor-ai>
-   @EditorPanelSummary(i18n.T(ctx,"ИИ"),icon.Icon("openai"))
+   @EditorPanelSummary(i18n.T(ctx,"ИИ"),icon.Icon("bot"))
    <div class="editor-panel-body">
     <label>{ i18n.T(ctx,"Задание для ИИ") }
      <textarea class="input ai-prompt" rows="4" maxlength="2000" data-ai-prompt placeholder={i18n.T(ctx,"Напишите тему, структуру и желаемый стиль текста.")}></textarea>

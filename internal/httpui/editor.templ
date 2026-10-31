@@ -28,11 +28,23 @@ templ EditorToolbar() {
 				</div>
 			</details>
 		</div>
-		for _,group:=range editorToolGroups[1:] {
+		for _,group:=range editorToolGroups[1:4] {
 			@EditorToolGroup(group)
 		}
-		<div class="editor-tool-group editor-add-group">@EditorToolButton(editorTool{"image", i18n.T(ctx, "Добавить"), "image-plus"}, true)</div>
-		<div class="editor-tool-group editor-search-group">@EditorToolButton(editorTool{"search", i18n.T(ctx, "Найти в тексте"), "search"}, false)</div>
+		<div class="editor-tool-group">
+			<details class="editor-menu editor-alignment-menu" name="editor-menus">
+				<summary title={ i18n.T(ctx,"Выравнивание") } aria-label={ i18n.T(ctx,"Выравнивание") }>@EditorToolIcon("align-left")@icon.ChevronRight(icon.Props{Class:"editor-menu-chevron"})</summary>
+				<div class="editor-menu-popup">
+					for _,tool:=range editorToolGroups[4] {
+						@EditorToolButton(tool,true)
+					}
+				</div>
+			</details>
+		</div>
+		<div class="editor-tool-group editor-search-group">
+			@EditorToolButton(editorTool{"image", i18n.T(ctx, "Загрузить изображение"), "image-plus"}, false)
+			@EditorToolButton(editorTool{"search", i18n.T(ctx, "Найти в тексте"), "search"}, false)
+		</div>
 	</div>
 }
 

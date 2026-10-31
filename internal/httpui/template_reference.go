@@ -1,7 +1,9 @@
 package httpui
 
 import (
+	"context"
 	"fmt"
+	"gopress/internal/i18n"
 	"html"
 	"strings"
 
@@ -10,7 +12,8 @@ import (
 
 type TemplateReferenceSection struct{ ID, Title, HTML string }
 
-func referenceInline(text string) string {
+func referenceInline(ctx context.Context, text string) string {
+	text = referenceText(ctx, text)
 	pieces := strings.Split(text, "`")
 	for i := range pieces {
 		pieces[i] = html.EscapeString(pieces[i])
@@ -21,15 +24,24 @@ func referenceInline(text string) string {
 	return strings.Join(pieces, "")
 }
 
+func referenceText(ctx context.Context, title string) string {
+	if i18n.Language(ctx) == "ru" {
+		if translated, ok := templateReferenceRussian[title]; ok {
+			return translated
+		}
+	}
+	return title
+}
+
 // The bundled reference uses headings, paragraphs, fenced code and tables only.
-func templateReferenceSections(raw string) []TemplateReferenceSection {
+func templateReferenceSections(ctx context.Context, raw string) []TemplateReferenceSection {
 	result := []TemplateReferenceSection{}
 	lines := strings.Split(raw, "\n")
 	var body strings.Builder
 	title := "About this reference"
 	flush := func() {
 		if body.Len() > 0 {
-			result = append(result, TemplateReferenceSection{ID: fmt.Sprintf("reference-%d", len(result)+1), Title: title, HTML: body.String()})
+			result = append(result, TemplateReferenceSection{ID: fmt.Sprintf("reference-%d", len(result)+1), Title: referenceText(ctx, title), HTML: body.String()})
 			body.Reset()
 		}
 	}
@@ -75,7 +87,7 @@ func templateReferenceSections(raw string) []TemplateReferenceSection {
 				}
 				body.WriteString("<tr>")
 				for _, cell := range strings.Split(strings.Trim(value, "|"), "|") {
-					body.WriteString("<" + tag + ">" + referenceInline(strings.TrimSpace(cell)) + "</" + tag + ">")
+					body.WriteString("<" + tag + ">" + referenceInline(ctx, strings.TrimSpace(cell)) + "</" + tag + ">")
 				}
 				body.WriteString("</tr>")
 				row++
@@ -92,7 +104,7 @@ func templateReferenceSections(raw string) []TemplateReferenceSection {
 			paragraph = append(paragraph, value)
 			i++
 		}
-		body.WriteString("<p>" + referenceInline(strings.Join(paragraph, " ")) + "</p>")
+		body.WriteString("<p>" + referenceInline(ctx, strings.Join(paragraph, " ")) + "</p>")
 	}
 	flush()
 	return result
@@ -106,5 +118,5 @@ func (a *App) templateReferencePage(c *echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return htmlComponent(c, 200, TemplateReference(site.Title, a.csrfToken(c), templateReferenceSections(string(raw))))
+	return htmlComponent(c, 200, TemplateReference(site.Title, a.csrfToken(c), templateReferenceSections(c.Request().Context(), string(raw))))
 }

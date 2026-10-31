@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"gopress/internal/i18n"
 	"gopress/internal/store"
 )
 
@@ -15,7 +16,7 @@ func TestTemplateEditorCopySaveValidationConflictAndRestore(t *testing.T) {
 	s, app, b := seoApp(t)
 	reference := b.request("GET", "/admin/themes/reference", "", "", false)
 	status(t, reference, 200)
-	for _, marker := range []string{"template-reference-nav", "<table>", "&lt;!doctype html&gt;", ".Pagination.Current", "Template file editor"} {
+	for _, marker := range []string{"template-reference-nav", "<table>", "&lt;!doctype html&gt;", ".Pagination.Current", "Редактор файлов шаблона"} {
 		if !strings.Contains(reference.Body.String(), marker) {
 			t.Fatal("reference missing", marker)
 		}
@@ -137,9 +138,47 @@ func TestTemplateEditorPermissionsAndSafePaths(t *testing.T) {
 	status(t, b.request("GET", templateEditorURL(id, "assets/unsafe.css"), "", "", false), 500)
 }
 func TestTemplateReferenceEscapesExamples(t *testing.T) {
-	sections := templateReferenceSections("# Reference\n\n## Code\n\n<script>alert(1)</script>\n\n```html\n<img onerror=evil>\n```\n")
+	sections := templateReferenceSections(i18n.WithLanguage(context.Background(), "en"), "# Reference\n\n## Code\n\n<script>alert(1)</script>\n\n```html\n<img onerror=evil>\n```\n")
 	if len(sections) != 1 || strings.Contains(sections[0].HTML, "<script>") || !strings.Contains(sections[0].HTML, "&lt;img") {
 		t.Fatal(sections)
+	}
+}
+
+func TestTemplateReferenceRussianCopyPreservesExamplesAndAnchors(t *testing.T) {
+	raw, err := resources.ReadFile("starter/TEMPLATE_REFERENCE.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	en := templateReferenceSections(i18n.WithLanguage(context.Background(), "en"), string(raw))
+	ru := templateReferenceSections(i18n.WithLanguage(context.Background(), "ru"), string(raw))
+	if len(en) != len(ru) || ru[1].Title != "Выбор файла" {
+		t.Fatal("missing translated sections")
+	}
+	for i, section := range ru {
+		if section.ID != en[i].ID {
+			t.Fatal("translated anchor changed")
+		}
+		for _, part := range strings.Split(en[i].HTML, "<pre><code>")[1:] {
+			code := strings.SplitN(part, "</code></pre>", 2)[0]
+			if !strings.Contains(section.HTML, "<pre><code>"+code+"</code></pre>") {
+				t.Fatal("translated code example")
+			}
+		}
+	}
+	if !strings.Contains(ru[1].HTML, "Порядок выбора") || strings.Contains(ru[1].HTML, "Selection order") {
+		t.Fatal("untranslated table")
+	}
+	for source, translation := range templateReferenceRussian {
+		sourceCode := strings.Split(source, "`")
+		translatedCode := strings.Split(translation, "`")
+		if len(sourceCode) != len(translatedCode) {
+			t.Fatalf("changed inline code: %s", source)
+		}
+		for i := 1; i < len(sourceCode); i += 2 {
+			if sourceCode[i] != translatedCode[i] {
+				t.Fatalf("changed identifier: %s", source)
+			}
+		}
 	}
 }
 

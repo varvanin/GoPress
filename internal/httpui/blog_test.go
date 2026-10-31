@@ -84,7 +84,7 @@ func TestBlogTermsAutosaveScheduleAndPublicFilters(t *testing.T) {
 		}
 	}
 	body := editor.Body.String()
-	order := []string{"editor-commandbar", `id="page-title"`, "editor-document", `role="toolbar"`, `id="rich-editor"`, `class="editor-settings"`, "<h2>Публикация</h2>", `data-editor-panel="Категории и теги"`}
+	order := []string{"editor-commandbar", `id="page-title"`, "editor-document", `role="toolbar"`, `id="rich-editor"`, `class="editor-settings"`, `data-editor-panel="Публикация"`, `data-editor-panel="Категории и теги"`}
 	if strings.Count(body, `id="admin-nav-status"`) != 1 || strings.Contains(body, `class="gp-topbar"`) {
 		t.Fatal("editor must have one command bar and one request status")
 	}
