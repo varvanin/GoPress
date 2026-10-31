@@ -1,0 +1,44 @@
+package httpui
+import "strconv"
+import "gopress/internal/i18n"
+import "gopress/internal/service"
+import "gopress/internal/store"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/card"
+import "gopress/internal/ui/components/input"
+templ ReviewsPage(site,csrf,zone string,items []store.ContentReview,postedID int64,comment,message string){
+ @AdminLayout(site,i18n.T(ctx,"Записи"),csrf){
+ @AdminPageHeader(i18n.T(ctx,"Проверка публикаций"),len(items)){}
+ if message!="" {
+ <p class="notice notice-error" role="alert">{ i18n.T(ctx,message) }</p>
+ }
+ <div class="site-settings">
+ if len(items)==0 {
+ <section class="empty-state"><h2>{ i18n.T(ctx,"Нет материалов на проверке") }</h2></section>
+ }
+ for _,r:=range items {
+ @card.Card(card.Props{Class:"settings-panel"}){
+ <h2><a href={ templ.SafeURL("/admin/pages/"+strconv.FormatInt(r.PageID,10)+"/edit") }>{ r.Title }</a></h2>
+ <p class="field-help">{ r.Author+" · v"+strconv.FormatInt(r.Version,10)+" · "+tableContentDate(r.RequestedAt,zone) }</p>
+ if !r.Current {
+ <p class="notice">{ i18n.T(ctx,"Черновик изменён после отправки. Нужна повторная отправка на проверку.") }</p>
+ }
+ if r.Comment!="" {
+ <p>{ r.Comment }</p>
+ }
+ <div class="editor-block-actions"><a class="context-link" href={ templ.SafeURL("/admin/pages/"+strconv.FormatInt(r.PageID,10)+"/preview") } target="_blank" rel="noopener">{ i18n.T(ctx,"Предпросмотр") }</a><a class="context-link" href={ templ.SafeURL("/admin/pages/"+strconv.FormatInt(r.PageID,10)+"/edit") }>{ i18n.T(ctx,"Редактировать") }</a></div>
+ if service.CanPublish(ctx) {
+ <form method="post" action="/admin/posts/review" data-change-form><input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="page_id" value={ strconv.FormatInt(r.PageID,10) }/><input type="hidden" name="version" value={ strconv.FormatInt(r.Version,10) }/>
+ <label>{ i18n.T(ctx,"Комментарий автору") }@input.Input(input.Props{Name:"comment",Value:reviewComment(r,postedID,comment),Attributes:templ.Attributes{"maxlength":"1000"}})</label>
+ <div class="editor-block-actions">
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline,Size:button.SizeSm,Disabled:!r.Current||r.Comment!="",Attributes:templ.Attributes{"name":"action","value":"publish"}}){<span>{ i18n.T(ctx,"Опубликовать") }</span>}
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantGhost,Size:button.SizeSm,Attributes:templ.Attributes{"name":"action","value":"return"}}){<span>{ i18n.T(ctx,"Вернуть автору") }</span>}
+ </div></form>
+ }
+ }
+ }
+ </div>
+ }
+}
+
+func reviewComment(r store.ContentReview,id int64,comment string)string{if r.PageID==id{return comment};return r.Comment}

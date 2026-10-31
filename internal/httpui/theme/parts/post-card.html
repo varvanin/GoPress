@@ -1,9 +1,9 @@
 <article class="post-card">
-<a class="cover-link" href="/{{.Slug}}" aria-label="Читать: {{.Title}}"><img src="{{journalCover .Slug .Cover}}" alt="" width="900" height="675" loading="lazy" decoding="async"></a>
+<a class="cover-link" href="{{contentURL .Slug .URL}}" aria-label="Читать: {{.Title}}"><img src="{{journalCover .Slug .Cover}}" alt="" width="900" height="675" loading="lazy" decoding="async"></a>
 <div class="post-card-body">
-<div class="story-meta">{{with .Category}}<a class="category-label" href="/?term={{.ID}}#journal">{{.Name}}</a>{{end}}<time datetime="{{isoDate .PublishedAt}}">{{date .PublishedAt}}</time></div>
-<h3><a href="/{{.Slug}}">{{.Title}}</a></h3>
+<div class="story-meta">{{with .Category}}<a class="category-label" href="{{siteURL (printf "/?term=%d" .ID)}}#journal">{{.Name}}</a>{{end}}<time datetime="{{isoDate .PublishedAt}}">{{date .PublishedAt}}</time></div>
+<h3><a href="{{contentURL .Slug .URL}}">{{.Title}}</a></h3>
 {{if .SEO.Description}}<p class="story-description">{{.SEO.Description}}</p>{{end}}
-<a class="read-link" href="/{{.Slug}}">Читать историю {{template "icon-arrow"}}</a>
+<a class="read-link" href="{{contentURL .Slug .URL}}">{{tr "Читать историю"}} {{template "icon-arrow"}}</a>
 </div></article>
 {{define "post-card"}}{{template "parts/post-card" .}}{{end}}

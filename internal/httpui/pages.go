@@ -127,3 +127,21 @@ func sortedTranslationLanguages(translations map[string]store.Translation) []str
 	sort.Strings(languages)
 	return languages
 }
+
+func originalLanguageOptions(p store.Page) []selectcomp.ItemData {
+	items := []selectcomp.ItemData{}
+	for _, item := range materialLanguages() {
+		if _, exists := p.Translations[item.Value]; !exists {
+			items = append(items, item)
+		}
+	}
+	code := sourceContentLanguage(p)
+	if !i18n.Supported(code) {
+		items = append(items, selectcomp.ItemData{Value: code, Label: code})
+	}
+	return items
+}
+
+func menuLanguageOptions(ctx context.Context) []selectcomp.ItemData {
+	return append([]selectcomp.ItemData{{Value: "", Label: i18n.T(ctx, "По умолчанию")}}, materialLanguages()...)
+}

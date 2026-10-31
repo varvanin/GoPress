@@ -88,9 +88,11 @@ func (a *App) menusPage(c *echo.Context, status int, message string, posted *sto
 	if err != nil {
 		return err
 	}
+	language := c.QueryParam("lang")
 	position := c.QueryParam("position")
 	if posted != nil {
 		position = posted.Position
+		language = posted.Language
 	}
 	if position == "" {
 		position = "header"
@@ -98,14 +100,17 @@ func (a *App) menusPage(c *echo.Context, status int, message string, posted *sto
 	if position != "header" && position != "footer" {
 		return service.ErrInvalid
 	}
-	menu, err := a.Service.Store.Menu(position)
+	if language != "" && !service.ValidContentLanguage(language) {
+		return service.ErrInvalid
+	}
+	menu, err := a.Service.Store.Menu(position, language)
 	if err != nil {
 		return err
 	}
 	if posted != nil {
 		menu = *posted
 	}
-	pages, err := a.Service.Store.PublishedContent("page")
+	pages, err := a.Service.Store.PublishedContent("page", language)
 	if err != nil {
 		return err
 	}
@@ -188,7 +193,7 @@ func (a *App) siteRoutes(g *echo.Group) {
 		if err != nil {
 			return service.ErrInvalid
 		}
-		m := store.Menu{Position: c.FormValue("position"), Version: version, Items: []store.MenuItem{}}
+		m := store.Menu{Language: c.FormValue("language"), Position: c.FormValue("position"), Version: version, Items: []store.MenuItem{}}
 		labels, urls, depths := c.Request().PostForm["label"], c.Request().PostForm["url"], c.Request().PostForm["depth"]
 		if len(labels) != len(urls) || len(labels) != len(depths) || len(labels) > 51 {
 			return service.ErrInvalid
@@ -213,7 +218,7 @@ func (a *App) siteRoutes(g *echo.Group) {
 		if err != nil {
 			return err
 		}
-		return c.Redirect(303, "/admin/menus?position="+m.Position+"&saved=1")
+		return c.Redirect(303, "/admin/menus?position="+m.Position+"&lang="+url.QueryEscape(m.Language)+"&saved=1")
 	}, a.csrf)
 }
 func mediaTitle(f store.MediaFile) string {

@@ -208,7 +208,7 @@ templ CollectionMediaPicker(files []store.MediaFile, total, page int, query stri
 		<div class="collection-picker-grid">
 			for _,file:=range files {
 				<button type="button" data-collection-choice={ file.Name } title={ mediaTitle(file) }>
-					<img src={ "/uploads/" + file.Name } alt={ file.Alt } loading="lazy"/>
+					<img src={ "/uploads/" + file.Name+"?w=320" } alt={ file.Alt } loading="lazy"/>
 					<span>
 						{ mediaTitle(file) }
 					</span>

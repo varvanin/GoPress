@@ -1,3 +1,4 @@
+import {mountDraftRecovery} from './draft-recovery.js';
 import {mountEditorAI} from './editor-ai.js';
 import {mountEditorLanguages} from "./editor-languages.js";
 import {mediaDrop,mediaChoose} from './media-upload.js';
@@ -19,8 +20,8 @@ const notice = (message) => { const node = document.querySelector('#admin-nav-st
 export function mountPage(form) {
   const controller = new AbortController();
   const { signal } = controller;
- let saver;let insertAfterUpload=false;
-  const state = { form, dirty: form.dataset.failed === 'true', submitting: false, uploading: false, pending: false, editor: null,
+ let saver,drafts;let insertAfterUpload=false;
+  const state = { form, dirty: form.dataset.failed === 'true'||form.dataset.recovered==='true', submitting: false, uploading: false, pending: false, editor: null,
     dispose() { controller.abort(); state.editor?.destroy(); },
     setPending(pending) {
       state.pending = pending;
@@ -39,7 +40,7 @@ export function mountPage(form) {
   const updateButtons = () => buttons.forEach((button) => { button.disabled = !state.editor || state.uploading || state.pending || form.dataset.readonly === 'true'; });
   saver=createAutosave(form,state,signal,message=>{status.textContent=message;});
  state.autosave=saver;
-  const markDirty = () => { state.dirty = true; status.textContent = t('Есть несохранённые изменения.'); saver.schedule(); };
+  const markDirty = () => { state.dirty = true; status.textContent = t('Есть несохранённые изменения.'); saver.schedule();drafts?.schedule(); };
   const fieldChange=event=>{if(['title','slug','cover','term_ids','seo_title','seo_description','seo_canonical','seo_social_title','seo_social_description','seo_social_image','seo_nofollow','noindex','parent_id','order','template'].includes(event.target?.name)&&(!event.target.form||event.target.form===form))markDirty();};
   form.addEventListener('input', fieldChange, { signal });
   form.addEventListener('change', fieldChange, { signal });
@@ -65,9 +66,10 @@ export function mountPage(form) {
     if (signal.aborted) return;
     state.editor = mountEditor(form, markDirty);
     mountEditorLanguages(form,state.editor,signal);
+    drafts=mountDraftRecovery(form,state,signal);state.drafts=drafts;
     mountEditorAI(form,state.editor,state,signal);
     form.addEventListener('editor:language-added',markDirty,{signal});
-    if (!state.dirty) status.textContent = '';
+    if (!state.dirty) status.textContent = '';else if(form.dataset.recovered==='true')status.textContent=t('Есть несохранённые изменения.');
     state.setPending(state.pending);
   }).catch(() => {
     if (signal.aborted) return;
@@ -166,7 +168,8 @@ function start() {
     notice(t('Загрузка…'));
   });
   document.addEventListener('htmx:beforeSwap', (event) => {
-    if (['main','seo-panel'].includes(event.detail.target?.id) && [400, 409].includes(event.detail.xhr.status) && event.detail.xhr.responseText.includes('id="'+event.detail.target.id+'"')) {
+    if(event.detail.xhr.status===200&&event.detail.requestConfig?.path==='/admin/pages/save')page?.drafts?.clear();
+    if (['main','seo-panel','content-import-review'].includes(event.detail.target?.id) && [400, 409].includes(event.detail.xhr.status) && event.detail.xhr.responseText.includes('id="'+event.detail.target.id+'"')) {
       event.detail.shouldSwap = true;
       event.detail.isError = false;
     }
@@ -228,6 +231,9 @@ function start() {
     }
     if (target !== undefined) index = target;
   }, { capture: true });
+document.addEventListener('change',event=>{
+ if(event.target?.matches('[data-content-import-file]'))document.querySelector('#content-import-review')?.replaceChildren();
+});
   initialize();
 }
 if (typeof document !== 'undefined') start();

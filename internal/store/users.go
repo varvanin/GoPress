@@ -210,14 +210,41 @@ func (s *Store) MediaOwner(name string) (int64, error) {
 	return id, err
 }
 
-func (s *Store) LoginSession(hash string, userID int64, passwordHash []byte) error {
-	res, err := s.DB.Exec("INSERT INTO sessions(hash,expires_at,user_id) SELECT ?,unixepoch()+43200,id FROM users WHERE id=? AND blocked=0 AND password_hash=?", hash, userID, passwordHash)
+func (s *Store) LoginSession(hash string, userID int64, passwordHash []byte, options ...SessionAuth) error {
+	auth := SessionAuth{}
+	var err error
+	if len(options) > 0 {
+		auth = options[0]
+	} else {
+		auth.Profile, err = s.SecurityProfile(userID)
+		if err != nil {
+			return err
+		}
+	}
+	if auth.Profile.UserID != userID {
+		return ErrConflict
+	}
+	tx, err := s.DB.Begin()
 	if err != nil {
 		return err
 	}
-	n, err := res.RowsAffected()
-	if err == nil && n != 1 {
+	defer tx.Rollback()
+	result, err := tx.Exec(`INSERT INTO sessions(hash,expires_at,user_id) SELECT ?,unixepoch()+43200,u.id FROM users u JOIN user_security p ON p.user_id=u.id WHERE u.id=? AND u.blocked=0 AND u.password_hash=? AND p.identity=? AND p.version=? AND p.enabled=?`, hash, userID, passwordHash, auth.Profile.Identity, auth.Profile.Version, auth.Profile.Enabled)
+	if err != nil {
+		return err
+	}
+	n, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n != 1 {
 		return ErrConflict
 	}
-	return err
+	if err = consumeSecondFactor(tx, auth.Profile, auth.Proof); err != nil {
+		return err
+	}
+	if _, err = tx.Exec(`INSERT INTO session_details(hash,created_at,user_agent) VALUES(?,unixepoch(),?)`, hash, auth.UserAgent); err != nil {
+		return err
+	}
+	return tx.Commit()
 }

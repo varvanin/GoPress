@@ -12,6 +12,7 @@ import (
 	"net/mail"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -54,6 +55,7 @@ type Service struct {
 	uploadMu          sync.Mutex
 	mediaMu           sync.RWMutex
 	mailConfigMu      sync.Mutex
+	secondFactorMu    sync.Mutex
 	aiConfigMu        sync.Mutex
 	aiRequestMu       sync.Mutex
 }
@@ -110,7 +112,10 @@ func (v *Service) Install(ctx context.Context, token string, site store.Site, em
 	v.installed.Store(true)
 	return nil
 }
-func (v *Service) Login(ip, email, password string) (string, error) {
+
+type LoginOptions struct{ Code, UserAgent string }
+
+func (v *Service) Login(ip, email, password string, options ...LoginOptions) (string, error) {
 	if !v.allowAttempt("login:"+ip, 5) {
 		return "", ErrRateLimit
 	}
@@ -130,9 +135,34 @@ func (v *Service) Login(ip, email, password string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	input := LoginOptions{}
+	if len(options) > 0 {
+		input = options[0]
+	}
+	profile, err := v.Store.SecurityProfile(u.ID)
+	if err != nil {
+		return "", ErrSecondFactorUnavailable
+	}
+	proof := store.SecondFactorProof{}
+	if profile.Enabled {
+		if !v.allowAttempt("2fa-login:"+strconv.FormatInt(u.ID, 10), 5) {
+			return "", ErrRateLimit
+		}
+		proof, err = v.factorProof(profile, input.Code)
+		if err != nil {
+			v.Store.Audit(store.WithActor(context.Background(), u), "user.login_failed", "")
+			return "", err
+		}
+	}
+	agent := input.UserAgent
+	if len(agent) > 512 {
+		agent = agent[:512]
+	}
+	agent = strings.ToValidUTF8(agent, "")
 	token := Token()
-	if err = v.Store.LoginSession(Hash(token), u.ID, h); err != nil {
+	if err = v.Store.LoginSession(Hash(token), u.ID, h, store.SessionAuth{Profile: profile, Proof: proof, UserAgent: agent}); err != nil {
 		if errors.Is(err, store.ErrConflict) {
+			v.Store.Audit(store.WithActor(context.Background(), u), "user.login_failed", "")
 			return "", ErrUnauthorized
 		}
 		return "", err
@@ -141,6 +171,19 @@ func (v *Service) Login(ip, email, password string) (string, error) {
 	return token, nil
 }
 func (v *Service) Save(ctx context.Context, p store.Page, publish bool) (store.Page, error) {
+	v.mediaMu.RLock()
+	defer v.mediaMu.RUnlock()
+	prepared, err := v.preparePage(ctx, p, publish)
+	if err != nil {
+		return p, err
+	}
+	saved, err := v.Store.Save(ctx, prepared, publish)
+	if errors.Is(err, store.ErrInvalidTerms) {
+		return p, ErrInvalid
+	}
+	return saved, err
+}
+func (v *Service) preparePage(ctx context.Context, p store.Page, publish bool) (store.Page, error) {
 	if p.ID > 0 {
 		current, err := v.Store.Page(p.ID)
 		if err != nil {
@@ -156,8 +199,6 @@ func (v *Service) Save(ctx context.Context, p store.Page, publish bool) (store.P
 	if publish && !CanPublish(ctx) {
 		return p, ErrForbidden
 	}
-	v.mediaMu.RLock()
-	defer v.mediaMu.RUnlock()
 	if p.Kind != "" && p.Kind != "page" && p.Kind != "post" {
 		return p, ErrInvalid
 	}
@@ -240,9 +281,5 @@ func (v *Service) Save(ctx context.Context, p store.Page, publish bool) (store.P
 	if len(p.TermIDs) > 100 {
 		return p, ErrInvalid
 	}
-	saved, err := v.Store.Save(ctx, p, publish)
-	if errors.Is(err, store.ErrInvalidTerms) {
-		return p, ErrInvalid
-	}
-	return saved, err
+	return p, nil
 }

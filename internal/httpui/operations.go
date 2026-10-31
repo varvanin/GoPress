@@ -72,7 +72,7 @@ func isSystemPath(path string) bool {
 func allowedMaintenanceWrite(path string) bool {
 	return strings.HasPrefix(path, "/admin/updates/") || len(path) >= 13 && path[:13] == "/admin/tools/" || path == "/login" || path == "/logout" || path == "/forgot-password" || path == "/reset-password"
 }
-func (a *App) toolsPage(c *echo.Context, status int, message string) error {
+func (a *App) toolsPage(c *echo.Context, status int, message string, posted ...*store.BackupSchedule) error {
 	site, err := a.Service.Store.Site()
 	if err != nil {
 		return err
@@ -116,7 +116,14 @@ func (a *App) toolsPage(c *echo.Context, status int, message string) error {
 	if err != nil {
 		return err
 	}
-	return htmlComponent(c, status, Tools(site.Title, a.csrfToken(c), tab, active, backups, diagnostics, settings, events, total, page, message, status >= 400))
+	schedule, err := a.Service.Store.BackupSchedule()
+	if err != nil {
+		return err
+	}
+	if len(posted) > 0 && posted[0] != nil {
+		schedule = *posted[0]
+	}
+	return htmlComponent(c, status, Tools(site.Title, a.csrfToken(c), tab, active, backups, diagnostics, settings, events, total, page, message, status >= 400, schedule))
 }
 func (a *App) toolsRoutes(g *echo.Group) {
 	g.GET("/tools", func(c *echo.Context) error { return a.toolsPage(c, 200, "") })
@@ -148,6 +155,36 @@ func (a *App) toolsRoutes(g *echo.Group) {
 			return err
 		}
 		return c.Redirect(303, "/admin/tools?tab=system")
+	}, a.csrf)
+	g.POST("/tools/backups/schedule", func(c *echo.Context) error {
+		value, err := a.Service.Store.BackupSchedule()
+		if err != nil {
+			return err
+		}
+		value.Version, err = strconv.ParseInt(c.FormValue("version"), 10, 64)
+		if err != nil {
+			return service.ErrInvalid
+		}
+		value.Hour, err = strconv.Atoi(c.FormValue("hour"))
+		if err != nil {
+			return service.ErrInvalid
+		}
+		value.Keep, err = strconv.Atoi(c.FormValue("keep"))
+		if err != nil {
+			return service.ErrInvalid
+		}
+		value.Enabled = c.FormValue("enabled") == "true"
+		err = a.Service.SaveBackupSchedule(c.Request().Context(), value)
+		if errors.Is(err, store.ErrConflict) {
+			return a.toolsPage(c, 409, "Расписание изменено в другой вкладке. Проверьте актуальные настройки.", &value)
+		}
+		if errors.Is(err, service.ErrInvalid) {
+			return a.toolsPage(c, 400, "Выберите час от 0 до 23 и число копий от 1 до 30.", &value)
+		}
+		if err != nil {
+			return err
+		}
+		return c.Redirect(303, "/admin/tools")
 	}, a.csrf)
 	g.POST("/tools/backups/create", func(c *echo.Context) error {
 		if _, err := a.Service.CreateBackup(); err != nil {

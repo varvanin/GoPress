@@ -7,7 +7,7 @@ import "gopress/internal/store"
 import "gopress/internal/ui/components/button"
 import "gopress/internal/ui/components/icon"
 
-templ Dashboard(site store.Site, csrf string, data store.DashboardData, appearance store.Appearance, theme string) {
+templ Dashboard(site store.Site, csrf string, data store.DashboardData, appearance store.Appearance, theme string,attention []AttentionItem) {
 	@AdminLayout(site.Title, i18n.T(ctx, "Обзор"), csrf) {
 		@AdminPageHeader(i18n.T(ctx, "Обзор"), -1) {
 			@button.Button(button.Props{Href: "/admin/pages/new", Variant: button.VariantOutline, Size: button.SizeSm}) {
@@ -17,6 +17,18 @@ templ Dashboard(site store.Site, csrf string, data store.DashboardData, appearan
 				@icon.Plus()<span>{ i18n.T(ctx,"Новая запись") }</span>
 			}
 		}
+        <a class="context-link" href="/admin/setup">{ i18n.T(ctx,"Начальная настройка") }</a>
+        if len(attention)>0 {
+        <section class="dashboard-panel" data-dashboard-attention><h2>{ i18n.T(ctx,"Требует внимания") }</h2><ul class="dashboard-upcoming">
+        for _,item:=range attention {
+        <li><a href={ templ.SafeURL(item.URL) }>{ i18n.T(ctx,item.Label) }</a>
+        if item.Count>0 {
+        <span>{ strconv.Itoa(item.Count) }</span>
+        }
+        </li>
+        }
+        </ul></section>
+        }
 		<div class="gp-dashboard-grid">
 			@DashboardMetric(i18n.T(ctx, "Страницы"), data.Pages.Total, icon.FileText) {
 				<span>

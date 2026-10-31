@@ -1,24 +1,25 @@
 package httpui
 
 import "strconv"
+import "gopress/internal/i18n"
 import "net/url"
 
 templ SearchResults(data PublicSearchData) {
- <section class="public-search"><form action="/search" method="get" role="search"><label for="public-search-query">Поиск по сайту</label><div><input id="public-search-query" name="q" type="search" value={ data.Query } required maxlength="200"/><button type="submit">Найти</button></div></form>
+ <section class="public-search"><form action="/search" method="get" role="search"><input type="hidden" name="lang" value={ data.Language }/><label for="public-search-query">{ i18n.T(ctx,"Поиск по сайту") }</label><div><input id="public-search-query" name="q" type="search" value={ data.Query } required maxlength="200"/><button type="submit">{ i18n.T(ctx,"Найти") }</button></div></form>
   if data.Query!="" {
-   <p class="search-count">{ "Найдено: "+strconv.Itoa(data.Total) }</p>
+   <p class="search-count">{ i18n.T(ctx,"Найдено:")+" "+strconv.Itoa(data.Total) }</p>
    for _,result:=range data.Results {
-    <article><h2><a href={ templ.SafeURL("/"+result.Slug) }>{ result.Title }</a></h2><p>{ result.Snippet }</p></article>
+    <article><h2><a href={ templ.SafeURL(result.URL) }>{ result.Title }</a></h2><p>{ result.Snippet }</p></article>
    }
    if data.Total==0 {
     <p>Попробуйте другие слова. Поиск учитывает только опубликованные страницы и записи.</p>
    }
    <nav class="blog-pagination" aria-label="Страницы поиска">
     if data.Page>1 {
-     <a href={ templ.SafeURL("/search?q="+url.QueryEscape(data.Query)+"&page="+strconv.Itoa(data.Page-1)) }>Назад</a>
+     <a href={ templ.SafeURL("/search?q="+url.QueryEscape(data.Query)+"&lang="+url.QueryEscape(data.Language)+"&page="+strconv.Itoa(data.Page-1)) }>{ i18n.T(ctx,"Назад") }</a>
     }
     if data.Page*20<data.Total {
-     <a href={ templ.SafeURL("/search?q="+url.QueryEscape(data.Query)+"&page="+strconv.Itoa(data.Page+1)) }>Далее</a>
+     <a href={ templ.SafeURL("/search?q="+url.QueryEscape(data.Query)+"&lang="+url.QueryEscape(data.Language)+"&page="+strconv.Itoa(data.Page+1)) }>{ i18n.T(ctx,"Далее") }</a>
     }
    </nav>
   }

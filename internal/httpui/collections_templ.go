@@ -1285,9 +1285,9 @@ func CollectionMediaPicker(files []store.MediaFile, total, page int, query strin
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var73 string
-			templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.ResolveAttributeValue("/uploads/" + file.Name)
+			templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.ResolveAttributeValue("/uploads/" + file.Name + "?w=320")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/collections.templ`, Line: 211, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/collections.templ`, Line: 211, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var73)
 			if templ_7745c5c3_Err != nil {
@@ -1300,7 +1300,7 @@ func CollectionMediaPicker(files []store.MediaFile, total, page int, query strin
 			var templ_7745c5c3_Var74 string
 			templ_7745c5c3_Var74, templ_7745c5c3_Err = templ.ResolveAttributeValue(file.Alt)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/collections.templ`, Line: 211, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/collections.templ`, Line: 211, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var74)
 			if templ_7745c5c3_Err != nil {

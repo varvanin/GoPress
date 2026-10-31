@@ -1,9 +1,10 @@
+{{template "language-switcher" .}}
 <header class="site-header">
-<a class="site-brand" href="/" aria-label="{{.Site.Title}} — главная"><span>{{.Site.Title}}</span></a>
-<nav class="public-nav header-desktop" aria-label="Основная навигация">{{template "header-links" .}}</nav>
+<a class="site-brand" href="{{siteURL "/"}}" aria-label="{{.Site.Title}} — главная"><span>{{.Site.Title}}</span></a>
+<nav class="public-nav header-desktop" aria-label="{{tr "Основная навигация"}}">{{template "header-links" .}}</nav>
 <div class="header-utilities">
-<a class="header-search" href="/search" aria-label="Поиск по журналу">{{template "icon-search"}}<span>Поиск</span></a>
+<a class="header-search" href="{{siteURL "/search"}}" aria-label="{{tr "Поиск по журналу"}}">{{template "icon-search"}}<span>{{tr "Поиск"}}</span></a>
 {{if .SEO.RSS}}<a class="header-rss" href="/rss.xml">{{template "icon-rss"}}<span>RSS</span></a>{{end}}
-<details class="mobile-nav"><summary aria-label="Открыть меню">{{template "icon-menu"}}</summary><nav aria-label="Мобильная навигация">{{template "header-links" .}}</nav></details>
+<details class="mobile-nav"><summary aria-label="{{tr "Открыть меню"}}">{{template "icon-menu"}}</summary><nav aria-label="{{tr "Мобильная навигация"}}">{{template "header-links" .}}</nav></details>
 </div>
 </header>

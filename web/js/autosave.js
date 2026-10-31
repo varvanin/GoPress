@@ -51,6 +51,7 @@ export function createAutosave(form,state,signal,status) {
         if(scheduleForm)scheduleForm.action='/admin/pages/'+saved.id+'/schedule';
         if(fresh){const language=form.elements.content_language?.value;window.history.replaceState({...window.history.state},'',saved.edit_url+(language&&language!=='original'?'?lang='+encodeURIComponent(language):''));}
         state.dirty=generation!==sent;
+        form.dispatchEvent(new Event('editor:autosaved'));
         success=true;
         status(state.dirty?t('Есть новые несохранённые изменения.'):t('Черновик автоматически сохранён.'));
         return true;

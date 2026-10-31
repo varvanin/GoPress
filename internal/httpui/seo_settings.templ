@@ -15,6 +15,7 @@ templ SEOPage(site, csrf string, value store.Appearance, details store.Site, tab
 				@icon.Check()<span>{ i18n.T(ctx,"Сохранить") }</span>
 			}
 		}
+		<a class="context-link" href="/admin/seo/redirects">{ i18n.T(ctx,"Перенаправления и 404") }</a>
 		<nav class="content-list-tabs settings-tabs" aria-label="SEO" hx-target="#seo-panel" hx-select="#seo-panel" hx-swap="outerHTML show:none">
 			<a data-seo-tab-link href="/admin/seo?tab=search" aria-current={ activeTab(tab == "search") }>@icon.Icon("search")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Поиск") }</span></a>
 			<a data-seo-tab-link href="/admin/seo?tab=index" aria-current={ activeTab(tab == "index") }>@icon.Icon("globe")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Индексация") }</span></a>

@@ -8,7 +8,7 @@ func TestModulePackagesUpgradeFromThirteen(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = s.DB.Exec("UPDATE modules SET enabled=1 WHERE id='faq'; INSERT INTO faq_groups(name,items) VALUES('Existing FAQ','[]'); ALTER TABLE pages DROP COLUMN translations; ALTER TABLE pages DROP COLUMN published_translations; ALTER TABLE revisions DROP COLUMN translations; DROP TABLE module_collection_media; DROP TABLE module_collections; DELETE FROM modules WHERE id!='faq'; DROP TABLE module_packages; PRAGMA user_version=13"); err != nil {
+	if _, err = s.DB.Exec("UPDATE modules SET enabled=1 WHERE id='faq'; INSERT INTO faq_groups(name,items) VALUES('Existing FAQ','[]'); DROP TABLE IF EXISTS content_reviews; DROP TABLE IF EXISTS manual_redirects; DROP TABLE IF EXISTS missing_paths; DROP TRIGGER IF EXISTS users_security_insert; DROP TABLE IF EXISTS session_details; DROP TABLE IF EXISTS user_recovery_codes; DROP TABLE IF EXISTS user_security; DROP TRIGGER IF EXISTS translations_search_insert; DROP TRIGGER IF EXISTS translations_search_update; DROP TRIGGER IF EXISTS translations_search_delete; DROP TABLE IF EXISTS translation_search; DROP TABLE IF EXISTS localized_menus; ALTER TABLE pages DROP COLUMN translations; ALTER TABLE pages DROP COLUMN published_translations; ALTER TABLE revisions DROP COLUMN translations; DROP TABLE module_collection_media; DROP TABLE module_collections; DELETE FROM modules WHERE id!='faq'; DROP TABLE module_packages; PRAGMA user_version=13"); err != nil {
 		t.Fatal(err)
 	}
 	if err = s.Close(); err != nil {

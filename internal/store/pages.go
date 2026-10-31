@@ -13,6 +13,13 @@ func reserveRoute(ctx context.Context, tx *sql.Tx, slug string, id int64) error 
 	if ReservedContentPath(slug) {
 		return ErrConflict
 	}
+	var manual bool
+	if err := tx.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM manual_redirects WHERE slug=?)", slug).Scan(&manual); err != nil {
+		return err
+	}
+	if manual {
+		return ErrConflict
+	}
 	if _, err := tx.ExecContext(ctx, "INSERT INTO routes(slug,page_id) VALUES(?,?) ON CONFLICT(slug) DO NOTHING", slug, id); err != nil {
 		return err
 	}
@@ -93,6 +100,9 @@ func publishCurrent(ctx context.Context, tx *sql.Tx, id, version int64) error {
 	}
 	if n != 1 {
 		return ErrConflict
+	}
+	if _, err = tx.ExecContext(ctx, "DELETE FROM content_reviews WHERE page_id=? AND version<=?", id, version); err != nil {
+		return err
 	}
 	return movePublishedChildren(ctx, tx, id, old, target)
 }
@@ -188,6 +198,9 @@ func publishScheduled(ctx context.Context, tx *sql.Tx, id, now int64) error {
  (SELECT title,document,cover,term_ids,seo,parent_id,sort_order,template,(SELECT json_group_object(key,json(value)) FROM json_each(translations) WHERE trim(json_extract(value,'$.title'))!='') FROM revisions WHERE page_id=pages.id AND version=pages.scheduled_version),
  published_slug=?,published_at=CASE WHEN published_slug IS NULL THEN ? ELSE published_at END,published_updated_at=?,scheduled_at=0,scheduled_version=0,updated_at=?,version=version+1 WHERE id=?`, target, now, now, now, id)
 	if err != nil {
+		return err
+	}
+	if _, err = tx.ExecContext(ctx, "DELETE FROM content_reviews WHERE page_id=? AND version<=?", id, revision); err != nil {
 		return err
 	}
 	if err = movePublishedChildren(ctx, tx, id, old, target); err != nil {

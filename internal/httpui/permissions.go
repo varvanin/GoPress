@@ -127,7 +127,7 @@ func allowNav(ctx context.Context, path string) bool {
 	if role == "admin" {
 		return true
 	}
-	if path == "/admin/account" || path == "/admin/posts" || path == "/admin/media" {
+	if path == "/admin/posts/review" || path == "/admin/account" || path == "/admin/posts" || path == "/admin/media" {
 		return true
 	}
 	return role == "editor" && (path == "/admin/pages" || path == "/admin/posts/terms")

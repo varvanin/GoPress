@@ -25,7 +25,7 @@ func TestUpdatesRequireAdministratorAndEscapeReleaseNotes(t *testing.T) {
 	public, private, _ := ed25519.GenerateKey(rand.Reader)
 	t.Setenv("GOPRESS_UPDATE_PUBLIC_KEY", base64.StdEncoding.EncodeToString(public))
 	t.Setenv("GOPRESS_DOKPLOY_API_KEY", "PRIVATE-DOKPLOY-KEY")
-	release := update.Release{Format: 1, Version: "9.0.0", MinimumVersion: "0.2.0", Schema: 16, Image: version.ImageRepository + "@sha256:" + strings.Repeat("a", 64), Notes: "<script>not executable</script>"}
+	release := update.Release{Format: 1, Version: "9.0.0", MinimumVersion: "0.2.0", Schema: store.SchemaVersion, Image: version.ImageRepository + "@sha256:" + strings.Repeat("a", 64), Notes: "<script>not executable</script>"}
 	raw, _ := json.Marshal(release)
 	signed, _ := json.Marshal(update.Signed{Manifest: raw, Signature: ed25519.Sign(private, raw)})
 	root := filepath.Join(s.Dir, "updates")

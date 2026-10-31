@@ -19,6 +19,7 @@ import (
 )
 
 type PageMeta struct {
+	Alternates                                                                         []PublicLanguage
 	ContentLanguage                                                                    string
 	Title, Description, Canonical, Image, Type                                         string
 	NoIndex                                                                            bool
@@ -140,6 +141,15 @@ func (a *App) sitemap(c *echo.Context) error {
 				return err
 			} else {
 				o.ExcludeSitemapPaths += "\n/" + home.Slug
+				if includeHome && !o.NoIndexPages && !o.ExcludeSitemapPages {
+					for _, code := range sortedTranslationLanguages(home.Translations) {
+						tr := home.Translations[code]
+						target := languageURL(site.BaseURL+"/", code)
+						if !tr.SEO.NoIndex && (tr.SEO.Canonical == "" || tr.SEO.Canonical == target) {
+							extras = append(extras, sitemapURL{Loc: target})
+						}
+					}
+				}
 				if home.SEO.NoIndex || home.SEO.Canonical != "" && home.SEO.Canonical != site.BaseURL+"/" {
 					includeHome = false
 				}
@@ -200,7 +210,7 @@ func (a *App) sitemap(c *echo.Context) error {
 				return err
 			}
 			for _, p := range pages {
-				entry := sitemapURL{Loc: site.BaseURL + "/" + p.Slug}
+				entry := sitemapURL{Loc: site.BaseURL + publicContentURL(p.Slug, p.URL)}
 				if p.PublishedUpdatedAt > 0 {
 					entry.LastMod = time.Unix(p.PublishedUpdatedAt, 0).UTC().Format(time.RFC3339)
 				}

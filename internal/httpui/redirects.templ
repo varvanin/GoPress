@@ -1,0 +1,50 @@
+package httpui
+import "strconv"
+import "net/url"
+import "gopress/internal/i18n"
+import "gopress/internal/store"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/card"
+import "gopress/internal/ui/components/input"
+import selectcomp "gopress/internal/ui/components/select"
+func redirectOptions(pages []store.Page,label string) []selectcomp.ItemData {items:=[]selectcomp.ItemData{{Value:"0",Label:label}};for _,p:=range pages{items=append(items,selectcomp.ItemData{Value:strconv.FormatInt(p.ID,10),Label:p.Title+" · /"+p.Slug})};return items}
+templ RedirectsPage(site,csrf,zone string,redirects []store.ManualRedirect,missing []store.MissingPath,pages []store.Page,message,slug string,id int64){
+ @AdminLayout(site,"SEO",csrf){
+ @AdminPageHeader(i18n.T(ctx,"Перенаправления и 404"),-1){@button.Button(button.Props{Href:"/admin/seo",Variant:button.VariantOutline,Size:button.SizeSm}){<span>SEO</span>}}
+ if message!=""{
+<p class="notice notice-error" role="alert">{ i18n.T(ctx,message) }</p>
+}
+ <div class="security-workspace">
+ @card.Card(card.Props{Class:"settings-panel"}){
+ <h2>{ i18n.T(ctx,"Перенаправления") }</h2>
+ <form method="post" action="/admin/seo/redirects" class="site-settings" data-change-form>
+ <input type="hidden" name="csrf" value={ csrf }/>
+ <label>{ i18n.T(ctx,"Старый путь") }@input.Input(input.Props{Name:"slug",Value:slug,Required:true,Placeholder:"/old-page",Attributes:templ.Attributes{"maxlength":"1025"}})</label>
+ <label>{ i18n.T(ctx,"Целевая страница или запись") }@AdminSelect("redirect-target","page_id",strconv.FormatInt(id,10),i18n.T(ctx,"Выберите материал"),redirectOptions(pages,i18n.T(ctx,"Выберите материал")),nil)</label>
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline,Size:button.SizeSm}){<span>{ i18n.T(ctx,"Добавить") }</span>}
+ </form>
+ <p class="field-help">{ i18n.T(ctx,"Постоянный редирект 301. Цель следует за адресом материала; занятые пути и цепочки запрещены.") }</p>
+ <ul class="security-sessions">
+ for _,r:=range redirects{
+<li><div><strong>{ "/"+r.Slug }</strong><p class="field-help">{ r.Title+" · /"+r.Target }</p></div><form method="post" action="/admin/seo/redirects"><input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="slug" value={ r.Slug }/><input type="hidden" name="page_id" value={ strconv.FormatInt(r.PageID,10) }/><input type="hidden" name="action" value="delete"/>@button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantGhost,Size:button.SizeSm}){<span>{ i18n.T(ctx,"Удалить") }</span>}</form></li>
+}
+ </ul>
+ }
+ @card.Card(card.Props{Class:"settings-panel"}){
+ <h2>{ i18n.T(ctx,"Не найдено: 404") }</h2>
+ <p class="field-help">{ i18n.T(ctx,"До 500 путей без IP и параметров запроса. Показаны 100 самых частых. Очистите список, чтобы начать новый период.") }</p>
+ if len(missing)==0{
+<p>{ i18n.T(ctx,"Список пуст") }</p>
+}
+ <ul class="security-sessions">
+ for _,p:=range missing{
+<li><div><strong>{ "/"+p.Slug }</strong><p class="field-help">{ strconv.FormatInt(p.Hits,10)+" · "+tableContentDate(p.LastSeen,zone) }</p></div><a class="context-link" href={ templ.SafeURL("/admin/seo/redirects?from="+url.QueryEscape(p.Slug)) }>{ i18n.T(ctx,"Перенаправить") }</a></li>
+}
+ </ul>
+ if len(missing)>0{
+<form method="post" action="/admin/seo/missing/clear"><input type="hidden" name="csrf" value={ csrf }/>@button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantGhost,Size:button.SizeSm}){<span>{ i18n.T(ctx,"Очистить список") }</span>}</form>
+}
+ }
+ </div>
+ }
+}

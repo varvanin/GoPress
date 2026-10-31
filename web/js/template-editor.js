@@ -1,3 +1,4 @@
+import {sourceDiff} from './template-diff.js';
 import {EditorView,basicSetup} from 'codemirror';
 import {EditorState,Compartment} from '@codemirror/state';
 import {Decoration,MatchDecorator,ViewPlugin,keymap} from '@codemirror/view';
@@ -25,7 +26,9 @@ export function mountSourceEditor(form){
  const source=form.querySelector('[data-code-source]');
  const host=document.createElement('div');host.className='template-codemirror';source.after(host);
  const formatButton=form.querySelector('[data-format-source]'),formatError=form.querySelector('[data-format-error]');
- let disposed=false,formatting=false;
+ let disposed=false,formatting=false,pending=false,diffTimer;
+ const original=form.querySelector('[data-original-source]')?.value??source.value,diff=form.querySelector('[data-source-diff]'),diffButton=form.querySelector('[data-source-diff-toggle]');
+ let updateOperations=()=>{},renderDiff=()=>{};
  const access=new Compartment();
  const appearance=new Compartment();
  const skin=()=>EditorView.theme({},{dark:document.documentElement.dataset.adminTheme!=='light'});
@@ -43,10 +46,14 @@ export function mountSourceEditor(form){
    EditorView.contentAttributes.of({'aria-label':source.labels?.[0]?.textContent||source.dataset.filename,'spellcheck':'false'}),
    appearance.of(skin()),
    EditorView.updateListener.of(update=>{
-    if(update.docChanged){source.value=update.state.doc.toString();source.dispatchEvent(new Event('input',{bubbles:true}));}
+    if(update.docChanged){source.value=update.state.doc.toString();source.dispatchEvent(new Event('input',{bubbles:true}));updateOperations();if(diff&&!diff.hidden){clearTimeout(diffTimer);diffTimer=setTimeout(renderDiff,150);}}
    }),
   ]}),
  });
+ updateOperations=()=>{const dirty=view.state.doc.toString()!==original;form.querySelectorAll('[data-file-operation]').forEach(button=>button.disabled=pending||source.readOnly||dirty);const warning=form.querySelector('[data-file-operation-warning]');if(warning)warning.hidden=!dirty;};
+ renderDiff=()=>{if(!diff)return;try{const hunk=sourceDiff(original,view.state.doc.toString());diff.querySelector('[data-diff-status]').textContent=hunk.changed?t('Изменения начинаются со строки ')+hunk.start:t('Нет изменений.');diff.querySelector('[data-diff-before]').textContent=hunk.before;diff.querySelector('[data-diff-after]').textContent=hunk.after;}catch{diff.querySelector('[data-diff-status]').textContent=t('Файл слишком большой для сравнения.');}};
+ const toggleDiff=()=>{diff.hidden=!diff.hidden;diffButton.setAttribute('aria-expanded',String(!diff.hidden));if(!diff.hidden)renderDiff();};
+ diffButton?.addEventListener('click',toggleDiff);updateOperations();
  const updateAppearance=()=>view.dispatch({effects:appearance.reconfigure(skin())});
  document.addEventListener('admin-theme-change',updateAppearance);
  source.hidden=true;
@@ -67,5 +74,5 @@ export function mountSourceEditor(form){
  if(formatButton){formatButton.disabled=source.readOnly;formatButton.addEventListener('click',format);}
  const save=event=>{if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s'){event.preventDefault();if(!source.readOnly)form.requestSubmit();}};
  form.addEventListener('keydown',save);
- return {form,setPending(pending){view.dispatch({effects:access.reconfigure([EditorState.readOnly.of(pending||source.readOnly),EditorView.editable.of(!pending&&!source.readOnly)])});if(formatButton)formatButton.disabled=pending||source.readOnly||formatting;},destroy(){disposed=true;formatButton?.removeEventListener('click',format);document.removeEventListener('admin-theme-change',updateAppearance);source.value=view.state.doc.toString();view.destroy();host.remove();source.hidden=false;form.removeEventListener('keydown',save);}};
+ return {form,setPending(value){pending=value;updateOperations();view.dispatch({effects:access.reconfigure([EditorState.readOnly.of(pending||source.readOnly),EditorView.editable.of(!pending&&!source.readOnly)])});if(formatButton)formatButton.disabled=pending||source.readOnly||formatting;},destroy(){disposed=true;clearTimeout(diffTimer);diffButton?.removeEventListener('click',toggleDiff);formatButton?.removeEventListener('click',format);document.removeEventListener('admin-theme-change',updateAppearance);source.value=view.state.doc.toString();view.destroy();host.remove();source.hidden=false;form.removeEventListener('keydown',save);}};
 }

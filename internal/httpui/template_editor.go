@@ -1,7 +1,6 @@
 package httpui
 
 import (
-	"archive/zip"
 	"bytes"
 	"context"
 	"crypto/sha256"
@@ -198,7 +197,7 @@ func (a *App) templateEditor(c *echo.Context, status int, message, submitted str
 	if err != nil {
 		return err
 	}
-	return htmlComponent(c, status, TemplateEditor(site.Title, a.csrfToken(c), id, names, selected, content, revision, message, history, failed))
+	return htmlComponent(c, status, TemplateEditor(site.Title, a.csrfToken(c), id, names, selected, content, revision, message, string(file.Data), c.FormValue("new_name"), history, failed))
 }
 func (a *App) templateHistoryPath(id, name string) string {
 	return filepath.Join(a.Service.Store.Dir, "theme", "editor-history", templateFileHash([]byte(id)), templateFileHash([]byte(name))+".json")
@@ -413,31 +412,35 @@ func (a *App) copyBuiltinTemplate(id string) (string, error) {
 	}
 	files["screenshot.svg"] = &fstest.MapFile{Data: preview}
 	delete(files, "seo.html")
-	var out bytes.Buffer
-	w := zip.NewWriter(&out)
-	for filename, file := range files {
-		data := file.Data
-		if strings.HasSuffix(filename, ".html") {
-			data = templateAssetURLs(data)
-		}
-		entry, err := w.Create(filename)
-		if err != nil {
-			return "", err
-		}
-		if _, err = entry.Write(data); err != nil {
-			return "", err
-		}
-	}
-	if err = w.Close(); err != nil {
+	rawZIP, err := templateZIP(files)
+	if err != nil {
 		return "", err
 	}
-	installed, err := a.installTheme(bytes.NewReader(out.Bytes()))
+	installed, err := a.installTheme(bytes.NewReader(rawZIP))
 	return installed.ID, err
 }
 func (a *App) templateEditorRoutes(g *echo.Group) {
 	g.GET("/themes/reference", a.templateReferencePage)
+	g.GET("/themes/editor/export", a.exportTemplate)
+	g.POST("/themes/editor/preview", a.previewTemplateFile, a.csrf)
+	g.GET("/themes/editor/previews/:preview/*", a.previewTemplateAsset)
+	g.GET("/themes/editor/previews/:preview", a.showTemplatePreview)
+	g.GET("/themes/editor/reset", func(c *echo.Context) error { return a.resetTemplateReview(c, 200, "") })
+	g.POST("/themes/editor/reset", func(c *echo.Context) error {
+		err := a.resetTemplate(c.FormValue("theme"), c.FormValue("revision"))
+		if errors.Is(err, store.ErrConflict) {
+			return a.resetTemplateReview(c, 409, "Файлы изменились. Проверьте актуальную версию перед сбросом.")
+		}
+		if err != nil {
+			return err
+		}
+		return c.Redirect(303, templateEditorURL(c.FormValue("theme"), "layout.html")+"&reset=1")
+	}, a.csrf)
 	g.GET("/themes/editor", func(c *echo.Context) error {
 		message := ""
+		if c.QueryParam("reset") == "1" {
+			message = "Шаблон возвращён к встроенной версии."
+		}
 		if c.QueryParam("saved") == "1" {
 			message = "Файл сохранён."
 		}
@@ -449,7 +452,13 @@ func (a *App) templateEditorRoutes(g *echo.Group) {
 	g.POST("/themes/editor/save", func(c *echo.Context) error {
 		content := c.FormValue("content")
 		id, name := c.FormValue("theme"), c.FormValue("file")
-		err := a.saveTemplateFile(id, name, c.FormValue("revision"), content, c.FormValue("intent") == "restore")
+		var err error
+		intent := c.FormValue("intent")
+		if strings.HasPrefix(intent, "file-") {
+			name, err = a.changeTemplateFile(id, name, c.FormValue("revision"), content, c.FormValue("new_name"), strings.TrimPrefix(intent, "file-"))
+		} else {
+			err = a.saveTemplateFile(id, name, c.FormValue("revision"), content, intent == "restore")
+		}
 		if err != nil {
 			status := 400
 			message := err.Error()

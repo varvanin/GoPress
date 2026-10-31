@@ -45,6 +45,10 @@ func themeTemplates(source fs.FS, prefix, page string, zone *time.Location, size
 		zone = time.UTC
 	}
 	t, err := template.New("theme").Funcs(template.FuncMap{
+		"tr":          func(text string) string { return text },
+		"contentURL":  publicContentURL,
+		"languageURL": languageURL,
+		"siteURL":     func(path string) string { return path },
 		"gopressStep": func() (string, error) { return "", nil },
 		"date":        func(at int64) string { return time.Unix(at, 0).In(zone).Format("02.01.2006") },
 		"isoDate":     func(at int64) string { return time.Unix(at, 0).UTC().Format(time.RFC3339) },
@@ -54,7 +58,7 @@ func themeTemplates(source fs.FS, prefix, page string, zone *time.Location, size
 			if name == "." || !fs.ValidPath(name) || strings.ContainsAny(name, "\\:?#") {
 				return "", fmt.Errorf("asset: недопустимый путь %q", name)
 			}
-			if base != "/assets" && !strings.HasPrefix(base, "/theme-assets/") && !strings.HasPrefix(base, "/builtin-assets/") {
+			if base != "/assets" && !strings.HasPrefix(base, "/theme-assets/") && !strings.HasPrefix(base, "/builtin-assets/") && !strings.HasPrefix(base, "/admin/themes/editor/previews/") {
 				return "", fmt.Errorf("asset: недопустимый адрес ресурсов")
 			}
 			segments := strings.Split(name, "/")

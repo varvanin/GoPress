@@ -30,7 +30,7 @@ templ MediaLibrary(site, baseURL, csrf string, files []store.MediaFile, total, p
 				<section class="library-grid" aria-label={ i18n.T(ctx, "Изображения") }>
 					for _,file:=range files {
 						<a class={ "library-tile",templ.KV("is-selected",mediaSelected(selected,file.Name)) } href={ templ.SafeURL(mediaFileURL(query, page, file.Name)) } data-media-name={ file.Name } hx-target="#media-inspector" hx-select="#media-inspector" hx-swap="outerHTML show:none" hx-push-url="true" aria-current={ activeTab(mediaSelected(selected, file.Name)) }>
-							<img class="library-thumbnail" src={ "/uploads/" + file.Name } alt={ file.Alt } loading="lazy"/>
+							<img class="library-thumbnail" src={ "/uploads/" + file.Name+"?w=320" } alt={ file.Alt } loading="lazy"/>
 							<span class="library-tile-title">
 								{ mediaTitle(file) }
 							</span>
@@ -108,12 +108,16 @@ templ Menus(site, csrf string, menu store.Menu, pages []store.Page, message stri
 			</p>
 		}
 		<p class="field-help">{ i18n.T(ctx,"Для раздела на текущей странице используйте #section-contacts, для главной — /#section-contacts. Якорь задаётся в редакторе текста.") }</p>
- <nav class="content-list-tabs" aria-label={ i18n.T(ctx, "Позиция меню") }><a href="/admin/menus?position=header" aria-current={ activeTab(menu.Position == "header") }>@icon.Icon("panel-top")(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Шапка сайта") }</span></a><a href="/admin/menus?position=footer" aria-current={ activeTab(menu.Position == "footer") }>@icon.Icon("panel-bottom")(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Подвал") }</span></a></nav>
+ <form action="/admin/menus" method="get" class="admin-search"><input type="hidden" name="position" value={ menu.Position }/>
+ @AdminSelect("menu-language","lang",menu.Language,i18n.T(ctx,"Язык меню"),menuLanguageOptions(ctx),nil)
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline}) {<span>{ i18n.T(ctx,"Открыть") }</span>}
+ </form>
+ <nav class="content-list-tabs" aria-label={ i18n.T(ctx, "Позиция меню") }><a href={ templ.SafeURL("/admin/menus?position=header&lang="+menu.Language) } aria-current={ activeTab(menu.Position == "header") }>@icon.Icon("panel-top")(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Шапка сайта") }</span></a><a href={ templ.SafeURL("/admin/menus?position=footer&lang="+menu.Language) } aria-current={ activeTab(menu.Position == "footer") }>@icon.Icon("panel-bottom")(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Подвал") }</span></a></nav>
 		if menu.Position=="header"&&menu.Version==0 {
 			<p class="field-help">{ i18n.T(ctx,"Пока сайт показывает стандартное меню: главную и опубликованные страницы. Сохранение заменит его списком ниже.") }</p>
 		}
 		<form id="site-menu-form" action="/admin/menus" method="post" data-menu-form data-change-form data-form-dirty={ strconv.FormatBool(failed) } class="menu-builder">
-			<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="position" value={ menu.Position }/><input type="hidden" name="version" value={ strconv.FormatInt(menu.Version, 10) }/>
+			<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="language" value={ menu.Language }/><input type="hidden" name="position" value={ menu.Position }/><input type="hidden" name="version" value={ strconv.FormatInt(menu.Version, 10) }/>
 			<aside class="menu-add-panel">
 				<h2>{ i18n.T(ctx,"Добавить пункт") }</h2><label for="menu-page-choice">{ i18n.T(ctx,"Страница сайта") }</label>
 				@AdminSelect("menu-page-choice", "", "/", i18n.T(ctx, "Страница сайта"), menuPageItems(ctx, pages), templ.Attributes{"data-menu-page": true})@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"data-menu-add-page": true}}) {

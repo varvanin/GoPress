@@ -44,13 +44,52 @@ func (v *Service) Upload(r io.Reader, contexts ...context.Context) (string, erro
 	}
 	name := Token() + ext
 	dir := filepath.Join(v.Store.Dir, "uploads")
-	f, err := os.CreateTemp(dir, ".upload-")
+	info := store.ImageInfo{Width: cfg.Width, Height: cfg.Height}
+	written := []string{}
+	committed := false
+	defer func() {
+		if !committed {
+			for _, file := range written {
+				_ = os.Remove(filepath.Join(dir, file))
+			}
+		}
+	}()
+	size, err := writeImage(dir, name, img, format)
 	if err != nil {
 		return "", err
 	}
+	written = append(written, name)
+	for _, target := range []int{320, 960, 1600} {
+		if err = ctx.Err(); err != nil {
+			return "", err
+		}
+		if max(cfg.Width, cfg.Height) <= target {
+			continue
+		}
+		resized := resizeImage(img, target)
+		variantName := store.ImageVariantName(name, target)
+		if _, err = writeImage(dir, variantName, resized, format); err != nil {
+			return "", err
+		}
+		written = append(written, variantName)
+		bounds := resized.Bounds()
+		info.Variants = append(info.Variants, store.ImageVariant{Size: target, Width: bounds.Dx(), Height: bounds.Dy()})
+	}
+	if err = v.Store.MediaImage(name, mime, size, store.Owner(ctx), info); err != nil {
+		return "", err
+	}
+	committed = true
+	return name, nil
+}
+
+func writeImage(dir, name string, img image.Image, format string) (int64, error) {
+	f, err := os.CreateTemp(dir, ".upload-")
+	if err != nil {
+		return 0, err
+	}
 	tmp := f.Name()
 	defer os.Remove(tmp)
-	// Re-encode decoded pixels to discard metadata and any trailing active content.
+	// Re-encode pixels to discard metadata and trailing active content.
 	if format == "jpeg" {
 		err = jpeg.Encode(f, img, &jpeg.Options{Quality: 90})
 	} else {
@@ -61,19 +100,14 @@ func (v *Service) Upload(r io.Reader, contexts ...context.Context) (string, erro
 	}
 	err = errors.Join(err, f.Close())
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 	info, err := os.Stat(tmp)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
-	dest := filepath.Join(dir, name)
-	if err = os.Rename(tmp, dest); err != nil {
-		return "", err
+	if err = os.Rename(tmp, filepath.Join(dir, name)); err != nil {
+		return 0, err
 	}
-	if err = v.Store.Media(name, mime, info.Size(), store.Owner(ctx)); err != nil {
-		_ = os.Remove(dest)
-		return "", err
-	}
-	return name, nil
+	return info.Size(), nil
 }

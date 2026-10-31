@@ -1,0 +1,24 @@
+package httpui
+import "gopress/internal/i18n"
+import "gopress/internal/ui/components/icon"
+import "gopress/internal/ui/components/card"
+templ SetupPage(site,csrf string,steps []SetupStep){
+ @AdminLayout(site,i18n.T(ctx,"Обзор"),csrf){
+ @AdminPageHeader(i18n.T(ctx,"Начальная настройка"),-1){}
+ @card.Card(card.Props{Class:"settings-panel"}){
+ <ul class="security-sessions">
+ for _,step:=range steps {
+ <li><a class="context-link" href={ templ.SafeURL(step.URL) }>{ i18n.T(ctx,step.Label) }</a>
+ if step.Done {
+ <span class="field-help">@icon.Check(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Готово") }</span></span>
+ } else {
+ <span class="field-help">{ i18n.T(ctx,"Не завершено") }</span>
+ }
+ </li>
+ }
+ </ul>
+ <p class="field-help">{ i18n.T(ctx,"Статусы рассчитаны по данным сайта. Меню, почта и двухфакторная защита настраиваются по необходимости.") }</p>
+ <nav class="seo-resource-links"><a href="/admin/menus">{ i18n.T(ctx,"Меню") }</a><a href="/admin/settings?tab=mail">{ i18n.T(ctx,"Почта") }</a><a href="/admin/account/security">{ i18n.T(ctx,"Безопасность и сеансы") }</a></nav>
+ }
+ }
+}

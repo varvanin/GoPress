@@ -7,6 +7,7 @@ import "gopress/internal/ui/components/button"
 import "gopress/internal/ui/components/card"
 import "gopress/internal/ui/components/input"
 import "gopress/internal/ui/components/icon"
+import selectcomp "gopress/internal/ui/components/select"
 
 templ AIPage(site, csrf string, value service.AISettings, configured bool, message string, failed, dirty bool) {
  @AdminLayout(site,i18n.T(ctx,"ИИ"),csrf) {
@@ -54,11 +55,14 @@ templ EditorAI() {
   <details data-editor-ai>
    @EditorPanelSummary(i18n.T(ctx,"ИИ"),icon.Icon("bot"))
    <div class="editor-panel-body">
+    <label for="editor-ai-action">{ i18n.T(ctx,"Действие") }</label>
+    @AdminSelect("editor-ai-action","ai_action","generate",i18n.T(ctx,"Действие"),[]selectcomp.ItemData{
+    {Value:"generate",Label:i18n.T(ctx,"Написать текст")},{Value:"rewrite",Label:i18n.T(ctx,"Переписать выделение")},{Value:"shorten",Label:i18n.T(ctx,"Сократить выделение")},{Value:"continue",Label:i18n.T(ctx,"Продолжить выделение")},{Value:"translate",Label:i18n.T(ctx,"Перевести оригинал в текущий язык")},{Value:"seo",Label:i18n.T(ctx,"Предложить SEO")},},nil)
     <label>{ i18n.T(ctx,"Задание для ИИ") }
      <textarea class="input ai-prompt" rows="4" maxlength="2000" data-ai-prompt placeholder={i18n.T(ctx,"Напишите тему, структуру и желаемый стиль текста.")}></textarea>
     </label>
     <label class="settings-checkbox"><input type="checkbox" data-ai-context/>{ i18n.T(ctx,"Учитывать текст материала") }</label>
-    <p class="field-help">{ i18n.T(ctx,"Задание и заголовок отправляются в OpenRouter. Текст материала — только при включённом контексте.") }</p>
+    <p class="field-help">{ i18n.T(ctx,"Задание и заголовок отправляются в OpenRouter. Действия над выделением, перевод и SEO также отправляют соответствующий текст.") }</p>
     @button.Button(button.Props{Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"data-ai-generate":true}}) {
  { i18n.T(ctx,"Сгенерировать") }
  }
@@ -69,6 +73,7 @@ templ EditorAI() {
  { i18n.T(ctx,"Вставить в конец текста") }
  }
     </div>
+    @button.Button(button.Props{Variant:button.VariantGhost,Size:button.SizeSm,Attributes:templ.Attributes{"data-ai-undo":true,"hidden":true}}) {<span>{ i18n.T(ctx,"Отменить применение ИИ") }</span>}
    </div>
   </details>
  }

@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -136,15 +137,27 @@ type MenuItem struct {
 	Depth int    `json:"depth"`
 }
 type Menu struct {
+	Language string
 	Position string
 	Version  int64
 	Items    []MenuItem
 }
 
-func (s *Store) Menu(position string) (Menu, error) {
+func (s *Store) Menu(position string, languages ...string) (Menu, error) {
 	m := Menu{Position: position}
+	if len(languages) > 0 {
+		m.Language = languages[0]
+	}
 	var raw string
-	err := s.DB.QueryRow(`SELECT version,items FROM menus WHERE position=?`, position).Scan(&m.Version, &raw)
+	var err error
+	if m.Language != "" {
+		err = s.DB.QueryRow(`SELECT version,items FROM localized_menus WHERE position=? AND language=?`, position, m.Language).Scan(&m.Version, &raw)
+		if errors.Is(err, sql.ErrNoRows) {
+			return m, nil
+		}
+	} else {
+		err = s.DB.QueryRow(`SELECT version,items FROM menus WHERE position=?`, position).Scan(&m.Version, &raw)
+	}
 	if err == nil {
 		err = json.Unmarshal([]byte(raw), &m.Items)
 	}
@@ -154,6 +167,17 @@ func (s *Store) SaveMenu(ctx context.Context, m Menu) error {
 	raw, err := json.Marshal(m.Items)
 	if err != nil {
 		return err
+	}
+	if m.Language != "" {
+		result, e := s.DB.ExecContext(ctx, `INSERT INTO localized_menus(position,language,version,items) SELECT ?,?,1,? WHERE ?=0 OR EXISTS(SELECT 1 FROM localized_menus WHERE position=? AND language=?) ON CONFLICT(position,language) DO UPDATE SET items=excluded.items,version=localized_menus.version+1 WHERE localized_menus.version=?`, m.Position, m.Language, string(raw), m.Version, m.Position, m.Language, m.Version)
+		if e != nil {
+			return e
+		}
+		n, e := result.RowsAffected()
+		if e == nil && n == 0 {
+			return ErrConflict
+		}
+		return e
 	}
 	result, err := s.DB.ExecContext(ctx, `UPDATE menus SET version=version+1,items=? WHERE position=? AND version=?`, string(raw), m.Position, m.Version)
 	if err != nil {

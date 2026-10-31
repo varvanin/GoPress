@@ -1,0 +1,91 @@
+package httpui
+
+import "strconv"
+import "gopress/internal/i18n"
+import "gopress/internal/service"
+import "gopress/internal/store"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/card"
+import "gopress/internal/ui/components/input"
+
+templ AccountSecurity(site,csrf,zone string,user store.User,factor service.TwoFactorStatus,sessions []store.SessionInfo,total int,message string) {
+ @AdminLayout(site,i18n.T(ctx,"Мой профиль"),csrf) {
+ @AdminPageHeader(i18n.T(ctx,"Безопасность и сеансы"),-1) {
+ @button.Button(button.Props{Href:"/admin/account",Variant:button.VariantOutline,Size:button.SizeSm}) {<span>{ i18n.T(ctx,"Мой профиль") }</span>}
+ }
+ if message!="" {
+ <p class="notice notice-error" role="alert">{ i18n.T(ctx,message) }</p>
+ }
+ <div class="security-workspace">
+ @card.Card(card.Props{Class:"settings-panel"}) {
+ <h2>{ i18n.T(ctx,"Двухфакторная защита") }</h2>
+ <p>{ user.Email }</p>
+ if factor.Enabled {
+ <p>{ i18n.T(ctx,"2FA включена") }</p>
+ <p class="field-help">{ i18n.T(ctx,"Осталось резервных кодов: ")+strconv.Itoa(factor.RecoveryCount) }</p>
+ if factor.Unavailable {
+ <p class="notice notice-error">{ i18n.T(ctx,"Ключ 2FA недоступен. Используйте резервный код или восстановление на сервере.") }</p>
+ }
+ <form method="post" action="/admin/account/2fa/change" hx-boost="false">
+ <input type="hidden" name="csrf" value={ csrf }/>
+ @FactorPasswordAndCode(true)
+ <div class="editor-block-actions">
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"name":"action","value":"rotate"}}) {<span>{ i18n.T(ctx,"Новые резервные коды") }</span>}
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantGhost,Size:button.SizeSm,Attributes:templ.Attributes{"name":"action","value":"disable"}}) {<span>{ i18n.T(ctx,"Отключить 2FA") }</span>}
+ </div>
+ </form>
+ } else {
+ <p class="field-help">{ i18n.T(ctx,"Добавьте ключ в приложение-аутентификатор, затем подтвердите новый код. Ключ и резервные коды скачиваются отдельно и не выводятся на страницу.") }</p>
+ <form method="post" action="/admin/account/2fa/setup" hx-boost="false">
+ <input type="hidden" name="csrf" value={ csrf }/>
+ @FactorPasswordAndCode(false)
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline,Size:button.SizeSm}) {<span>{ i18n.T(ctx,"Скачать ключ настройки") }</span>}
+ </form>
+ <form method="post" action="/admin/account/2fa/enable" hx-boost="false">
+ <input type="hidden" name="csrf" value={ csrf }/>
+ @FactorPasswordAndCode(true)
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline,Size:button.SizeSm}) {<span>{ i18n.T(ctx,"Включить 2FA") }</span>}
+ </form>
+ }
+ <p class="field-help">{ i18n.T(ctx,"Каждый код используется один раз. После изменения защиты потребуется войти заново.") }</p>
+ <a class="context-link" href="/login" hx-boost="false">{ i18n.T(ctx,"Войти") }</a>
+ }
+ @card.Card(card.Props{Class:"settings-panel"}) {
+ <h2>{ i18n.T(ctx,"Действующие сеансы") }<span class="content-count">{ strconv.Itoa(total) }</span></h2>
+ if total>len(sessions) {
+ <p class="field-help">{ i18n.T(ctx,"Показано сеансов: ")+strconv.Itoa(len(sessions)) }</p>
+ }
+ <ul class="security-sessions">
+ for _,session:=range sessions {
+ <li><div>
+ if session.Current {
+ <strong>{ i18n.T(ctx,"Этот сеанс") }</strong>
+ } else {
+ <strong>{ i18n.T(ctx,"Сеанс") }</strong>
+ }
+ if session.UserAgent!="" {
+ <p class="field-help session-agent">{ session.UserAgent }</p>
+ }
+ <p class="field-help">{ i18n.T(ctx,"Создан: ")+tableContentDate(session.CreatedAt,zone) }</p>
+ <p class="field-help">{ i18n.T(ctx,"Истекает: ")+tableContentDate(session.ExpiresAt,zone) }</p>
+ </div><form method="post" action="/admin/account/sessions/revoke"><input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="reference" value={ session.Reference }/>
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantGhost,Size:button.SizeSm}) {<span>{ i18n.T(ctx,"Завершить") }</span>}
+ </form></li>
+ }
+ </ul>
+ if total>1 {
+ <form method="post" action="/admin/account/sessions/revoke"><input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="others" value="true"/>
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline,Size:button.SizeSm}) {<span>{ i18n.T(ctx,"Завершить другие сеансы") }</span>}
+ </form>
+ }
+ }
+ </div>
+ }
+}
+
+templ FactorPasswordAndCode(code bool) {
+ <label>{ i18n.T(ctx,"Текущий пароль") }@input.Input(input.Props{Name:"password",Type:"password",Required:true,Attributes:templ.Attributes{"autocomplete":"current-password","maxlength":"72"}})</label>
+ if code {
+ <label>{ i18n.T(ctx,"Новый код 2FA или резервный код") }@input.Input(input.Props{Name:"code",Required:true,Attributes:templ.Attributes{"autocomplete":"one-time-code","maxlength":"64"}})</label>
+ }
+}

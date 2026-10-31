@@ -76,6 +76,9 @@ var collectionsMigration string
 //go:embed translations.sql
 var translationsMigration string
 
+//go:embed languages.sql
+var languagesMigration string
+
 var ErrConflict = errors.New("version or URL conflict")
 var ErrInstalled = errors.New("already installed")
 
@@ -108,6 +111,7 @@ type Translation struct {
 }
 
 type Page struct {
+	URL                string                 `json:"-"`
 	Translations       map[string]Translation `json:"translations"`
 	ParentID           int64                  `json:"parent_id"`
 	Order              int                    `json:"order"`
@@ -136,7 +140,7 @@ type Page struct {
 
 // Open holds the data-directory lock until Close, including during maintenance.
 // SchemaVersion is the schema produced by this build, including all migrations below.
-const SchemaVersion = 16
+const SchemaVersion = 17
 
 func Open(dir string) (*Store, error) { return openWithLock(dir, nil) }
 func openWithLock(dir string, held *os.File) (*Store, error) {
@@ -220,7 +224,7 @@ func openWithLock(dir string, held *os.File) (*Store, error) {
 			return nil, e
 		}
 		defer tx.Rollback()
-		scripts := []string{migration, "ALTER TABLE pages ADD COLUMN kind TEXT NOT NULL DEFAULT 'page' CHECK(kind IN ('page','post')); PRAGMA user_version=2;", contentMigration, blogMigration, siteMigration, seoMigration, formsMigration, settingsMigration, usersMigration, searchMigration, pagesMigration, jobsMigration, faqMigration, modulePackagesMigration, collectionsMigration, translationsMigration}
+		scripts := []string{migration, "ALTER TABLE pages ADD COLUMN kind TEXT NOT NULL DEFAULT 'page' CHECK(kind IN ('page','post')); PRAGMA user_version=2;", contentMigration, blogMigration, siteMigration, seoMigration, formsMigration, settingsMigration, usersMigration, searchMigration, pagesMigration, jobsMigration, faqMigration, modulePackagesMigration, collectionsMigration, translationsMigration, languagesMigration}
 		for _, script := range scripts[version:] {
 			if _, e = tx.Exec(script); e != nil {
 				return nil, e
@@ -325,6 +329,9 @@ func (s *Store) Media(name, mime string, size int64, owners ...int64) error {
 	if len(owners) > 0 {
 		owner = owners[0]
 	}
+	return s.MediaImage(name, mime, size, owner, ImageInfo{})
+}
+func (s *Store) MediaImage(name, mime string, size, owner int64, info ImageInfo) error {
 	tx, err := s.DB.Begin()
 	if err != nil {
 		return err
@@ -335,6 +342,15 @@ func (s *Store) Media(name, mime string, size int64, owners ...int64) error {
 	}
 	if _, err = tx.Exec("INSERT INTO media_details(name) VALUES(?)", name); err != nil {
 		return err
+	}
+	if info.Width > 0 {
+		raw, e := json.Marshal(info.Variants)
+		if e != nil {
+			return e
+		}
+		if _, err = tx.Exec(`INSERT INTO media_images(name,width,height,variants) VALUES(?,?,?,?)`, name, info.Width, info.Height, string(raw)); err != nil {
+			return err
+		}
 	}
 	return tx.Commit()
 }
@@ -451,6 +467,43 @@ func (s *Store) Public(slug string) (Page, error) {
 	return p, err
 }
 func (s *Store) Save(ctx context.Context, p Page, publish bool) (Page, error) {
+	tx, err := s.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return p, err
+	}
+	defer tx.Rollback()
+	saved, err := savePage(ctx, tx, p, publish)
+	if err != nil {
+		return p, err
+	}
+	if err = tx.Commit(); err != nil {
+		return p, err
+	}
+	return s.Page(saved.ID)
+}
+func (s *Store) ImportDrafts(ctx context.Context, pages []Page) ([]Page, error) {
+	tx, err := s.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+	result := make([]Page, 0, len(pages))
+	for _, p := range pages {
+		if p.ID != 0 || p.Version != 0 {
+			return nil, ErrConflict
+		}
+		saved, e := savePage(ctx, tx, p, false)
+		if e != nil {
+			return nil, e
+		}
+		result = append(result, saved)
+	}
+	if err = tx.Commit(); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+func savePage(ctx context.Context, tx *sql.Tx, p Page, publish bool) (Page, error) {
 	auditAction := "update"
 	if p.ID == 0 {
 		auditAction = "create"
@@ -461,11 +514,7 @@ func (s *Store) Save(ctx context.Context, p Page, publish bool) (Page, error) {
 	if p.Kind == "" {
 		p.Kind = "page"
 	}
-	tx, err := s.DB.BeginTx(ctx, nil)
-	if err != nil {
-		return p, err
-	}
-	defer tx.Rollback()
+	var err error
 	if p.Template == "" {
 		p.Template = "page.html"
 	}
@@ -547,10 +596,7 @@ func (s *Store) Save(ctx context.Context, p Page, publish bool) (Page, error) {
 	if err = auditContent(ctx, tx, auditAction, p); err != nil {
 		return p, err
 	}
-	if err = tx.Commit(); err != nil {
-		return p, err
-	}
-	return s.Page(p.ID)
+	return p, nil
 }
 
 const publishSQL = "UPDATE pages SET published_parent_id=parent_id,published_sort_order=sort_order,published_template=template,published_slug=slug,published_title=title,published_document=document,published_translations=(SELECT json_group_object(key,json(value)) FROM json_each(translations) WHERE trim(json_extract(value,'$.title'))!=''),published_cover=cover,published_term_ids=term_ids,published_seo=seo,published_updated_at=unixepoch(),scheduled_at=0,scheduled_version=0,published_at=CASE WHEN published_slug IS NULL THEN unixepoch() ELSE published_at END,updated_at=unixepoch(),version=version+1 WHERE id=? AND version=? AND trashed_at=0"
@@ -743,7 +789,7 @@ func CheckFile(file string) error {
 	if err = db.QueryRow("PRAGMA user_version").Scan(&version); err != nil {
 		return err
 	}
-	if version < 1 || version > 16 {
+	if version < 1 || version > SchemaVersion {
 		return errors.New("unsupported schema")
 	}
 	var n int
@@ -789,8 +835,12 @@ func (s *Store) PageSummary(kinds ...string) (PageSummary, error) {
 }
 
 // PublishedContent exposes only the published snapshot to public themes.
-func (s *Store) PublishedContent(kind string) ([]Page, error) {
-	rows, err := s.DB.Query("SELECT published_slug,published_title,coalesce(published_cover,'') FROM pages WHERE kind=? AND trashed_at=0 AND published_slug IS NOT NULL ORDER BY published_sort_order,published_title,id LIMIT 100", kind)
+func (s *Store) PublishedContent(kind string, languages ...string) ([]Page, error) {
+	language := ""
+	if len(languages) > 0 {
+		language = languages[0]
+	}
+	rows, err := s.DB.Query(`SELECT p.published_slug,coalesce(json_extract(t.value,'$.title'),p.published_title),coalesce(p.published_cover,''),t.key FROM pages p LEFT JOIN json_each(p.published_translations) t ON t.key=? WHERE p.kind=? AND p.trashed_at=0 AND p.published_slug IS NOT NULL ORDER BY p.published_sort_order,p.published_title,p.id LIMIT 100`, language, kind)
 	if err != nil {
 		return nil, err
 	}
@@ -798,8 +848,13 @@ func (s *Store) PublishedContent(kind string) ([]Page, error) {
 	pages := []Page{}
 	for rows.Next() {
 		var p Page
-		if err = rows.Scan(&p.Slug, &p.Title, &p.Cover); err != nil {
+		var translated sql.NullString
+		if err = rows.Scan(&p.Slug, &p.Title, &p.Cover, &translated); err != nil {
 			return nil, err
+		}
+		p.URL = "/" + p.Slug
+		if translated.Valid {
+			p.URL += "?lang=" + url.QueryEscape(translated.String)
 		}
 		pages = append(pages, p)
 	}

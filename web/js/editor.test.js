@@ -20,7 +20,7 @@ function setup(t, content = fixture) {
 test('editor round-trips the shared server document without adding unsupported attributes', (t) => {
   const { editor } = setup(t);
   assert.deepEqual(JSON.parse(JSON.stringify(editor.getJSON())), fixture);
-  assert.deepEqual(Object.keys(editor.schema.nodes).sort(), ['blockquote', 'bulletList', 'codeBlock', 'doc', 'hardBreak', 'heading', 'horizontalRule', 'image', 'listItem', 'orderedList', 'paragraph', 'text']);
+  assert.deepEqual(Object.keys(editor.schema.nodes).sort(), ['blockquote', 'bulletList', 'codeBlock', 'doc', 'hardBreak', 'heading', 'horizontalRule', 'image', 'listItem', 'orderedList', 'paragraph', 'table', 'tableCell', 'tableHeader', 'tableRow', 'text']);
   assert.deepEqual(Object.keys(editor.schema.marks).sort(), ['bold', 'code', 'highlight', 'italic', 'link', 'strike', 'subscript', 'superscript', 'underline']);
 });
 
@@ -134,4 +134,17 @@ test('section anchors round-trip and splitting or pasting never duplicates targe
  assert.deepEqual(anchors,['contacts','details']);
  for(const name of ['contacts','a','about-us','section-1'])assert.equal(validAnchor(name),true);
  for(const name of [null,undefined,'','UPPER','1name','bad name','<script>','a'.repeat(65)])assert.equal(validAnchor(name),false);
+});
+
+test('tables use the real ProseMirror schema and preserve the server fixture',async t=>{
+ const content=JSON.parse(readFileSync(new URL('../testdata/editor-table-document.json',import.meta.url),'utf8'));
+ const {editor}=setup(t,content);
+ assert.deepEqual(JSON.parse(JSON.stringify(editor.getJSON())),content);
+ const {TableMap,addRowAfter,addColumnAfter}=await import('@tiptap/pm/tables');
+ assert.equal(TableMap.get(editor.state.doc.firstChild).width,2);
+ editor.commands.setTextSelection(4);
+ editor.commands.command(({state,dispatch})=>addRowAfter(state,dispatch));
+ assert.equal(editor.state.doc.firstChild.childCount,3);
+ editor.commands.command(({state,dispatch})=>addColumnAfter(state,dispatch));
+ assert.equal(TableMap.get(editor.state.doc.firstChild).width,3);
 });

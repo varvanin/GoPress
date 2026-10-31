@@ -1,7 +1,7 @@
 {{define "header-links"}}
 {{if .HeaderMenuConfigured}}{{template "menu" .HeaderMenu}}{{else}}
-<a href="/" {{if .Home}}aria-current="page"{{end}}>{{if .HomeIsPage}}Главная{{else}}Журнал{{end}}</a>
-{{range .Pages}}<a href="/{{.Slug}}" {{if eq $.Slug .Slug}}aria-current="page"{{end}}>{{.Title}}</a>{{end}}
+<a href="{{siteURL "/"}}" {{if .Home}}aria-current="page"{{end}}>{{if .HomeIsPage}}{{tr "Главная"}}{{else}}{{tr "Журнал"}}{{end}}</a>
+{{range .Pages}}<a href="{{contentURL .Slug .URL}}" {{if eq $.Slug .Slug}}aria-current="page"{{end}}>{{.Title}}</a>{{end}}
 {{end}}
 {{end}}
 {{define "menu"}}<ul class="site-menu">{{range .}}<li><a href="{{.URL}}">{{.Label}}</a>{{if .Children}}<details><summary aria-label="Показать вложенные ссылки: {{.Label}}">{{template "icon-chevron"}}</summary>{{template "menu" .Children}}</details>{{end}}</li>{{end}}</ul>{{end}}

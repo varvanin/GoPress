@@ -56,6 +56,10 @@ All parts load before the selected page. Other page bodies are not loaded togeth
 | `.ThemeAssets` | Current asset base: `/theme-assets/ID` for packages, `/builtin-assets/ID` for edited built-ins, `/assets` for untouched built-ins and legacy local templates |
 | `.Appearance.HomeTitle`, `.Appearance.HomeDescription`, `.Appearance.Theme` | Feed heading/description and selected template identifier |
 | `.SEO.RSS` | Whether RSS links should be visible; wrap custom subscription links in `{{if .SEO.RSS}}` |
+| `.Language` | Effective public interface language, independent of the admin language |
+| `.Languages` | Available material versions with Code, Label, URL and Current; use the shared `language-switcher` template |
+| `.URL` | Current internal material URL including the selected language |
+| `.SEO.Alternates` | Indexable reciprocal language links, rendered by the shared SEO block |
 | `.SEO.ContentLanguage` | Selected content language code for `<html lang>`; originals use the language saved with the material |
 | `.SEO` | Prepared metadata for `{{template "seo" .}}`; custom manual output is usually unnecessary |
 | `.Pages` | Published page metadata for automatic navigation, in configured order |
@@ -101,17 +105,20 @@ Posts/Pages contain published metadata, not editor documents. On Journal's first
 
 | Expression | Result |
 | --- | --- |
+| `{{tr "Поиск"}}` | Known UI label in the selected public language; unknown text is retained |
+| `{{siteURL "/search"}}` | Internal navigation URL retaining the effective public language |
+| `{{contentURL .Slug .URL}}` | Localized content URL, with a slug fallback for older fixtures |
 | `{{date .PublishedAt}}` | DD.MM.YYYY in the site's timezone |
 | `{{isoDate .PublishedAt}}` | RFC3339 UTC timestamp for a time element |
 | `{{asset .ThemeAssets "images/logo.svg"}}` | Current-template asset URL; absolute paths and `..` are rejected |
 | `{{cover .Slug .Cover}}` | Uploaded cover or the existing slug-based illustration fallback |
 | `{{journalCover .Slug .Cover}}` | Uploaded cover or a built-in editorial photograph |
 | `{{firstLetter .Site.Title}}` | First character of the site name |
-| `{{postCount .BlogTotal}}` | Post count with Russian grammatical endings |
+| `{{postCount .BlogTotal}}` | Localized post count (Russian retains grammatical endings) |
 | `{{add .BlogPage 1}}` | Integer addition |
 | `{{hasNext .BlogPage .BlogTotal}}` | Whether the feed has a next page, respecting configured page size |
 
-Use `href="/{{.Slug}}"` for internal content links and `{{.Site.BaseURL}}/{{.Slug}}` for absolute links. CSS may reference neighboring assets with relative `url(...)` paths.
+Use `href="{{contentURL .Slug .URL}}"` for page/post list links; `.Slug` remains the original route without a query. `.Pages` and `.Posts` use an available translation’s title/SEO and `.URL`, falling back to the original when absent. Use `{{siteURL "/"}}` for navigation preserving the public language. CSS may reference neighboring assets with relative `url(...)` paths.
 
 ## Validation and security
 
@@ -136,3 +143,11 @@ Before replacement, the server renders the HTML template set. A failed check lea
 Restore previous version revalidates and restores the last saved content of that file. Only one previous version is kept; this is not a substitute for a full backup. History is included in normal backups. Edits to an active template are immediately public; use an inactive copy and preview for experiments. CSS/JS highlighting is not server-side syntax validation or browser verification.
 
 Content headings and paragraphs may carry editor-defined anchors, rendered as `id="section-NAME"`. Reserve the `section-` ID prefix for these content targets. Navigation links such as `/#section-contacts` work for one-page homepages. Preserve IDs in `.Body`; add scroll margin if your header is fixed.
+
+## File operations and private preview
+
+File operations require saved source and retain optimistic file hashes. Create a root page HTML file, a part under `parts/`, or CSS/JS under `assets/`. Required files, known literal references and material/revision template references block rename/delete. Dynamic references cannot be proven unused; review custom JavaScript and template logic. Removed files retain one raw recovery copy under template history. ZIP export contains saved files, respects the installer limits and does not activate anything.
+
+Compare shows every changed line as one contiguous hunk with context, without an expensive quadratic diff. Private Preview posts unsaved source into a temporary owner-bound preview: at most 16 entries, 512 KiB of source each, expiring after ten minutes. Preview uses real published content, private asset URLs and noindex; it neither saves nor activates the template. Unsaved CSS/JS is visible when the template references that asset through `.ThemeAssets`. A restart or expiration discards previews.
+
+Reset is available for built-ins. It checks a hash of the entire current file set, removes the local override and retains one previous local directory in `theme/editor-history/<template-hash>/before-reset` for manual recovery. Content and activation are preserved. Export or back up valuable local edits first.

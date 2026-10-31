@@ -24,7 +24,7 @@ func termSelectItems(ctx context.Context, terms []store.Term) []selectcomp.ItemD
 func menuPageItems(ctx context.Context, pages []store.Page) []selectcomp.ItemData {
 	items := []selectcomp.ItemData{{Value: "/", Label: i18n.T(ctx, "Главная")}}
 	for _, page := range pages {
-		items = append(items, selectcomp.ItemData{Value: "/" + page.Slug, Label: page.Title})
+		items = append(items, selectcomp.ItemData{Value: publicContentURL(page.Slug, page.URL), Label: page.Title})
 	}
 	return items
 }

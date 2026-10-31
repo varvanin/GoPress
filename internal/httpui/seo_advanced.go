@@ -60,6 +60,9 @@ func applySEOOptions(m *PageMeta, site store.Site, a store.Appearance, p store.P
 		m.NoIndex = true
 		if !private && !missing {
 			q := url.Values{"q": {search.Query}}
+			if search.Language != "" {
+				q.Set("lang", search.Language)
+			}
 			if search.Page > 1 {
 				q.Set("page", strconv.Itoa(search.Page))
 			}

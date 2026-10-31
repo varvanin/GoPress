@@ -107,6 +107,9 @@ templ UserEditor(site, csrf string, u store.User, message string, failed bool) {
 			@button.Button(button.Props{Href: "/admin/users", Variant: button.VariantOutline, Size: button.SizeSm}) {
 				{ i18n.T(ctx,"Назад") }
 			}
+            if currentUser(ctx,u.ID) {
+            @button.Button(button.Props{Href:"/admin/account/security",Variant:button.VariantOutline,Size:button.SizeSm}) {<span>{ i18n.T(ctx,"Безопасность и сеансы") }</span>}
+            }
 			@button.Button(button.Props{Type: button.TypeSubmit, Form: "user-form", Size: button.SizeSm}) {
 				{ i18n.T(ctx,"Сохранить") }
 			}
@@ -150,6 +153,7 @@ templ UserEditor(site, csrf string, u store.User, message string, failed bool) {
 templ Account(site, csrf string, u store.User, message string, failed bool) {
 	@AdminLayout(site, i18n.T(ctx, "Мой профиль"), csrf) {
 		@AdminPageHeader(i18n.T(ctx, "Мой профиль"), -1) {
+            @button.Button(button.Props{Href:"/admin/account/security",Variant:button.VariantOutline,Size:button.SizeSm}) {<span>{ i18n.T(ctx,"Безопасность и сеансы") }</span>}
 			@button.Button(button.Props{Type: button.TypeSubmit, Form: "account-password-form", Size: button.SizeSm}) {
 				{ i18n.T(ctx,"Сменить пароль") }
 			}

@@ -60,3 +60,31 @@ func TestOperationalCommandsRequireExistingDatabase(t *testing.T) {
 		}
 	}
 }
+
+func TestOfflineSecondFactorReset(t *testing.T) {
+	dir := t.TempDir()
+	s, err := store.Open(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	id, err := s.SaveUser(context.Background(), store.User{Email: "owner@example.test", Role: "admin"}, []byte("hash"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.DB.Exec("UPDATE user_security SET enabled=1 WHERE user_id=?", id); err != nil {
+		t.Fatal(err)
+	}
+	s.Close()
+	if err = run([]string{"admin", "reset-2fa", "--data", dir, "--email", "owner@example.test"}); err != nil {
+		t.Fatal(err)
+	}
+	s, err = store.Open(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	profile, err := s.SecurityProfile(id)
+	if err != nil || profile.Enabled {
+		t.Fatal(profile, err)
+	}
+}

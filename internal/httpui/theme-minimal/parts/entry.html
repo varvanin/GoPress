@@ -1,4 +1,4 @@
 <article class="post-card">
-<div class="minimal-entry-meta"><time datetime="{{isoDate .PublishedAt}}">{{date .PublishedAt}}</time>{{with .Category}}<a href="/?term={{.ID}}#entries">{{.Name}}</a>{{end}}</div>
-<div class="minimal-entry-copy"><h2><a href="/{{.Slug}}"><span>{{.Title}}</span>{{template "minimal-arrow"}}</a></h2>{{if .SEO.Description}}<p>{{.SEO.Description}}</p>{{end}}</div>
+<div class="minimal-entry-meta"><time datetime="{{isoDate .PublishedAt}}">{{date .PublishedAt}}</time>{{with .Category}}<a href="{{siteURL (printf "/?term=%d" .ID)}}#entries">{{.Name}}</a>{{end}}</div>
+<div class="minimal-entry-copy"><h2><a href="{{contentURL .Slug .URL}}"><span>{{.Title}}</span>{{template "minimal-arrow"}}</a></h2>{{if .SEO.Description}}<p>{{.SEO.Description}}</p>{{end}}</div>
 </article>

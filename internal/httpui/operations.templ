@@ -12,7 +12,7 @@ import "gopress/internal/ui/components/card"
 import "gopress/internal/ui/components/input"
 import "gopress/internal/ui/components/table"
 
-templ Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d service.Diagnostics, settings store.Settings, events []store.AuditEvent, total, page int, message string, failed bool) {
+templ Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d service.Diagnostics, settings store.Settings, events []store.AuditEvent, total, page int, message string, failed bool,schedule store.BackupSchedule) {
 	@AdminLayout(site, i18n.T(ctx, "Инструменты"), csrf) {
 		@AdminPageHeader(i18n.T(ctx, "Инструменты"), -1) {
 			if tab=="backups" {
@@ -135,6 +135,7 @@ templ Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d
 			default:
 				<div class="management-workspace site-settings">
 					<div>
+                        @BackupSchedulePanel(csrf,settings.Site.Timezone,schedule,failed)
 						@card.Card(card.Props{Class: "settings-panel"}) {
 							<h2>{ i18n.T(ctx,"Резервные копии") }</h2>
 							<p class="field-help">{ i18n.T(ctx,"Бэкап включает базу, загрузки и темы. Почтовые секреты исключены. Перед восстановлением создаётся копия текущего сайта; все сессии будут отозваны.") }</p>
@@ -155,7 +156,11 @@ templ Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d
 							}
 							for _,b:=range backups {
 								<article class="backup-row">
-									<div><strong>{ b.ID }</strong><span class="field-help">{ contentDate(b.At)+" · "+storageSize(b.Bytes) }</span></div>
+									<div><strong>{ b.ID }</strong>
+ if b.Automatic {
+ <span class="field-help">{ i18n.T(ctx,"По расписанию") }</span>
+ }
+ <span class="field-help">{ contentDate(b.At)+" · "+storageSize(b.Bytes) }</span></div>
 									<div class="backup-actions">
 										@button.Button(button.Props{Href: "/admin/tools/backups/" + b.ID + "/download", Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"hx-boost": "false"}}) {
 											{ i18n.T(ctx,"Скачать") }
@@ -198,4 +203,30 @@ templ Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d
 				</div>
 		}
 	}
+}
+
+
+templ BackupSchedulePanel(csrf,zone string,value store.BackupSchedule,failed bool) {
+ @card.Card(card.Props{Class:"settings-panel"}) {
+ <h2>{ i18n.T(ctx,"Автоматические резервные копии") }</h2>
+ <form action="/admin/tools/backups/schedule" method="post" data-change-form data-form-dirty={ boolString(failed) }>
+ <input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="version" value={ strconv.FormatInt(value.Version,10) }/>
+ <label class="settings-checkbox"><input type="checkbox" name="enabled" value="true" checked?={ value.Enabled }/>{ i18n.T(ctx,"Создавать копию ежедневно") }</label>
+ <div class="backup-schedule-fields">
+ <label>{ i18n.T(ctx,"Час запуска") }@input.Input(input.Props{Name:"hour",Type:"number",Value:strconv.Itoa(value.Hour),Required:true,Attributes:templ.Attributes{"min":"0","max":"23"}})</label>
+ <label>{ i18n.T(ctx,"Хранить автоматических копий") }@input.Input(input.Props{Name:"keep",Type:"number",Value:strconv.Itoa(value.Keep),Required:true,Attributes:templ.Attributes{"min":"1","max":"30"}})</label>
+ </div>
+ <p class="field-help">{ zone+" · "+i18n.T(ctx,"Ручные копии не удаляются расписанием.") }</p>
+ if value.LastAttempt>0 {
+ <p class="field-help">{ i18n.T(ctx,"Последняя попытка: ")+tableContentDate(value.LastAttempt,zone) }</p>
+ }
+ if value.LastSuccess>0 {
+ <p class="field-help">{ i18n.T(ctx,"Последняя успешная копия: ")+tableContentDate(value.LastSuccess,zone) }</p>
+ }
+ if value.Failed {
+ <p class="notice notice-error" role="status">{ i18n.T(ctx,"Автоматическое резервное копирование не завершено. Проверьте место на диске и журнал сервера.") }</p>
+ }
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline,Size:button.SizeSm}) {<span>{ i18n.T(ctx,"Сохранить расписание") }</span>}
+ </form>
+ }
 }

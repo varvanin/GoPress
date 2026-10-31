@@ -32,6 +32,7 @@ func auditActor(ctx context.Context, e store.AuditEvent) string {
 }
 func auditAction(ctx context.Context, action string) string {
 	labels := map[string]string{
+		"user.2fa_enabled": "Включение 2FA", "user.2fa_disabled": "Отключение 2FA", "user.2fa_reset": "Восстановление доступа без 2FA", "user.recovery_codes_rotated": "Замена резервных кодов", "user.session_revoked": "Завершение сеанса", "user.sessions_revoked": "Завершение других сеансов",
 		"content.schedule_failed":        "Публикация по расписанию не выполнена: проверьте родителя и адрес материала",
 		"POST /admin/themes/editor/save": "Редактирование файла шаблона", "POST /admin/themes/editor/copy": "Создание копии шаблона",
 		"POST /admin/modules/upload": "Установка модуля", "POST /admin/modules/package/save": "Сохранение настроек модуля", "POST /admin/modules/package/toggle": "Переключение модуля", "POST /admin/modules/package/delete": "Удаление модуля",

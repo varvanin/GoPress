@@ -232,3 +232,7 @@ main { flex:1; min-width:0; }
 .minimal-footer a{padding-block:4px}
 
 [id^="section-"] { scroll-margin-block-start:80px; }
+
+.content-table{max-width:100%;overflow:auto;margin:24px 0}.content-table table{border-collapse:collapse;width:100%}.content-table td,.content-table th{border:1px solid color-mix(in srgb,currentColor 25%,transparent);padding:10px 14px;text-align:left;vertical-align:top}.content-table th{font-weight:600}.content-table p{margin:0}
+
+.public-languages{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px 14px;padding:12px 0;font-size:.85em}.public-languages a{color:inherit;text-decoration:none;opacity:.65}.public-languages a[aria-current]{opacity:1;text-decoration:underline;text-underline-offset:4px}

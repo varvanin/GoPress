@@ -259,6 +259,9 @@ func Restore(src, dest string) error {
 		return err
 	}
 	err = s.RevokeSessions()
+	if err == nil {
+		err = s.ResetBackupScheduleState()
+	}
 	err = errors.Join(err, s.Close())
 	if err != nil {
 		return err

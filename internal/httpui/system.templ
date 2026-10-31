@@ -26,6 +26,9 @@ templ System(title, csrf string, install bool) {
 					<p class="field-help">{ i18n.T(ctx,"От 12 до 72 байт.") }</p>
 				}
 			</div>
+            if !install {
+            <div class="field"><label for="second-factor-code">{ i18n.T(ctx,"Код 2FA или резервный код") }</label>@input.Input(input.Props{ID:"second-factor-code",Name:"code",Attributes:templ.Attributes{"autocomplete":"one-time-code","maxlength":"64"}})</div>
+            }
 			@button.Button(button.Props{Type: button.TypeSubmit, Size: button.SizeSm, Class: "w-full"}) {
 				if install {
 					{ i18n.T(ctx,"Создать сайт") }

@@ -2,9 +2,11 @@ package httpui
 
 import "gopress/internal/i18n"
 import "gopress/internal/store"
+import "strconv"
 
 import "gopress/internal/ui/components/button"
 import "gopress/internal/ui/components/icon"
+import "gopress/internal/ui/components/card"
 
 templ EditorToolbar() {
 	<div class="editor-toolbar" role="toolbar" aria-label={ i18n.T(ctx, "Форматирование текста") }>
@@ -17,6 +19,11 @@ templ EditorToolbar() {
 					@EditorToolButton(editorTool{"heading1", i18n.T(ctx, "Заголовок 1"), "heading"}, true)
 					@EditorToolButton(editorTool{"heading2", i18n.T(ctx, "Заголовок 2"), "heading"}, true)
 					@EditorToolButton(editorTool{"heading3", i18n.T(ctx, "Заголовок 3"), "heading"}, true)
+                    for _,group:=range [][]editorTool{editorToolGroups[1],editorToolGroups[3]} {
+                     for _,tool:=range group {
+                      @EditorToolButton(tool,true)
+                     }
+                    }
 				</div>
 			</details>
 			<details class="editor-menu" name="editor-menus">
@@ -28,9 +35,15 @@ templ EditorToolbar() {
 				</div>
 			</details>
 		</div>
-		for _,group:=range editorToolGroups[1:4] {
-			@EditorToolGroup(group)
-		}
+        @EditorToolGroup(editorToolGroups[2])
+        <div class="editor-tool-group"><details class="editor-menu" name="editor-menus">
+         <summary title={ i18n.T(ctx,"Таблица") } aria-label={ i18n.T(ctx,"Таблица") }>@EditorToolIcon("table")@icon.ChevronRight(icon.Props{Class:"editor-menu-chevron"})</summary>
+         <div class="editor-menu-popup">
+          for _,tool:=range []editorTool{{"insertTable","Вставить таблицу","table"},{"addTableRow","Добавить строку","plus"},{"addTableColumn","Добавить столбец","plus"},{"deleteTableRow","Удалить строку","minus"},{"deleteTableColumn","Удалить столбец","minus"},{"tableHeader","Строка заголовка","heading"},{"deleteTable","Удалить таблицу","trash-2"}} {
+            @EditorToolButton(tool,true)
+          }
+         </div>
+        </details></div>
 		<div class="editor-tool-group">
 			<details class="editor-menu editor-alignment-menu" name="editor-menus">
 				<summary title={ i18n.T(ctx,"Выравнивание") } aria-label={ i18n.T(ctx,"Выравнивание") }>@EditorToolIcon("align-left")@icon.ChevronRight(icon.Props{Class:"editor-menu-chevron"})</summary>
@@ -42,6 +55,7 @@ templ EditorToolbar() {
 			</details>
 		</div>
 		<div class="editor-tool-group editor-search-group">
+            @EditorToolButton(editorTool{"blocks",i18n.T(ctx,"Вставить блок"),"square-code"},false)
 			@EditorToolButton(editorTool{"image", i18n.T(ctx, "Загрузить изображение"), "image-plus"}, false)
 			@EditorToolButton(editorTool{"search", i18n.T(ctx, "Найти в тексте"), "search"}, false)
 		</div>
@@ -79,8 +93,19 @@ templ EditorContentLanguage(p store.Page, language string) {
         </label>
         <input type="hidden" name="source_language" value={ sourceContentLanguage(p) }/>
         @AdminSelect("content-language", "content_language", language, i18n.T(ctx,"Язык материала"), contentLanguageOptions(p), nil)
+        <details class="editor-add-language">
+            <summary class={ button.Variants(button.Props{Variant:button.VariantGhost,Size:button.SizeSm}) }><span>{ i18n.T(ctx,"Язык оригинала") }</span></summary>
+            <div class="field">
+                <label for="original-content-language">{ i18n.T(ctx,"Язык оригинала") }</label>
+                @AdminSelect("original-content-language", "original_content_language", sourceContentLanguage(p), i18n.T(ctx,"Язык оригинала"), originalLanguageOptions(p), nil)
+                @button.Button(button.Props{Variant:button.VariantGhost,Size:button.SizeSm,Attributes:templ.Attributes{"data-set-original-language":true}}) {<span>{ i18n.T(ctx,"Применить") }</span>}
+            </div>
+        </details>
+        if language!="original" {
+            @button.Button(button.Props{Variant:button.VariantGhost,Size:button.SizeSm,Class:"editor-add-language-action",Attributes:templ.Attributes{"data-remove-content-language":true}}) {<span>{ i18n.T(ctx,"Удалить перевод") }</span>}
+        }
         if available:=availableContentLanguages(p); len(available)>0 {
-            <details class="editor-add-language">
+            <details class="editor-add-language" data-add-language-panel>
                 <summary class={ button.Variants(button.Props{Variant:button.VariantGhost,Size:button.SizeSm}) }>
                     <span>{ i18n.T(ctx,"Добавить язык") }</span>
                 </summary>
@@ -94,4 +119,39 @@ templ EditorContentLanguage(p store.Page, language string) {
             </details>
         }
     </div>
+}
+
+templ EditorBlocks(blocks []store.ContentBlock) {
+ <fieldset class="editor-link-fields" data-block-panel hidden>
+  <legend>{ i18n.T(ctx,"Вставить блок") }</legend>
+  if len(blocks)==0 {
+   <p class="field-help">{ i18n.T(ctx,"Создайте и включите форму, FAQ, галерею, отзывы или модуль.") }</p>
+  } else {
+   @AdminSelect("editor-block-choice","content_block","",i18n.T(ctx,"Блок"),blockChoices(ctx,blocks),nil)
+   @button.Button(button.Props{Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"data-insert-block":true}}) {<span>{ i18n.T(ctx,"Вставить") }</span>}
+  }
+ </fieldset>
+ <textarea hidden data-editor-blocks>{ translationJSON(blocks) }</textarea>
+ <template data-block-card><div class="editor-block-card" contenteditable="false">
+  <strong data-block-name></strong><div class="editor-block-actions">
+   @button.Button(button.Props{Href:"/admin/modules",Target:"_blank",Variant:button.VariantGhost,Size:button.SizeSm,Attributes:templ.Attributes{"data-block-settings":true,"rel":"noopener","hx-boost":"false"}}) {<span>{ i18n.T(ctx,"Настроить") }</span>}
+   @button.Button(button.Props{Variant:button.VariantGhost,Size:button.SizeSm,Attributes:templ.Attributes{"data-block-remove":true}}) {<span>{ i18n.T(ctx,"Убрать блок") }</span>}
+  </div>
+ </div></template>
+}
+
+
+templ EditorRecovery(csrf string,p store.Page) {
+ @card.Card(card.Props{Class:"editor-recovery",Attributes:templ.Attributes{"data-draft-recovery":true,"hidden":true}}) {
+ <h2>{ i18n.T(ctx,"Найден локальный черновик") }</h2>
+ <p data-recovery-description class="field-help"></p>
+ <form action="/admin/pages/recover" method="post" data-recovery-form>
+ <input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="id" value={ strconv.FormatInt(p.ID,10) }/><input type="hidden" name="version" value={ strconv.FormatInt(p.Version,10) }/><textarea name="snapshot" hidden></textarea>
+ <div class="editor-block-actions">
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline,Attributes:templ.Attributes{"data-recovery-restore":true}}) {<span>{ i18n.T(ctx,"Восстановить черновик") }</span>}
+ @button.Button(button.Props{Variant:button.VariantGhost,Attributes:templ.Attributes{"data-recovery-download":true}}) {<span>{ i18n.T(ctx,"Скачать локальную копию") }</span>}
+ @button.Button(button.Props{Variant:button.VariantGhost,Attributes:templ.Attributes{"data-recovery-discard":true}}) {<span>{ i18n.T(ctx,"Удалить локальную копию") }</span>}
+ </div>
+ </form>
+ }
 }

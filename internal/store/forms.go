@@ -25,6 +25,30 @@ type FormEntry struct {
 	MailStatus            string
 }
 
+type ContentBlock struct{ Kind, ID, Name string }
+
+func (s *Store) ContentBlocks() ([]ContentBlock, error) {
+	rows, err := s.DB.Query(`SELECT kind,id,name FROM (
+ SELECT 'faq' AS kind,cast(id AS text) AS id,name FROM faq_groups WHERE (SELECT enabled FROM modules WHERE id='faq')=1
+ UNION ALL SELECT 'form',cast(id AS text),name FROM forms WHERE enabled=1
+ UNION ALL SELECT kind,cast(id AS text),name FROM module_collections WHERE kind IN(SELECT id FROM modules WHERE enabled=1)
+ UNION ALL SELECT 'module',id,json_extract(manifest,'$.name') FROM module_packages WHERE enabled=1
+ ) ORDER BY kind,name LIMIT 500`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	result := []ContentBlock{}
+	for rows.Next() {
+		var item ContentBlock
+		if err = rows.Scan(&item.Kind, &item.ID, &item.Name); err != nil {
+			return nil, err
+		}
+		result = append(result, item)
+	}
+	return result, rows.Err()
+}
+
 func (s *Store) Forms() ([]Form, error) {
 	rows, err := s.DB.Query("SELECT id,version,name,recipient,button,success,enabled,fields FROM forms ORDER BY id DESC")
 	if err != nil {

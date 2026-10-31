@@ -1,7 +1,9 @@
 package httpui
 import "gopress/internal/i18n"
+import "strconv"
 import "gopress/internal/ui/components/button"
 import "gopress/internal/ui/components/icon"
+import "gopress/internal/ui/components/input"
 
 templ TemplateReference(site,csrf string,sections []TemplateReferenceSection) {
  @AdminLayout(site,i18n.T(ctx,"Шаблоны"),csrf) {
@@ -26,7 +28,7 @@ templ TemplateReference(site,csrf string,sections []TemplateReferenceSection) {
  }
 }
 
-templ TemplateEditor(site,csrf,id string,files []string,selected,content,revision,message string,history,failed bool) {
+templ TemplateEditor(site,csrf,id string,files []string,selected,content,revision,message,savedContent,newName string,history,failed bool) {
  @AdminLayout(site,i18n.T(ctx,"Шаблоны"),csrf) {
  @AdminPageHeader(i18n.T(ctx,"Редактор шаблона"),-1) {
  @button.Button(button.Props{Href:"/admin/themes",Variant:button.VariantOutline,Size:button.SizeSm}) {
@@ -34,6 +36,10 @@ templ TemplateEditor(site,csrf,id string,files []string,selected,content,revisio
  }
  @button.Button(button.Props{Href:"/admin/themes/reference",Target:"_blank",Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"hx-boost":"false","rel":"noopener"}}) {
  @icon.FileText()<span>{ i18n.T(ctx,"Справочник") }</span>
+ }
+ @button.Button(button.Props{Href:"/admin/themes/editor/export?theme="+id,Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"hx-boost":"false"}}) {@icon.ArrowDown()<span>{ i18n.T(ctx,"Экспорт ZIP") }</span>}
+ if builtinTemplate(id) {
+ @button.Button(button.Props{Href:"/admin/themes/editor/reset?theme="+id,Variant:button.VariantGhost,Size:button.SizeSm}) {<span>{ i18n.T(ctx,"Сбросить шаблон") }</span>}
  }
  @button.Button(button.Props{Type:button.TypeSubmit,Form:"template-file-editor",Size:button.SizeSm}) {
  { i18n.T(ctx,"Сохранить файл") }
@@ -53,8 +59,23 @@ templ TemplateEditor(site,csrf,id string,files []string,selected,content,revisio
  @icon.Icon("code-xml")(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Форматировать") }</span>
  }
  </div></div>
+ <div class="template-secondary-actions">
+ @button.Button(button.Props{Variant:button.VariantGhost,Size:button.SizeSm,Attributes:templ.Attributes{"data-source-diff-toggle":true,"aria-expanded":"false"}}) {@icon.FileText()<span>{ i18n.T(ctx,"Сравнить изменения") }</span>}
+ @button.Button(button.Props{Variant:button.VariantGhost,Size:button.SizeSm,Attributes:templ.Attributes{"data-template-preview":true}}) {<span>{ i18n.T(ctx,"Предпросмотр") }</span>}
+ </div>
+ <textarea hidden data-original-source>{ savedContent }</textarea>
+ <section class="template-source-diff" data-source-diff hidden><p class="field-help" data-diff-status></p><div><section><h3>{ i18n.T(ctx,"Сохранённая версия") }</h3><pre data-diff-before></pre></section><section><h3>{ i18n.T(ctx,"Текущая версия") }</h3><pre data-diff-after></pre></section></div></section>
  <p class="notice notice-error" data-format-error role="alert" hidden></p>
  <label class="sr-only" for="template-source">{ i18n.T(ctx,"Код файла") }</label><textarea id="template-source" name="content" data-code-source data-filename={ selected } class="template-code-fallback" spellcheck="false" wrap="soft">{ content }</textarea>
+ <details class="template-file-operations"><summary>{ i18n.T(ctx,"Управление файлами") }</summary><div class="field">
+ <label for="template-new-name">{ i18n.T(ctx,"Новое имя файла") }</label>
+ @input.Input(input.Props{ID:"template-new-name",Name:"new_name",Value:newName,Placeholder:"parts/section.html",Attributes:templ.Attributes{"maxlength":"240"}})
+ <p class="field-help" data-file-operation-warning hidden>{ i18n.T(ctx,"Сначала сохраните изменения файла.") }</p>
+ <div class="editor-block-actions">
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"name":"intent","value":"file-create","data-file-operation":true}}) {<span>{ i18n.T(ctx,"Создать файл") }</span>}
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantGhost,Size:button.SizeSm,Attributes:templ.Attributes{"name":"intent","value":"file-rename","data-file-operation":true}}) {<span>{ i18n.T(ctx,"Переименовать файл") }</span>}
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantGhost,Size:button.SizeSm,Attributes:templ.Attributes{"name":"intent","value":"file-delete","data-file-operation":true,"hx-confirm":i18n.T(ctx,"Удалить выбранный файл шаблона?")}}) {<span>{ i18n.T(ctx,"Удалить файл") }</span>}
+ </div></div></details>
  <div class="template-code-footer"><p class="field-help">{ i18n.T(ctx,"Перед сохранением проверяются все HTML-файлы шаблона. Правки активного шаблона сразу появятся на сайте.") }</p>
  if history {
  @button.Button(button.Props{Type:button.TypeSubmit,Size:button.SizeSm,Variant:button.VariantOutline,Attributes:templ.Attributes{"name":"intent","value":"restore","hx-confirm":i18n.T(ctx,"Вернуть предыдущую сохранённую версию этого файла?")}}) {
@@ -72,4 +93,22 @@ func currentFile(active bool) string {
 func boolString(value bool) string {
  if value {return "true"}
  return "false"
+}
+
+templ TemplateReset(site,csrf,id,revision string,count int,message string) {
+ @AdminLayout(site,i18n.T(ctx,"Шаблоны"),csrf) {
+ @AdminPageHeader(i18n.T(ctx,"Сбросить шаблон"),-1) {
+ @button.Button(button.Props{Href:templateEditorURL(id,"layout.html"),Variant:button.VariantGhost,Size:button.SizeSm}) {<span>{ i18n.T(ctx,"Отменить") }</span>}
+ @button.Button(button.Props{Type:button.TypeSubmit,Form:"template-reset",Size:button.SizeSm}) {<span>{ i18n.T(ctx,"Вернуть встроенную версию") }</span>}
+ }
+ if message!="" {
+ <p class="notice notice-error" role="status">{ i18n.T(ctx,message) }</p>
+ }
+ <form id="template-reset" method="post" action="/admin/themes/editor/reset">
+ <input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="theme" value={ id }/><input type="hidden" name="revision" value={ revision }/>
+ <p>{ i18n.T(ctx,"Все локальные изменения этого встроенного шаблона будут заменены оригиналами из текущей версии GoPress. Материалы сайта сохранятся.") }</p>
+ <p class="field-help">{ id+" · "+strconv.Itoa(count)+" "+i18n.T(ctx,"файлов") }</p>
+ <p class="field-help">{ i18n.T(ctx,"Предыдущая локальная версия сохранится в резервных файлах шаблона.") }</p>
+ </form>
+ }
 }

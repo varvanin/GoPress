@@ -1,3 +1,5 @@
+import {tableNodes,tableCommands} from './editor-tables.js';
+import {blockParagraph,mountBlockPicker} from './editor-blocks.js';
 import {sectionAnchors,mountAnchors} from './editor-anchors.js';
 import {t} from './i18n.js';
 import { Editor, Node } from '@tiptap/core';
@@ -42,10 +44,11 @@ export function mountEditor(form, onChange) {
     injectCSS: false,
     extensions: [StarterKit.configure({
       heading: { levels: [1, 2, 3] },
+      paragraph:false,
       link: { openOnClick: false, autolink: false, HTMLAttributes: { target: null, rel: 'noopener noreferrer', class: null }, isAllowedUri: safeLink },
       trailingNode: false,
       gapcursor: false, dropcursor: false,
-    }), Image,textAlignment,sectionAnchors,...inlineMarks],
+    }), blockParagraph(form),Image,textAlignment,sectionAnchors,...inlineMarks,...tableNodes],
     editorProps: { attributes: { class: 'prose-editor', role: 'textbox', 'aria-label': t('Текст материала'), 'aria-multiline': 'true' } },
     onUpdate({ editor }) {
       form.elements.document.value = JSON.stringify(editor.getJSON());
@@ -56,8 +59,11 @@ export function mountEditor(form, onChange) {
   const linkURL = form.querySelector('[data-link-url]');
   const report = (message) => { const status = form.querySelector('#editor-status'); if (status) status.textContent = message; };
   const openAnchor=mountAnchors(form,editor,report);
+  const openBlocks=mountBlockPicker(form,editor,report);
   const commands = {
+    ...tableCommands(editor,message=>report(t(message))),
     anchor:openAnchor,
+    blocks:openBlocks,
     paragraph: () => editor.chain().focus().setParagraph().run(),
     heading1: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
     heading2: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
@@ -116,6 +122,7 @@ export function mountEditor(form, onChange) {
     if(linkPanel)linkPanel.hidden=true;
     const anchors=form.querySelector('[data-anchor-panel]');if(anchors)anchors.hidden=true;
     const panel=form.querySelector('[data-search-panel]');if(panel)panel.hidden=true;
+    const blocks=form.querySelector('[data-block-panel]');if(blocks)blocks.hidden=true;
   });
   form.querySelector('[data-link-apply]')?.addEventListener('click', () => {
     const href = linkURL.value.trim();

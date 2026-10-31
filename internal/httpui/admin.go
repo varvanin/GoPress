@@ -118,43 +118,25 @@ func partialRequest(ctx context.Context) bool {
 	return value
 }
 func adminSection(title string) string {
+	// Match known section titles directly: translated words can have several Russian sources.
+	for _, item := range []struct{ title, path string }{
+		{"Пользователи", "/admin/users"}, {"Пользователь", "/admin/users"}, {"Мой профиль", "/admin/account"},
+		{"Модули", "/admin/modules"}, {"Шаблоны", "/admin/themes"}, {"Инструменты", "/admin/tools"},
+		{"Обновления", "/admin/settings"}, {"ИИ", "/admin/settings"}, {"Настройки", "/admin/settings"},
+		{"Формы", "/admin/forms"}, {"SEO", "/admin/seo"}, {"Медиатека", "/admin/media"}, {"Меню", "/admin/menus"},
+		{"Категории и теги", "/admin/posts/terms"}, {"Записи", "/admin/posts"}, {"Страницы", "/admin/pages"},
+	} {
+		if title == item.title {
+			return item.path
+		}
+		for _, language := range []string{"en", "pl", "de", "uk", "it", "es", "cs"} {
+			if i18n.Catalog(language)[item.title] == title {
+				return item.path
+			}
+		}
+	}
 	title = i18n.Source(title)
-	if title == "Пользователи" || title == "Пользователь" {
-		return "/admin/users"
-	}
-	if title == "Мой профиль" {
-		return "/admin/account"
-	}
-	if title == "Модули" {
-		return "/admin/modules"
-	}
-	if title == "Шаблоны" {
-		return "/admin/themes"
-	}
-	if title == "Инструменты" {
-		return "/admin/tools"
-	}
-	if title == "Обновления" {
-		return "/admin/settings"
-	}
-	if title == "ИИ" {
-		return "/admin/settings"
-	}
-	if title == "Настройки" {
-		return "/admin/settings"
-	}
-	if title == "Формы" {
-		return "/admin/forms"
-	}
-	if title == "SEO" {
-		return "/admin/seo"
-	}
-	if title == "Медиатека" {
-		return "/admin/media"
-	}
-	if title == "Меню" {
-		return "/admin/menus"
-	}
+
 	if strings.Contains(title, "Категории") {
 		return "/admin/posts/terms"
 	}
@@ -203,7 +185,11 @@ func (a *App) dashboard(c *echo.Context) error {
 			}
 		}
 	}
-	return htmlComponent(c, 200, Dashboard(site, a.csrfToken(c), data, appearance, label))
+	items, err := a.dashboardAttention(data, themeErr != nil)
+	if err != nil {
+		return err
+	}
+	return htmlComponent(c, 200, Dashboard(site, a.csrfToken(c), data, appearance, label, items))
 }
 
 func (a *App) editPage(c *echo.Context, p store.Page, status int, message string) error {
@@ -261,7 +247,11 @@ func (a *App) editPage(c *echo.Context, p store.Page, status int, message string
 	if language == "" {
 		language = "original"
 	}
-	return htmlComponent(c, status, EditPage(site.Title, a.csrfToken(c), p, files, total, revisions, terms, parents, templates, site.Timezone, message, language, status >= 400, scheduleFailed))
+	blocks, err := a.Service.Store.ContentBlocks()
+	if err != nil {
+		return err
+	}
+	return htmlComponent(c, status, EditPage(site.Title, a.csrfToken(c), p, files, total, revisions, terms, parents, templates, blocks, site.Timezone, message, language, status >= 400, scheduleFailed))
 }
 func (a *App) adminRoutes(g *echo.Group) {
 	a.blogRoutes(g)
@@ -271,14 +261,31 @@ func (a *App) adminRoutes(g *echo.Group) {
 	a.aiRoutes(g)
 	a.updateRoutes(g)
 	a.usersRoutes(g)
+	a.reviewRoutes(g)
 	a.toolsRoutes(g)
+	a.portableContentRoutes(g)
 	a.siteRoutes(g)
+	g.POST("/pages/:id/duplicate", func(c *echo.Context) error {
+		id, err := pageID(c)
+		if err != nil {
+			return err
+		}
+		version, err := strconv.ParseInt(c.FormValue("version"), 10, 64)
+		if err != nil || version < 1 {
+			return service.ErrInvalid
+		}
+		copy, err := a.Service.Duplicate(c.Request().Context(), id, version)
+		if err != nil {
+			return err
+		}
+		return c.Redirect(303, "/admin/pages/"+strconv.FormatInt(copy.ID, 10)+"/edit")
+	}, a.csrf)
 	g.POST("/content/bulk", func(c *echo.Context) error {
 		if err := c.Request().ParseForm(); err != nil {
 			return service.ErrInvalid
 		}
 		kind, action := c.FormValue("kind"), c.FormValue("action")
-		if (kind != "page" && kind != "post") || (action != "trash" && action != "restore" && action != "delete") {
+		if (kind != "page" && kind != "post") || (action != "trash" && action != "restore" && action != "delete" && action != "export") {
 			return service.ErrInvalid
 		}
 		values := c.Request().PostForm["selection"]
@@ -299,6 +306,14 @@ func (a *App) adminRoutes(g *echo.Group) {
 			}
 			seen[id] = true
 			items = append(items, store.Page{ID: id, Version: version})
+		}
+		if action == "export" {
+			raw, err := a.Service.ExportContent(c.Request().Context(), items)
+			if err != nil {
+				return err
+			}
+			c.Response().Header().Set("Content-Disposition", `attachment; filename="gopress-content.json"`)
+			return c.Blob(200, "application/json", raw)
 		}
 		if err := a.Service.Store.ChangeContents(c.Request().Context(), kind, action, items); err != nil {
 			return err
@@ -390,6 +405,7 @@ func (a *App) adminRoutes(g *echo.Group) {
 		}
 		return a.editPage(c, p, 200, message)
 	})
+	g.POST("/pages/recover", a.recoverDraft, a.csrf)
 	g.POST("/pages/languages", func(c *echo.Context) error {
 		if err := c.Request().ParseForm(); err != nil {
 			return service.ErrInvalid
@@ -424,7 +440,7 @@ func (a *App) adminRoutes(g *echo.Group) {
 			return err
 		}
 		intent := c.FormValue("intent")
-		if intent != "save" && intent != "publish" && intent != "autosave" {
+		if intent != "save" && intent != "publish" && intent != "autosave" && intent != "review" {
 			return service.ErrInvalid
 		}
 		if intent == "autosave" && p.ID == 0 {
@@ -458,6 +474,12 @@ func (a *App) adminRoutes(g *echo.Group) {
 		}
 		if intent == "autosave" {
 			return c.JSON(200, map[string]any{"id": saved.ID, "version": saved.Version, "title": saved.Title, "slug": pageLeaf(saved.Slug), "edit_url": "/admin/pages/" + strconv.FormatInt(saved.ID, 10) + "/edit"})
+		}
+		if intent == "review" {
+			if err = a.Service.RequestReview(c.Request().Context(), saved.ID, saved.Version); err != nil {
+				return a.editPage(c, saved, 409, "Черновик сохранён, но версия для проверки изменилась. Отправьте повторно.")
+			}
+			return c.Redirect(303, "/admin/posts/review")
 		}
 		done := "saved"
 		if intent == "publish" {

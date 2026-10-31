@@ -33,13 +33,19 @@ func (v *Service) DeleteMedia(ctx context.Context, name string) error {
 		}
 		return err
 	}
-	err := os.Remove(filepath.Join(v.Store.Dir, "uploads", name))
-	if errors.Is(err, os.ErrNotExist) {
-		return nil
+	var cleanup error
+	for _, file := range []string{name, store.ImageVariantName(name, 320), store.ImageVariantName(name, 960), store.ImageVariantName(name, 1600)} {
+		if e := os.Remove(filepath.Join(v.Store.Dir, "uploads", file)); e != nil && !errors.Is(e, os.ErrNotExist) {
+			cleanup = errors.Join(cleanup, e)
+		}
 	}
-	return err
+	return cleanup
 }
+
 func (v *Service) SaveMenu(ctx context.Context, m store.Menu) error {
+	if m.Language != "" && !ValidContentLanguage(m.Language) {
+		return ErrInvalid
+	}
 	if (m.Position != "header" && m.Position != "footer") || m.Version < 0 || len(m.Items) > 50 {
 		return ErrInvalid
 	}

@@ -38,9 +38,9 @@ func updateFixture(t *testing.T, mode string) (*Service, UpdateState, update.Rel
 	t.Setenv("GOPRESS_DOKPLOY_URL", "https://dokploy.test")
 	t.Setenv("GOPRESS_DOKPLOY_API_KEY", "private-key")
 	t.Setenv("GOPRESS_DOKPLOY_APPLICATION_ID", "site-app")
-	release := update.Release{Format: 1, Version: "9.0.0", MinimumVersion: "0.1.0", Schema: 16, Image: version.ImageRepository + "@sha256:" + strings.Repeat("a", 64), Notes: "A test release"}
+	release := update.Release{Format: 1, Version: "9.0.0", MinimumVersion: "0.1.0", Schema: store.SchemaVersion, Image: version.ImageRepository + "@sha256:" + strings.Repeat("a", 64), Notes: "A test release"}
 	if mode == "schema" {
-		release.Schema = 17
+		release.Schema = store.SchemaVersion + 1
 	}
 	raw, _ := json.Marshal(release)
 	signed := update.Signed{Manifest: raw, Signature: ed25519.Sign(private, raw)}

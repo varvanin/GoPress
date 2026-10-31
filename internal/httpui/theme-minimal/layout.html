@@ -8,8 +8,8 @@
 <link rel="stylesheet" href="/assets/public-minimal.css">
 </head>
 <body data-theme="{{.Appearance.Theme}}">
-<a class="minimal-skip" href="#content">К содержимому</a>
-{{if .Preview}}<div class="minimal-preview" role="status">Предпросмотр · эта версия видна только вам</div>{{end}}
+<a class="minimal-skip" href="#content">{{tr "К содержимому"}}</a>
+{{if .Preview}}<div class="minimal-preview" role="status">{{tr "Предпросмотр · эта версия видна только вам"}}</div>{{end}}
 <div class="minimal-shell">
 {{template "header" .}}
 <div class="minimal-content">

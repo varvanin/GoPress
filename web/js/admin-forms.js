@@ -3,13 +3,13 @@ export function dirtyForms(submitter) {
  return Array.from(document.querySelectorAll('[data-change-form][data-form-dirty="true"]')).some(form=>!submitter||form!==submitter.form&&!form.contains(submitter));
 }
 export function previewTheme(event) {
- const button=event.target.closest('[data-theme-preview]');
+ const button=event.target.closest('[data-theme-preview],[data-template-preview]');
  if(!button)return;
  const form=button.form||button.closest('form');
  if(!form.reportValidity())return;
  // A native POST keeps unsaved settings out of URLs and opens a private preview tab.
  const preview=document.createElement('form');
- preview.method='post';preview.action='/admin/themes/preview';preview.target='_blank';preview.hidden=true;
+ preview.method='post';preview.action=button.hasAttribute?.('data-template-preview')?'/admin/themes/editor/preview':'/admin/themes/preview';preview.target='_blank';preview.hidden=true;
  preview.setAttribute('hx-boost','false');
  for(const [name,value] of new FormData(form)){
   const input=document.createElement('input');input.type='hidden';input.name=name;input.value=value;preview.append(input);

@@ -31,6 +31,7 @@ func (a *App) userPage(c *echo.Context, status int, u store.User, message string
 	return htmlComponent(c, status, UserEditor(site.Title, a.csrfToken(c), u, message, status >= 400))
 }
 func (a *App) usersRoutes(g *echo.Group) {
+	a.securityRoutes(g)
 	g.GET("/users", func(c *echo.Context) error {
 		page, err := pageNumber(c)
 		if err != nil {

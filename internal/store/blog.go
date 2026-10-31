@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"net/url"
 	"strings"
 )
 
@@ -171,23 +172,29 @@ func (s *Store) publishDuePage(ctx context.Context, id, now int64) error {
 
 func (s *Store) PublicPosts(term int64, page int, sizes ...int) ([]Page, int, error) {
 	size := 12
-	if len(sizes) > 0 && sizes[0] >= 1 && sizes[0] <= 100 {
+	if len(sizes) > 0 {
 		size = sizes[0]
+	}
+	return s.PublicPostsLanguage(term, page, size, "")
+}
+func (s *Store) PublicPostsLanguage(term int64, page, size int, language string) ([]Page, int, error) {
+	if size < 1 || size > 100 {
+		size = 12
 	}
 	if page < 1 {
 		page = 1
 	}
-	where := "kind='post' AND trashed_at=0 AND published_slug IS NOT NULL"
+	where := "p.kind='post' AND trashed_at=0 AND published_slug IS NOT NULL"
 	args := []any{}
 	if term > 0 {
 		where += " AND EXISTS(SELECT 1 FROM json_each(published_term_ids) WHERE value=?) AND EXISTS(SELECT 1 FROM terms WHERE id=? AND deleted_at=0)"
 		args = append(args, term, term)
 	}
 	var total int
-	if err := s.DB.QueryRow("SELECT count(*) FROM pages WHERE "+where, args...).Scan(&total); err != nil {
+	if err := s.DB.QueryRow("SELECT count(*) FROM pages p WHERE "+where, args...).Scan(&total); err != nil {
 		return nil, 0, err
 	}
-	rows, err := s.DB.Query("SELECT id,published_slug,published_title,coalesce(published_cover,''),published_at,published_seo,published_term_ids FROM pages WHERE "+where+" ORDER BY published_at DESC,id DESC LIMIT ? OFFSET ?", append(args, size, (page-1)*size)...)
+	rows, err := s.DB.Query(`SELECT p.id,p.published_slug,coalesce(json_extract(t.value,'$.title'),p.published_title),coalesce(p.published_cover,''),p.published_at,coalesce(json_extract(t.value,'$.seo'),p.published_seo),p.published_term_ids,t.key FROM pages p LEFT JOIN json_each(p.published_translations) t ON t.key=? WHERE `+where+" ORDER BY p.published_at DESC,p.id DESC LIMIT ? OFFSET ?", append([]any{language}, append(args, size, (page-1)*size)...)...)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -196,7 +203,8 @@ func (s *Store) PublicPosts(term int64, page int, sizes ...int) ([]Page, int, er
 	for rows.Next() {
 		var p Page
 		var seo, terms string
-		if err = rows.Scan(&p.ID, &p.Slug, &p.Title, &p.Cover, &p.PublishedAt, &seo, &terms); err != nil {
+		var translated sql.NullString
+		if err = rows.Scan(&p.ID, &p.Slug, &p.Title, &p.Cover, &p.PublishedAt, &seo, &terms, &translated); err != nil {
 			return nil, 0, err
 		}
 		if err = json.Unmarshal([]byte(seo), &p.SEO); err != nil {
@@ -206,6 +214,10 @@ func (s *Store) PublicPosts(term int64, page int, sizes ...int) ([]Page, int, er
 			return nil, 0, err
 		}
 		p.Kind = "post"
+		p.URL = "/" + p.Slug
+		if translated.Valid {
+			p.URL += "?lang=" + url.QueryEscape(translated.String)
+		}
 		posts = append(posts, p)
 	}
 	return posts, total, rows.Err()

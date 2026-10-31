@@ -21,9 +21,10 @@ import (
 var backupID = regexp.MustCompile(`^[0-9]{8}T[0-9]{6}-[a-f0-9]{8}$`)
 
 type BackupInfo struct {
-	ID    string
-	At    int64
-	Bytes int64
+	Automatic bool
+	ID        string
+	At        int64
+	Bytes     int64
 }
 type Diagnostics struct {
 	Schema                int
@@ -64,6 +65,14 @@ func (v *Service) Backups() ([]BackupInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+	scheduled, err := v.Store.ScheduledBackups()
+	if err != nil {
+		return nil, err
+	}
+	automatic := map[string]bool{}
+	for _, record := range scheduled {
+		automatic[record.ID] = true
+	}
 	result := []BackupInfo{}
 	for i := len(entries) - 1; i >= 0; i-- {
 		entry := entries[i]
@@ -90,7 +99,7 @@ func (v *Service) Backups() ([]BackupInfo, error) {
 		}); err != nil {
 			return nil, err
 		}
-		result = append(result, BackupInfo{ID: entry.Name(), At: info.ModTime().Unix(), Bytes: size})
+		result = append(result, BackupInfo{Automatic: automatic[entry.Name()], ID: entry.Name(), At: info.ModTime().Unix(), Bytes: size})
 		if len(result) == 100 {
 			break
 		}

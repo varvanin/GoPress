@@ -4,8 +4,10 @@ import (
 	"crypto/ed25519"
 	"crypto/rand"
 	"encoding/base64"
+	"gopress/internal/store"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -21,7 +23,7 @@ func TestSignProducesVerifiableManifest(t *testing.T) {
 	if err := os.WriteFile(notes, []byte("Release notes"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	if err := run([]string{"sign", "--version", "1.0.0", "--minimum-version", "0.2.0", "--schema", "16", "--image", "ghcr.io/varvanin/gopress@sha256:" + strings.Repeat("a", 64), "--notes-file", notes, "--output", output}); err != nil {
+	if err := run([]string{"sign", "--version", "1.0.0", "--minimum-version", "0.2.0", "--schema", strconv.Itoa(store.SchemaVersion), "--image", "ghcr.io/varvanin/gopress@sha256:" + strings.Repeat("a", 64), "--notes-file", notes, "--output", output}); err != nil {
 		t.Fatal(err)
 	}
 	raw, _ := os.ReadFile(output)

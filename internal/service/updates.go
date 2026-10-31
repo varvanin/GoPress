@@ -77,10 +77,10 @@ func (v *Service) writeUpdate(name string, value any) error {
 	if err = os.Rename(file.Name(), filepath.Join(root, name)); err != nil {
 		return err
 	}
-	if err = syncUpdateDirectory(root); err != nil {
+	if err = syncDirectory(root); err != nil {
 		return err
 	}
-	return syncUpdateDirectory(v.Store.Dir)
+	return syncDirectory(v.Store.Dir)
 }
 func (v *Service) readUpdate(name string, value any) error {
 	raw, err := os.ReadFile(filepath.Join(v.Store.Dir, "updates", name))
@@ -347,14 +347,14 @@ func (v *Service) CompleteUpdate() error {
 	if err = os.Remove(filepath.Join(v.Store.Dir, "update-in-progress")); err != nil && !errors.Is(err, os.ErrNotExist) {
 		return err
 	}
-	if err = syncUpdateDirectory(v.Store.Dir); err != nil {
+	if err = syncDirectory(v.Store.Dir); err != nil {
 		return err
 	}
 	state.Phase = "complete"
 	return v.writeUpdate("state.json", state)
 }
 
-func syncUpdateDirectory(path string) error {
+func syncDirectory(path string) error {
 	directory, err := os.Open(path)
 	if err != nil {
 		return err
@@ -378,7 +378,7 @@ func (v *Service) writeUpdateMarker(target string) error {
 	if err = file.Close(); err != nil {
 		return err
 	}
-	return syncUpdateDirectory(v.Store.Dir)
+	return syncDirectory(v.Store.Dir)
 }
 
 // StopUpdates prevents shutdown from racing a newly accepted installation job.

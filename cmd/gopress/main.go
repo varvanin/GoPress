@@ -132,6 +132,9 @@ func run(args []string) error {
 			}
 			return s.RebuildSearch()
 		case "admin":
+			if action == "reset-2fa" && *email != "" {
+				return v.ResetSecondFactorOffline(*email)
+			}
 			if action != "reset-password" || !*passwordStdin || *email == "" {
 				return errors.New("admin reset-password --email owner@example.com --password-stdin")
 			}

@@ -72,6 +72,7 @@ templ AdminLayout(site, title, csrf string) {
 												@icon.Icon("newspaper")(icon.Props{}) <span>{ i18n.T(ctx,"Записи") }</span>
 											}
 											@sidebar.Menu(sidebar.MenuProps{Class: "gp-nav-submenu", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Разделы записей")}}) {
+ @AdminNavLink("/admin/posts/review",i18n.T(ctx,"Проверка публикаций"),title,icon.Icon("clipboard-list"))
 												@AdminNavLink("/admin/posts/terms", i18n.T(ctx, "Категории и теги"), title, icon.Icon("tags"))
 											}
 										}
@@ -185,6 +186,7 @@ templ Pages(site, csrf string, pages []store.Page, view ContentList) {
 			<nav class="content-list-tabs" aria-label={ i18n.T(ctx, "Статус материалов") }>
 				<a href={ templ.SafeURL(contentListURL(ContentList{Kind: view.Kind, Query: view.Query, Term: view.Term}, 1)) } aria-current={ activeTab(!view.Trash) }>@icon.Icon("list")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Все") }</span></a>
 				<a href={ templ.SafeURL(contentListURL(ContentList{Kind: view.Kind, Query: view.Query, Trash: true, Term: view.Term}, 1)) } aria-current={ activeTab(view.Trash) }>@icon.Icon("trash-2")(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Корзина") }</span></a>
+
 			</nav>
 			<form method="get" action={ templ.SafeURL(contentPath(view.Kind)) } class="content-search" role="search">
 				if view.Trash {
@@ -197,17 +199,21 @@ templ Pages(site, csrf string, pages []store.Page, view ContentList) {
 				@AdminSearch("content-search", view.Query, contentLabel(view.Kind, i18n.T(ctx, "Поиск страниц…"), i18n.T(ctx, "Поиск записей…")))
 			</form>
 		</div>
-		if len(pages)==0 {
-			if view.Trash || view.Query!="" || view.Term>0 {
-				<section class="empty-state"><h2>{ i18n.T(ctx,"Материалы не найдены") }</h2><p>{ i18n.T(ctx,"Попробуйте другой запрос или вернитесь к общему списку.") }</p></section>
-			} else {
-				@EmptyPages(view.Kind)
-			}
-		} else {
-			<form id="content-bulk" method="post" action="/admin/content/bulk" class="content-bulk">
+        if adminRole(ctx)=="admin" {
+        @PortableContentDialog(csrf)
+        }
+			<form id="content-bulk" hx-boost="false" method="post" action="/admin/content/bulk" class="content-bulk">
 				<input type="hidden" name="csrf" value={ csrf }/>
 				<input type="hidden" name="kind" value={ view.Kind }/>
 				<span data-selection-count aria-live="polite">{ i18n.T(ctx,"Выбрано: 0") }</span>
+ if adminRole(ctx)=="admin"&&!view.Trash {
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"name":"action","value":"export","data-bulk-action":true,"disabled":true}}){@icon.Icon("arrow-down")(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Экспорт контента") }</span>}
+ }
+
+ if adminRole(ctx)=="admin" {
+ @button.Button(button.Props{Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"data-base-ui-click-trigger":true,"data-templ-controls":"content-import-dialog","aria-haspopup":"dialog","aria-expanded":"false","title":i18n.T(ctx,"Импорт контента")}}){@icon.ArrowDown(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Импорт контента") }</span>}
+ }
+
 				if view.Trash {
 					@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"name": "action", "value": "restore", "data-bulk-action": true, "disabled": true}}) {
 						@icon.Icon("rotate-ccw")(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Восстановить") }</span>
@@ -221,6 +227,14 @@ templ Pages(site, csrf string, pages []store.Page, view ContentList) {
 					}
 				}
 			</form>
+		if len(pages)==0 {
+			if view.Trash || view.Query!="" || view.Term>0 {
+				<section class="empty-state"><h2>{ i18n.T(ctx,"Материалы не найдены") }</h2><p>{ i18n.T(ctx,"Попробуйте другой запрос или вернитесь к общему списку.") }</p></section>
+			} else {
+				@EmptyPages(view.Kind)
+			}
+		} else {
+
 			<div class="content-table">@PageTable(pages, csrf)</div>
 		}
 		if view.Page>1 || view.Total>store.ContentPageSize {
@@ -341,9 +355,15 @@ templ PageTable(pages []store.Page, csrf string, timezone ...string) {
 							if p.TrashedAt>0 {
 								@ContentAction(p, csrf, "restore", i18n.T(ctx, "Восстановить"))
 								@ContentAction(p, csrf, "delete", i18n.T(ctx, "Удалить навсегда"))
-							} else if service.CanPublish(ctx)||!p.Published {
+                            } else {
+                                <form method="post" action={ templ.SafeURL("/admin/pages/"+strconv.FormatInt(p.ID,10)+"/duplicate") }>
+                                 <input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="version" value={ strconv.FormatInt(p.Version,10) }/>
+                                 @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantGhost,Size:button.SizeIconSm,Attributes:templ.Attributes{"aria-label":i18n.T(ctx,"Дублировать"),"title":i18n.T(ctx,"Дублировать")}}) {@icon.FileText(icon.Props{Class:"size-4"})}
+                                </form>
+                                if service.CanPublish(ctx)||!p.Published {
 								@ContentAction(p, csrf, "trash", i18n.T(ctx, "В корзину"))
 							}
+                            }
 						</div>
 					}
 				}
@@ -352,7 +372,7 @@ templ PageTable(pages []store.Page, csrf string, timezone ...string) {
 	}
 }
 
-templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total int, revisions []store.Revision, terms []store.Term, parents,templates []selectcomp.ItemData, timezone, message, language string, failed, scheduleFailed bool) {
+templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total int, revisions []store.Revision, terms []store.Term, parents,templates []selectcomp.ItemData, blocks []store.ContentBlock, timezone, message, language string, failed, scheduleFailed bool) {
 	@AdminLayout(site, contentLabel(p.Kind, i18n.T(ctx, "Редактирование страницы"), i18n.T(ctx, "Редактирование записи")), csrf) {
 		if p.TrashedAt>0 {
 			<div class="editor-restore">@ContentAction(p, csrf, "restore", i18n.T(ctx, "Восстановить из корзины"))</div>
@@ -370,7 +390,8 @@ templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total i
 			</div>
 		}
 		<noscript><div class="notice notice-error">{ i18n.T(ctx,"Для редактирования текста включите JavaScript.") }</div></noscript>
-		<form id="page-form" method="post" action="/admin/pages/save" class="editor-grid" data-page-editor data-failed={ strconv.FormatBool(failed) } data-readonly={ strconv.FormatBool(p.TrashedAt > 0) }>
+		@EditorRecovery(csrf,p)
+		<form id="page-form" method="post" action="/admin/pages/save" class="editor-grid" data-page-editor data-recovered={ strconv.FormatBool(recoveredDraft(ctx)) } data-draft-user={ editorUserID(ctx) } data-role={ adminRole(ctx) } data-failed={ strconv.FormatBool(failed) } data-readonly={ strconv.FormatBool(p.TrashedAt > 0) }>
 			<input type="hidden" name="csrf" value={ csrf }/>
 			<input type="hidden" name="kind" value={ p.Kind }/>
 			<input type="hidden" name="id" value={ strconv.FormatInt(p.ID, 10) }/>
@@ -405,6 +426,7 @@ templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total i
 							@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm, Disabled: true, Attributes: templ.Attributes{"name": "intent", "value": "save", "data-editor-submit": true}}) {
 								@icon.Save()<span>{ i18n.T(ctx,"Сохранить") }</span>
 							}
+
 							if service.CanPublish(ctx) {
 @button.Button(button.Props{Type: button.TypeSubmit, Size: button.SizeSm, Disabled: true, Attributes: templ.Attributes{"name": "intent", "value": "publish", "data-editor-submit": true}}) {
 								@icon.Send()
@@ -432,6 +454,7 @@ templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total i
 					</div>
 					@card.Card(card.Props{Class: "editor-document"}) {
 						@EditorToolbar()
+                        @EditorBlocks(blocks)
 						<fieldset class="editor-link-fields" data-link-panel hidden>
 							<legend>{ i18n.T(ctx,"Ссылка") }</legend>
 							<label class="sr-only" for="link-url">{ i18n.T(ctx,"Адрес ссылки") }</label>
@@ -500,6 +523,7 @@ templ EditPage(site, csrf string, p store.Page, files []store.MediaFile, total i
                         <details open>
                             @EditorPanelSummary(i18n.T(ctx,"Публикация"),icon.FileText)
 						<div class="editor-panel-body">
+                            @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantGhost,Size:button.SizeSm,Disabled:true,Attributes:templ.Attributes{"name":"intent","value":"review","data-editor-submit":true}}){<span>{ i18n.T(ctx,"На проверку") }</span>}
 							<dl class="editor-facts">
 								<div>
 									<dt>{ i18n.T(ctx,"Статус") }</dt>
@@ -654,7 +678,7 @@ templ MediaFileChoices(files []store.MediaFile, selected string) {
 		<label class="media-none"><input type="radio" name="cover" value="" form="page-form" checked?={ selected=="" }/> { i18n.T(ctx,"Без обложки") }</label>
 		<div class="media-grid">
 			for _,file:=range files {
-				<div class="media-option"><label class="media-choice"><input type="radio" name="cover" value={ file.Name } data-media-alt={ file.Alt } data-media-caption={ file.Caption } form="page-form" checked?={ selected==file.Name } aria-label={ i18n.T(ctx, "Выбрать ") + mediaTitle(file) }/><img src={ "/uploads/" + file.Name } alt={ file.Alt } title={ mediaTitle(file) } loading="lazy"/><span class="sr-only">{ mediaTitle(file) }</span></label><button type="button" class="media-inline-insert" data-library-insert={ file.Name } data-media-alt={ file.Alt } data-media-caption={ file.Caption }>{ i18n.T(ctx,"В текст") }</button></div>
+				<div class="media-option"><label class="media-choice"><input type="radio" name="cover" value={ file.Name } data-media-alt={ file.Alt } data-media-caption={ file.Caption } form="page-form" checked?={ selected==file.Name } aria-label={ i18n.T(ctx, "Выбрать ") + mediaTitle(file) }/><img src={ "/uploads/" + file.Name+"?w=320" } alt={ file.Alt } title={ mediaTitle(file) } loading="lazy"/><span class="sr-only">{ mediaTitle(file) }</span></label><button type="button" class="media-inline-insert" data-library-insert={ file.Name } data-media-alt={ file.Alt } data-media-caption={ file.Caption }>{ i18n.T(ctx,"В текст") }</button></div>
 			}
 		</div>
 	</fieldset>

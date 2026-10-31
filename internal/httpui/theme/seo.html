@@ -3,6 +3,7 @@
 {{if .SEO.Description}}<meta name="description" content="{{.SEO.Description}}">{{end}}
 <meta name="robots" content="{{if .SEO.Robots}}{{.SEO.Robots}}{{else}}{{if .SEO.NoIndex}}noindex, nofollow{{else}}index, follow{{end}}{{end}}">
 {{if .SEO.Canonical}}<link rel="canonical" href="{{.SEO.Canonical}}">{{end}}
+{{range .SEO.Alternates}}<link rel="alternate" hreflang="{{.Code}}" href="{{.URL}}">{{end}}
 {{if .SEO.OpenGraph}}
 <meta property="og:title" content="{{.SEO.SocialTitle}}"><meta property="og:description" content="{{.SEO.SocialDescription}}"><meta property="og:type" content="{{.SEO.Type}}"><meta property="og:site_name" content="{{.SEO.SiteName}}">
 {{if .SEO.Canonical}}<meta property="og:url" content="{{.SEO.Canonical}}">{{end}}
@@ -19,3 +20,5 @@
 {{if .SEO.JSONLD}}<script type="application/ld+json">{{.SEO.JSONLD}}</script>{{end}}
 {{if .SEO.RSS}}<link rel="alternate" type="application/rss+xml" title="{{.Site.Title}}" href="{{.Site.BaseURL}}/rss.xml">{{end}}
 {{end}}
+
+{{define "language-switcher"}}{{if gt (len .Languages) 1}}<nav class="public-languages" aria-label="{{tr "Язык материала"}}">{{range .Languages}}<a href="{{.URL}}" lang="{{.Code}}" hreflang="{{.Code}}" {{if .Current}}aria-current="true"{{end}}>{{.Label}}</a>{{end}}</nav>{{end}}{{end}}

@@ -42,8 +42,14 @@ func (s *Store) SaveAppearance(ctx context.Context, a Appearance) error {
 
 const publicIndexWhere = `trashed_at=0 AND published_slug IS NOT NULL AND coalesce(json_extract(published_seo,'$.noindex'),0)=0`
 
+const sitemapVersions = `WITH versions AS (
+ SELECT id,kind,trashed_at,published_slug,published_updated_at,published_seo,'' AS language FROM pages
+ UNION ALL
+ SELECT p.id,p.kind,p.trashed_at,p.published_slug,p.published_updated_at,json_extract(t.value,'$.seo'),t.key FROM pages p,json_each(p.published_translations) t WHERE p.published_slug IS NOT NULL
+ ) `
+
 func sitemapFilter(options []SEOOptions) (string, []any) {
-	where := publicIndexWhere + " AND (coalesce(json_extract(published_seo,'$.canonical'),'')='' OR json_extract(published_seo,'$.canonical')=(SELECT base_url FROM installation WHERE id=1)||'/'||published_slug)"
+	where := publicIndexWhere + " AND (coalesce(json_extract(published_seo,'$.canonical'),'')='' OR json_extract(published_seo,'$.canonical')=(SELECT base_url FROM installation WHERE id=1)||'/'||published_slug||CASE WHEN language='' THEN '' ELSE '?lang='||language END)"
 	args := []any{}
 	if len(options) > 0 {
 		o := options[0]
@@ -65,13 +71,13 @@ func sitemapFilter(options []SEOOptions) (string, []any) {
 func (s *Store) SitemapCount(options ...SEOOptions) (int, error) {
 	var total int
 	where, args := sitemapFilter(options)
-	err := s.DB.QueryRow("SELECT count(*) FROM pages WHERE "+where, args...).Scan(&total)
+	err := s.DB.QueryRow(sitemapVersions+"SELECT count(*) FROM versions WHERE "+where, args...).Scan(&total)
 	return total, err
 }
 func (s *Store) SitemapPages(offset, limit int, options ...SEOOptions) ([]Page, error) {
 	where, args := sitemapFilter(options)
 	args = append(args, limit, offset)
-	rows, err := s.DB.Query("SELECT published_slug,published_updated_at FROM pages WHERE "+where+" ORDER BY id LIMIT ? OFFSET ?", args...)
+	rows, err := s.DB.Query(sitemapVersions+"SELECT published_slug,published_updated_at,language FROM versions WHERE "+where+" ORDER BY id,language LIMIT ? OFFSET ?", args...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,8 +85,13 @@ func (s *Store) SitemapPages(offset, limit int, options ...SEOOptions) ([]Page, 
 	pages := []Page{}
 	for rows.Next() {
 		var p Page
-		if err = rows.Scan(&p.Slug, &p.PublishedUpdatedAt); err != nil {
+		var language string
+		if err = rows.Scan(&p.Slug, &p.PublishedUpdatedAt, &language); err != nil {
 			return nil, err
+		}
+		p.URL = "/" + p.Slug
+		if language != "" {
+			p.URL += "?lang=" + language
 		}
 		pages = append(pages, p)
 	}

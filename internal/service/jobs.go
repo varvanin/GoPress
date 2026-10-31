@@ -39,6 +39,9 @@ func (v *Service) RunMailWorker(ctx context.Context) {
 	defer ticker.Stop()
 	var cleaned int64
 	for {
+		if _, err := v.RunScheduledBackup(ctx, time.Now()); err != nil && ctx.Err() == nil {
+			slog.Error("scheduled backup failed", "error", err)
+		}
 		for i := 0; i < 10; i++ {
 			v.Operations.RLock()
 			active, err := v.Maintenance()

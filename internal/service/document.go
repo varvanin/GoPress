@@ -159,8 +159,51 @@ func render(raw string, checkMedia func(string) error) (string, error) {
 		} else if n.Type == "listItem" {
 			return ErrInvalid
 		}
+		if parent == "table" && n.Type != "tableRow" || parent == "tableRow" && n.Type != "tableCell" && n.Type != "tableHeader" {
+			return ErrInvalid
+		}
 		tag, attrs, anchor := "", "", ""
 		switch n.Type {
+		case "table":
+			if err := validateTable(n); err != nil {
+				return err
+			}
+			out.WriteString(`<div class="content-table"><table><tbody>`)
+			for _, row := range n.Content {
+				if err := write(row, n.Type, depth+1); err != nil {
+					return err
+				}
+			}
+			out.WriteString("</tbody></table></div>")
+			return nil
+		case "tableRow":
+			if parent != "table" || !noAttrs(n.Attrs) || len(n.Content) == 0 || len(n.Content) > 20 {
+				return ErrInvalid
+			}
+			tag = "tr"
+		case "tableCell", "tableHeader":
+			if parent != "tableRow" || len(n.Content) == 0 {
+				return ErrInvalid
+			}
+			a, err := readTableCell(n)
+			if err != nil {
+				return err
+			}
+			for _, child := range n.Content {
+				if child.Type != "paragraph" {
+					return ErrInvalid
+				}
+			}
+			tag = "td"
+			if n.Type == "tableHeader" {
+				tag = "th"
+			}
+			if a.Colspan > 1 {
+				attrs += ` colspan="` + strconv.Itoa(a.Colspan) + `"`
+			}
+			if a.Rowspan > 1 {
+				attrs += ` rowspan="` + strconv.Itoa(a.Rowspan) + `"`
+			}
 		case "paragraph":
 			tag = "p"
 			var a struct{ TextAlign, Anchor string }

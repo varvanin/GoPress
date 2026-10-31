@@ -1,0 +1,54 @@
+package httpui
+import "strconv"
+import "gopress/internal/i18n"
+import "gopress/internal/service"
+import "gopress/internal/ui/components/button"
+import "gopress/internal/ui/components/card"
+import "gopress/internal/ui/components/input"
+import "gopress/internal/ui/components/icon"
+templ PortableContentPage(site,csrf string){
+ @AdminLayout(site,i18n.T(ctx,"Инструменты"),csrf){
+ @AdminPageHeader(i18n.T(ctx,"Импорт контента"),-1){}
+ @card.Card(card.Props{Class:"settings-panel site-settings"}){
+ @PortableContentForm(csrf)
+ }
+ }
+}
+templ PortableContentDialog(csrf string){
+ <div data-templ-portal hidden>
+ <div data-base-ui-portal hidden>
+ <div role="presentation" class="gp-confirm-overlay"></div>
+ <div id="content-import-dialog" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="content-import-title" data-templ-modal="true" class="gp-confirm content-import-dialog">
+ <header class="content-import-heading"><h2 id="content-import-title" data-templ-dialog-title>{ i18n.T(ctx,"Импорт контента") }</h2>
+ @button.Button(button.Props{Variant:button.VariantGhost,Size:button.SizeIconSm,Attributes:templ.Attributes{"data-templ-dialog-close":"content-import-dialog","aria-label":i18n.T(ctx,"Закрыть"),"title":i18n.T(ctx,"Закрыть")}}){@icon.X(icon.Props{Class:"size-4"})}
+ </header>
+ @PortableContentForm(csrf)
+ </div>
+ </div>
+ </div>
+}
+templ PortableContentForm(csrf string){
+ <p class="field-help">{ i18n.T(ctx,"JSON GoPress до 16 MiB: выбранные материалы, переводы и изображения. Импорт создаёт новые черновики без публикации, категорий и иерархии. Формы, модули и шаблоны настраиваются отдельно.") }</p>
+ <form method="post" action="/admin/tools/content/import" enctype="multipart/form-data" hx-encoding="multipart/form-data" hx-target="#content-import-review" hx-select="#content-import-review" hx-swap="outerHTML show:none">
+ <input type="hidden" name="csrf" value={ csrf }/>
+ <label>{ i18n.T(ctx,"Файл контента") }<input type="file" name="content" accept="application/json,.json" required class="site-input" data-content-import-file/></label>
+ @button.Button(button.Props{Type:button.TypeButton,Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"hx-post":"/admin/tools/content/inspect"}}){<span>{ i18n.T(ctx,"Проверить файл") }</span>}
+ <div id="content-import-review"></div>
+ </form>
+}
+templ PortableContentReview(bundle service.PortableContent,digest,prefix,message string){
+ <div id="content-import-review" class="site-settings">
+ if message!="" {
+ <p class="notice notice-error" role="alert">{ i18n.T(ctx,message) }</p>
+ }
+ <input type="hidden" name="digest" value={ digest }/>
+ <label>{ i18n.T(ctx,"Префикс новых адресов") }@input.Input(input.Props{Name:"prefix",Value:prefix,Required:true,Attributes:templ.Attributes{"maxlength":"60"}})</label>
+ <p class="field-help">{ i18n.T(ctx,"Адреса: префикс-1, префикс-2… Изображений: ")+strconv.Itoa(len(bundle.Images)) }</p>
+ <ul>
+ for i,p:=range bundle.Pages {
+ <li>{ p.Title+" · /"+service.PortableSlug(prefix,i) }</li>
+ }
+ </ul>
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline,Size:button.SizeSm}){<span>{ i18n.T(ctx,"Добавить черновики") }</span>}
+ </div>
+}

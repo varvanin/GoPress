@@ -152,11 +152,11 @@ try{
   chromeSocket.addEventListener('message',event=>{const message=JSON.parse(event.data);if(message.method==='Page.javascriptDialogOpening')void send('Page.handleJavaScriptDialog',{accept:true});});
   await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   await send('Network.setCookies',{cookies:[...admin.cookies].map(([name,value])=>({name,value,url:base}))});
-  const navigate=async path=>{await send('Page.navigate',{url:base+path});await until(()=>evaluate('document.readyState==="complete" && location.pathname==='+JSON.stringify(path)),'page load');};
+  const navigate=async path=>{await send('Page.navigate',{url:base+path});await until(()=>evaluate('document.readyState==="complete" && location.pathname+location.search==='+JSON.stringify(path)),'page load');};
   await navigate('/admin/updates');
   assert(await evaluate('Array.from(document.forms).some(form=>form.getAttribute("action")==="/admin/updates/check")'),'update check action missing');
   for(const palette of ['dark','light']) {
-   await evaluate(`document.documentElement.dataset.adminTheme=${JSON.stringify(palette)}`);
+   await evaluate(`(()=>{if(document.documentElement.dataset.adminTheme!==${JSON.stringify(palette)})document.querySelector("[data-admin-theme-toggle]").click()})()`);await delay(250);
    assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),'updates settings overflow');
    const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await mkdir('artifacts',{recursive:true});await writeFile('artifacts/updates-'+palette+'.png',Buffer.from(shot.data,'base64'));
   }
@@ -165,7 +165,7 @@ try{
   await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   await navigate('/admin/ai');
   for(const palette of ['dark','light']) {
-   await evaluate(`document.documentElement.dataset.adminTheme=${JSON.stringify(palette)}`);
+   await evaluate(`(()=>{if(document.documentElement.dataset.adminTheme!==${JSON.stringify(palette)})document.querySelector("[data-admin-theme-toggle]").click()})()`);await delay(250);
    assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),'AI settings overflow');
    const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await mkdir('artifacts',{recursive:true});await writeFile('artifacts/ai-'+palette+'.png',Buffer.from(shot.data,'base64'));
   }
@@ -175,10 +175,27 @@ try{
   await send('Input.insertText',{text:'Browser acceptance edit. '});
   await until(async()=>{const r=await admin.request('/admin/pages/'+page.id);return r.status===200&&JSON.parse(r.body).document.includes('Browser acceptance edit.');},'browser edit autosaved');
   assert(!(await anon.request('/smoke-page')).body.includes('Browser acceptance edit.'),'browser edit leaked before publication');
+  await evaluate(`document.querySelector('[data-editor-command=insertTable]').click()`);
+  assert.equal(await evaluate('document.querySelectorAll(".prose-editor table tr").length'),3,'table insertion');
+  await send('Input.insertText',{text:'Table cell text'});
+  assert(await evaluate('document.querySelector(".prose-editor th").textContent.includes("Table cell text")'),'table focus did not enter first cell');
+  await until(async()=>{const r=await admin.request('/admin/pages/'+page.id);return JSON.parse(r.body).document.includes('Table cell text');},'table autosaved');
+  await evaluate(`document.querySelector('[data-editor-command=blocks]').click();window.templ.select.setValue(document.getElementById('editor-block-choice'),${JSON.stringify('[form id='+formID+']')});document.querySelector('[data-insert-block]').click()`);
+  await until(()=>evaluate('!!document.querySelector(".prose-editor .editor-block-card")'),'block card mount');
+  assert(await evaluate('document.querySelector(".editor-block-card").textContent.includes("Smoke contact")'),'block card missing its safe name');
+  await evaluate('document.querySelector("[data-block-remove]").click()');
+  assert.equal(await evaluate('document.querySelectorAll(".prose-editor .editor-block-card").length'),0,'block removal');
+  for(const palette of ['dark','light']){
+   await evaluate(`(()=>{if(document.documentElement.dataset.adminTheme!==${JSON.stringify(palette)})document.querySelector("[data-admin-theme-toggle]").click()})()`);await delay(250);
+   assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),'content tools overflow');
+   const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await writeFile('artifacts/content-tools-'+palette+'.png',Buffer.from(shot.data,'base64'));
+  }
+  await evaluate(`window.templ.select.setValue(document.getElementById('original-content-language'),'de');document.querySelector('[data-set-original-language]').click()`);
+  await until(()=>evaluate('document.querySelector("[name=source_language]").value==="de"'),'original language changed');
   const language=async value=>evaluate(`(()=>{const field=document.querySelector('[name="content_language"]');window.templ.select.setValue(document.getElementById('content-language'),${JSON.stringify(value)});field.dispatchEvent(new Event('change',{bubbles:true}));return field.value;})()`);
-  assert.equal(await evaluate('document.querySelector("[name=source_language]").value'),'ru');
+  assert.equal(await evaluate('document.querySelector("[name=source_language]").value'),'de');
   assert.equal(await evaluate('document.querySelectorAll("#content-language-popup [role=option]").length'),1,'an untranslated material offers unadded languages');
-  await evaluate('document.querySelector(".editor-add-language").open=true;document.querySelector("[data-add-content-language]").click()');
+  await evaluate('document.querySelector("[data-add-language-panel]").open=true;document.querySelector("[data-add-content-language]").click()');
   await until(()=>evaluate('document.querySelector("[name=content_language]").value==="en" && !!document.getElementById("content-language")'),'language added');
   assert.equal(await evaluate('document.querySelectorAll("#content-language-popup [role=option]").length'),2,'language switcher contains unadded languages');
   assert.equal(await evaluate('document.querySelector("[name=title]").value'),'');
@@ -186,17 +203,32 @@ try{
   await send('Input.insertText',{text:'English browser body.'});
   await until(async()=>{const r=await admin.request('/admin/pages/'+page.id);return JSON.parse(r.body).translations?.en?.document.includes('English browser body.');},'translation autosaved');
   assert(await evaluate('document.querySelector("[data-saved-preview]").href.endsWith("?lang=en")'),'autosave lost preview language');
+  // Simulate a failed save, then recover from this browser without a database write.
+  await send('Fetch.enable',{patterns:[{urlPattern:base+'/admin/pages/save',requestStage:'Request'}]});
+  const failSave=event=>{const message=JSON.parse(event.data);if(message.method==='Fetch.requestPaused')void send('Fetch.fulfillRequest',{requestId:message.params.requestId,responseCode:503,responseHeaders:[{name:'Content-Type',value:'application/json'}],body:Buffer.from(JSON.stringify({message:'Temporary test failure'})).toString('base64')});};
+  chromeSocket.addEventListener('message',failSave);
+  await evaluate('document.querySelector(".prose-editor[contenteditable=true]").focus()');await send('Input.insertText',{text:' Local recovery acceptance.'});
+  await until(()=>evaluate('Object.keys(localStorage).some(key=>key.startsWith("gopress:draft:")&&localStorage[key].includes("Local+recovery+acceptance"))'),'local draft persisted');
+  await until(()=>evaluate('document.getElementById("editor-status").textContent.includes("Temporary test failure")'),'failed autosave');
+  await send('Fetch.disable');chromeSocket.removeEventListener('message',failSave);
+  await navigate(`/admin/pages/${page.id}/edit`);
+  await until(()=>evaluate('!!document.querySelector(".prose-editor[contenteditable=true]")&&!document.querySelector("[data-draft-recovery]").hidden'),'local recovery offered');
+  await evaluate('document.querySelector("[data-recovery-restore]").click()');
+  await until(()=>evaluate('document.querySelector("[data-page-editor]")?.dataset.recovered==="true"&&document.querySelector(".prose-editor")?.textContent.includes("Local recovery acceptance.")'),'local draft recovered for review');
+  assert(!(JSON.parse((await admin.request('/admin/pages/'+page.id)).body).translations.en.document.includes('Local recovery acceptance.')),'recovery unexpectedly wrote the database');
+  await evaluate('document.querySelector(".prose-editor[contenteditable=true]").focus()');await send('Input.insertText',{text:' Reviewed.'});
+  await until(async()=>JSON.parse((await admin.request('/admin/pages/'+page.id)).body).translations.en.document.includes('Local recovery acceptance.'),'reviewed recovery autosaved');
   // Mock only the provider-facing generation response: no external API usage or paid request.
   await send('Fetch.enable',{patterns:[{urlPattern:base+'/admin/pages/ai',requestStage:'Request'}]});
   let aiRequest;
-  const interceptAI=event=>{const message=JSON.parse(event.data);if(message.method!=='Fetch.requestPaused')return;aiRequest=JSON.parse(message.params.request.postData);void send('Fetch.fulfillRequest',{requestId:message.params.requestId,responseCode:200,responseHeaders:[{name:'Content-Type',value:'application/json'}],body:Buffer.from(JSON.stringify({text:'AI browser text. <script>literal</script>'})).toString('base64')});};
+  const interceptAI=event=>{const message=JSON.parse(event.data);if(message.method!=='Fetch.requestPaused')return;aiRequest=JSON.parse(message.params.request.postData);const text=aiRequest.mode==='rewrite'?'Browser rewritten selection.':aiRequest.mode==='translate'?JSON.stringify({title:'Translated browser title',texts:JSON.parse(aiRequest.text).map(text=>'Translated '+text)}):aiRequest.mode==='seo'?JSON.stringify({title:'Browser SEO title',description:'Browser SEO description'}):'AI browser text. <script>literal</script>';void send('Fetch.fulfillRequest',{requestId:message.params.requestId,responseCode:200,responseHeaders:[{name:'Content-Type',value:'application/json'}],body:Buffer.from(JSON.stringify({text})).toString('base64')});};
   chromeSocket.addEventListener('message',interceptAI);
   await evaluate('document.querySelector("[data-editor-ai]").open=true;document.querySelector("[data-ai-prompt]").value="Write an introduction";document.querySelector("[data-ai-generate]").click()');
   await until(()=>evaluate('!document.querySelector("[data-ai-result]").hidden'),'AI result');
   assert.equal(aiRequest.language,'en');assert.equal(aiRequest.text,'');
   assert(!(await evaluate('document.querySelector(".prose-editor").textContent.includes("AI browser text.")')),'AI changed content without insertion');
   for(const palette of ['dark','light']) {
-   await evaluate(`document.documentElement.dataset.adminTheme=${JSON.stringify(palette)}`);
+   await evaluate(`(()=>{if(document.documentElement.dataset.adminTheme!==${JSON.stringify(palette)})document.querySelector("[data-admin-theme-toggle]").click()})()`);await delay(250);
    assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),'AI editor overflow');
    const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await mkdir('artifacts',{recursive:true});await writeFile('artifacts/editor-ai-'+palette+'.png',Buffer.from(shot.data,'base64'));
   }
@@ -204,6 +236,18 @@ try{
   assert(await evaluate('document.querySelector(".prose-editor").textContent.includes("AI browser text.")'));
   assert.equal(await evaluate('document.querySelectorAll(".prose-editor script").length'),0,'AI output interpreted as HTML');
   await until(async()=>{const r=await admin.request('/admin/pages/'+page.id);return JSON.parse(r.body).translations?.en?.document.includes('AI browser text.');},'AI insertion autosaved');
+  const beforeActions=await evaluate('document.querySelector(".prose-editor").textContent');
+  const aiMode=async mode=>{await evaluate(`window.templ.select.setValue(document.getElementById('editor-ai-action'),${JSON.stringify(mode)});document.querySelector('[data-ai-generate]').click()`);await until(()=>evaluate('!document.querySelector("[data-ai-result]").hidden'),'AI '+mode+' preview');};
+  await evaluate('(()=>{const paragraph=document.querySelector(".prose-editor p");document.querySelector(".prose-editor").focus();const range=document.createRange();range.selectNodeContents(paragraph);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);})()');
+  await aiMode('rewrite');assert.equal(aiRequest.mode,'rewrite');
+  await evaluate('document.querySelector("[data-ai-insert]").click()');assert(await evaluate('document.querySelector(".prose-editor").textContent.includes("Browser rewritten selection.")'),'AI selection replacement');
+  await evaluate('document.querySelector("[data-ai-undo]").click()');assert.equal(await evaluate('document.querySelector(".prose-editor").textContent'),beforeActions,'AI selection undo');
+  await aiMode('translate');assert.equal(aiRequest.mode,'translate');
+  await evaluate('document.querySelector("[data-ai-insert]").click()');assert.equal(await evaluate('document.querySelector("[name=title]").value'),'Translated browser title');assert(await evaluate('document.querySelector(".prose-editor table")!==null'),'translation lost table structure');
+  await evaluate('document.querySelector("[data-ai-undo]").click()');assert.equal(await evaluate('document.querySelector(".prose-editor").textContent'),beforeActions,'AI translation undo');
+  const beforeSEO=await evaluate('document.querySelector("[name=seo_title]").value');await aiMode('seo');
+  await evaluate('document.querySelector("[data-ai-insert]").click()');assert.equal(await evaluate('document.querySelector("[name=seo_title]").value'),'Browser SEO title');
+  await evaluate('document.querySelector("[data-ai-undo]").click()');assert.equal(await evaluate('document.querySelector("[name=seo_title]").value'),beforeSEO,'AI SEO undo');
   await send('Fetch.disable');chromeSocket.removeEventListener('message',interceptAI);
   assert.equal(await language('original'),'original');
   assert(!(await evaluate('JSON.parse(document.querySelector("[name=translations]").value).pl')),'unadded language exists');
@@ -220,7 +264,7 @@ try{
   assert(!(await anon.request('/smoke-page')).body.includes('id="section-contacts"'),'draft anchor leaked');
   await until(()=>evaluate('!document.querySelector("[data-editor-fields]").disabled'),'anchor save finished');
   for(const palette of ['dark','light']) {
-   await evaluate(`document.documentElement.dataset.adminTheme=${JSON.stringify(palette)}`);
+   await evaluate(`(()=>{if(document.documentElement.dataset.adminTheme!==${JSON.stringify(palette)})document.querySelector("[data-admin-theme-toggle]").click()})()`);await delay(250);
    await evaluate('document.querySelector("[data-editor-command=anchor]").click()');
    const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await mkdir('artifacts',{recursive:true});await writeFile('artifacts/anchor-'+palette+'.png',Buffer.from(shot.data,'base64'));
    await evaluate('document.querySelector("[data-anchor-panel]").hidden=true');
@@ -228,15 +272,74 @@ try{
 
   assert(await evaluate('document.querySelector(".prose-editor").textContent.includes("Browser acceptance edit.")'));
   assert(!(await evaluate('document.querySelector(".prose-editor").textContent.includes("English browser body.")')));
-  await evaluate('document.querySelector("[data-editor-ai]").open=false;document.querySelector(".editor-add-language").open=true');
+  await evaluate('document.querySelector("[data-editor-ai]").open=false;document.querySelector("[data-add-language-panel]").open=true');
   assert(await evaluate('(()=>{const button=document.querySelector("[data-add-content-language]").getBoundingClientRect();const field=document.querySelector(".editor-add-language>.field").getBoundingClientRect();return button.width<field.width&&Math.abs(button.right-field.right)<2;})()'),'add-language action is not compact and aligned right');
   for(const palette of ['dark','light']) {
-   await evaluate(`document.documentElement.dataset.adminTheme=${JSON.stringify(palette)}`);
+   await evaluate(`(()=>{if(document.documentElement.dataset.adminTheme!==${JSON.stringify(palette)})document.querySelector("[data-admin-theme-toggle]").click()})()`);await delay(250);
    assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),'editor horizontal overflow');
    const screenshot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await mkdir('artifacts',{recursive:true});await writeFile('artifacts/editor-'+palette+'.png',Buffer.from(screenshot.data,'base64'));
   }
 
 
+  await navigate('/admin/themes/editor?theme=minimal&file=layout.html');
+  await until(()=>evaluate('!!document.querySelector(".cm-editor .cm-content")'),'source editor');
+  await evaluate('document.querySelector(".cm-content").focus()');await send('Input.insertText',{text:'<p data-private-preview>Browser unsaved template</p>\n'});
+  await evaluate('document.querySelector("[data-source-diff-toggle]").click()');
+  assert(await evaluate('document.querySelector("[data-diff-after]").textContent.includes("Browser unsaved template")'),'source diff missing edits');
+  assert(await evaluate('document.querySelector("[data-file-operation]").disabled'),'file operations accepted unsaved source');
+  const previousTargets=new Set((await command('Target.getTargets')).targetInfos.map(target=>target.targetId));
+  await evaluate('document.querySelector("[data-template-preview]").click()');
+  const previewTarget=await until(async()=>{const targets=(await command('Target.getTargets')).targetInfos;return targets.find(target=>target.type==='page'&&!previousTargets.has(target.targetId)&&target.url.includes('/admin/themes/editor/previews/'));},'private template tab');
+  const previewSession=(await command('Target.attachToTarget',{targetId:previewTarget.targetId,flatten:true})).sessionId;
+  const previewHTML=await until(async()=>{const r=await command('Runtime.evaluate',{expression:'new XMLSerializer().serializeToString(document)',returnByValue:true},previewSession);return r.result.value?.includes('Browser unsaved template')&&r.result.value;},'unsaved source preview');
+  assert(previewHTML.includes('/admin/themes/editor/previews/'),'preview has no private asset paths');
+  await command('Target.closeTarget',{targetId:previewTarget.targetId});
+  assert(!(await admin.request('/admin/themes/editor?theme=minimal&file=layout.html')).body.includes('Browser unsaved template'),'preview saved source');
+  for(const palette of ['dark','light']){await evaluate(`(()=>{if(document.documentElement.dataset.adminTheme!==${JSON.stringify(palette)})document.querySelector("[data-admin-theme-toggle]").click()})()`);await delay(250);assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),'template diff overflow');const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await writeFile('artifacts/template-diff-'+palette+'.png',Buffer.from(shot.data,'base64'));}
+  await evaluate('document.querySelector(".cm-content").focus()');await send('Input.dispatchKeyEvent',{type:'keyDown',key:'z',code:'KeyZ',modifiers:4});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'z',code:'KeyZ',modifiers:0});
+  await until(()=>evaluate('!document.querySelector("[data-code-source]").value.includes("Browser unsaved template")'),'source undo');
+  const fileOperation=async(name,operation)=>{await evaluate(`(()=>{const field=document.querySelector('[name=new_name]');field.value=${JSON.stringify(name)};field.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('[name=intent][value="file-${operation}"]').click();})()`);};
+  await fileOperation('assets/browser.css','create');await until(()=>evaluate('document.querySelector("[name=file]")?.value==="assets/browser.css"&&!!document.querySelector(".cm-editor")'),'create file');
+  await fileOperation('assets/browser-renamed.css','rename');await until(()=>evaluate('document.querySelector("[name=file]")?.value==="assets/browser-renamed.css"&&!!document.querySelector(".cm-editor")'),'rename file');
+  await fileOperation('','delete');await until(()=>evaluate('window.templ.dialog.isOpen(document.getElementById("system-confirm"))'),'file delete confirmation');
+  await evaluate('document.querySelector("[data-confirm-result=accept]").click()');await until(()=>evaluate('document.querySelector("[name=file]")?.value==="layout.html"&&![...document.querySelectorAll("[data-template-file]")].some(link=>link.dataset.templateFile==="assets/browser-renamed.css")'),'delete file');
+  for(const path of ['/admin/account/security','/admin/seo/redirects','/admin/posts/review','/admin/tools','/admin/setup']) {
+   await navigate(path);await until(()=>evaluate('document.querySelector("#main")?.textContent.length>0'),'management page');
+   for(const palette of ['dark','light']) {
+    await evaluate(`(()=>{if(document.documentElement.dataset.adminTheme!==${JSON.stringify(palette)})document.querySelector("[data-admin-theme-toggle]").click()})()`);await delay(250);
+    assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),'management desktop overflow: '+path);
+    const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await writeFile('artifacts/management-'+path.split('/').pop()+'-'+palette+'.png',Buffer.from(shot.data,'base64'));
+   }
+   await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+   assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'),'management mobile overflow: '+path);
+   await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});
+  }
+  const exportPage=JSON.parse((await admin.request('/admin/pages/'+page.id)).body);
+  const exported=await admin.request('/admin/content/bulk',{method:'POST',data:new URLSearchParams({kind:'page',action:'export',selection:page.id+':'+exportPage.version})});assert.equal(exported.status,200,exported.body);
+  const contentFile=join(work,'content.json');await writeFile(contentFile,exported.body);
+  await navigate('/admin/pages');
+  assert(await evaluate('document.querySelector("[data-templ-controls=content-import-dialog]").previousElementSibling.value==="export"'),'import action is not after export');
+  await evaluate('document.querySelector("[data-templ-controls=content-import-dialog]").click()');
+  await until(()=>evaluate('window.templ.dialog.isOpen("content-import-dialog")'),'content import dialog');
+  for(const palette of ['dark','light']){
+   await evaluate(`(()=>{if(document.documentElement.dataset.adminTheme!==${JSON.stringify(palette)})document.querySelector("[data-admin-theme-toggle]").click()})()`);await delay(250);
+   const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await writeFile('artifacts/content-import-'+palette+'.png',Buffer.from(shot.data,'base64'));
+  }
+  await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+  assert(await evaluate('(()=>{const r=document.querySelector("#content-import-dialog").getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight})()'),'import dialog outside mobile viewport');
+  const importMobile=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await writeFile('artifacts/content-import-mobile.png',Buffer.from(importMobile.data,'base64'));
+  await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape'});
+  await until(()=>evaluate('!window.templ.dialog.isOpen("content-import-dialog")'),'import Escape dismissal');
+  await evaluate('document.querySelector("[data-templ-controls=content-import-dialog]").click()');
+  await until(()=>evaluate('window.templ.dialog.isOpen("content-import-dialog")'),'reopen import dialog');
+  const dom=await send('DOM.getDocument');const fileInput=await send('DOM.querySelector',{nodeId:dom.root.nodeId,selector:'[data-content-import-file]'});
+  await send('DOM.setFileInputFiles',{nodeId:fileInput.nodeId,files:[contentFile]});
+  await evaluate("document.querySelector('[hx-post=\"/admin/tools/content/inspect\"]').click()");
+  await until(()=>evaluate('!!document.querySelector("[name=digest]")'),'content import preview');
+  assert(await evaluate('document.querySelector("[data-content-import-file]").files.length===1'),'import preview lost selected file');
+  await evaluate('document.querySelector("#content-import-review button[type=submit]").click()');
+  await until(()=>evaluate('location.pathname==="/admin/pages"'),'content import navigation');
   await navigate('/admin/forms/'+formID+'/edit');await until(()=>evaluate('document.querySelector("[data-form-preview]")?.children.length>0'),'form builder');
   const initial=await evaluate('document.querySelectorAll("[data-form-fields]>[data-form-field]").length');await evaluate('document.querySelector("[data-add-form-field]").click()');assert.equal(await evaluate('document.querySelectorAll("[data-form-fields]>[data-form-field]").length'),initial+1);
   await navigate('/admin/pages');await until(()=>evaluate('!!document.querySelector("[data-select-all]")'),'selection control');
@@ -273,9 +376,10 @@ try{
  assert.equal((await admin.request('/admin/pages/'+page.id)).status,401);
  console.log('PASS: protected concurrent install, sign-in, image upload, draft/preview, publish, restart, offline CLI backup/verify/restore and restored site launch; forms, search and maintenance'+(browserQA?'; browser editing/autosave, AI insertion (mock response), section anchors and mobile layout':''));
 }finally{
- chromeSocket?.close();chrome?.kill('SIGTERM');
+ chromeSocket?.close();
+ if(chrome&&chrome.exitCode===null&&chrome.signalCode===null){const exited=once(chrome,'exit');chrome.kill('SIGTERM');await Promise.race([exited,delay(5000)]);}
  try{await stopSite();}finally{
   if(docker){spawnSync('docker',['rm','-f',container],{stdio:'ignore'});spawnSync('docker',['volume','rm',volume],{stdio:'ignore'});}
-  await rm(work,{recursive:true,force:true});
+  await rm(work,{recursive:true,force:true,maxRetries:10,retryDelay:100});
  }
 }

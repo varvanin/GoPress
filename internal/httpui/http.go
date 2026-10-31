@@ -33,6 +33,9 @@ var resources embed.FS
 
 // ThemeData deliberately contains no database, session, email, or password fields.
 type ThemeData struct {
+	URL                      string
+	Languages                []PublicLanguage
+	Language                 string
 	Template                 string
 	Archive, NotFound        bool
 	Pagination               ThemePagination
@@ -68,9 +71,11 @@ type ThemeData struct {
 
 type ThemeSite struct{ Title, BaseURL, Timezone, Description string }
 type App struct {
-	themeMu sync.RWMutex
-	Service *service.Service
-	Echo    *echo.Echo
+	templatePreviewMu sync.Mutex
+	templatePreviews  map[string]templatePreview
+	themeMu           sync.RWMutex
+	Service           *service.Service
+	Echo              *echo.Echo
 }
 
 func New(v *service.Service) *App {
@@ -118,6 +123,8 @@ func New(v *service.Service) *App {
 			code, msg = 403, "Forbidden"
 		case errors.Is(err, store.ErrLastAdmin):
 			code, msg = 409, "At least one active administrator is required"
+		case errors.Is(err, service.ErrSecondFactorUnavailable):
+			code, msg = 503, "Ключ 2FA недоступен. Используйте резервный код или восстановление на сервере."
 		case errors.Is(err, service.ErrUnauthorized):
 			code, msg = 401, "Invalid credentials"
 		case errors.Is(err, service.ErrRateLimit):
@@ -171,6 +178,7 @@ func New(v *service.Service) *App {
 	}, a.auth, a.csrf)
 	admin := e.Group("/admin", a.auth, a.permissions)
 	admin.GET("", a.dashboard)
+	admin.GET("/setup", a.setupPage)
 	admin.GET("/translations.js", func(c *echo.Context) error {
 		raw, err := json.Marshal(i18n.Catalog(i18n.Language(c.Request().Context())))
 		if err != nil {
@@ -182,6 +190,7 @@ func New(v *service.Service) *App {
 	a.adminRoutes(admin)
 	a.appearanceRoutes(admin)
 	a.seoRoutes()
+	a.redirectRoutes(admin)
 	admin.GET("/pages", a.contentList)
 	admin.GET("/pages/:id", func(c *echo.Context) error {
 		id, err := pageID(c)
@@ -275,6 +284,17 @@ func New(v *service.Service) *App {
 		if err != nil {
 			return err
 		}
+		if raw := c.QueryParam("w"); raw != "" {
+			size, e := strconv.Atoi(raw)
+			if e != nil || (size != 320 && size != 960 && size != 1600) {
+				return service.ErrInvalid
+			}
+			infos, e := v.Store.ImageInfos([]string{name})
+			if e != nil {
+				return e
+			}
+			name = imageVariantFile(name, infos[name], size)
+		}
 		c.Response().Header().Set("Content-Type", mime)
 		return c.FileFS(name, os.DirFS(filepath.Join(v.Store.Dir, "uploads")))
 	})
@@ -303,6 +323,18 @@ func New(v *service.Service) *App {
 			}
 			if e != nil && !errors.Is(e, sql.ErrNoRows) {
 				return e
+			}
+			target, e = v.Store.ManualRedirect(normalized)
+			if e == nil && target != normalized {
+				return c.Redirect(301, contentRedirectURL(target, c.Request().URL.RawQuery))
+			}
+			if e != nil && !errors.Is(e, sql.ErrNoRows) {
+				return e
+			}
+			if c.Request().Method == "GET" {
+				if e = v.RecordMissing(c.Request().Context(), normalized); e != nil {
+					return e
+				}
 			}
 			return a.render(c, store.Page{}, true)
 		}
@@ -334,10 +366,12 @@ func requestErrorDetail(err error) string {
 
 func requestBodyLimit(path string) int64 {
 	switch {
+	case path == "/admin/tools/content/import" || path == "/admin/tools/content/inspect":
+		return service.MaxPortableContent + 1<<20
 	case path == "/admin/tools/backups/import":
 		return 1 << 30
 	case path == "/admin/pages/ai":
-		return 96 << 10
+		return 512 << 10
 	case path == "/admin/pages/languages":
 		return 16 << 10
 	case strings.HasPrefix(path, "/forms/"):
@@ -519,7 +553,7 @@ func (a *App) install(c *echo.Context) error {
 	return c.Redirect(303, "/login")
 }
 func (a *App) login(c *echo.Context) error {
-	token, err := a.Service.Login(c.RealIP(), c.FormValue("email"), c.FormValue("password"))
+	token, err := a.Service.Login(c.RealIP(), c.FormValue("email"), c.FormValue("password"), service.LoginOptions{Code: c.FormValue("code"), UserAgent: c.Request().UserAgent()})
 	if err != nil {
 		return err
 	}
@@ -549,9 +583,31 @@ func (a *App) render(c *echo.Context, p store.Page, notFound bool, preview ...st
 			p = store.Page{Title: site.Title, Document: emptyDocument}
 		}
 	}
+	languageMaterial := p
 	originalLanguage := sourceContentLanguage(p)
 	language := c.QueryParam("lang")
-	if language != "" && language != "original" && !notFound {
+	if language == "original" || language == originalLanguage {
+		language = ""
+	}
+	if language != "" && !service.ValidContentLanguage(language) {
+		return service.ErrInvalid
+	}
+	effectiveLanguage := language
+	if effectiveLanguage == "" {
+		effectiveLanguage = originalLanguage
+	}
+	languagePath := "/" + p.Slug
+	if staticHome || c.Request().URL.Path == "/" || settings.HomeMode == "page" && p.ID == settings.HomePageID {
+		languagePath = "/"
+	}
+	if strings.HasPrefix(c.Request().URL.Path, "/admin/") {
+		languagePath = c.Request().URL.Path
+	}
+	languageLinks := []PublicLanguage{}
+	if p.ID > 0 && !notFound {
+		languageLinks = publicLanguageLinks(p, languagePath, language)
+	}
+	if language != "" && language != "original" && !notFound && p.ID > 0 {
 		translation, exists := p.Translations[language]
 		if !exists {
 			return echo.NewHTTPError(http.StatusNotFound, "Translation not found")
@@ -567,7 +623,14 @@ func (a *App) render(c *echo.Context, p store.Page, notFound bool, preview ...st
 	if len(preview) > 0 {
 		appearance = preview[0]
 	}
-	source, prefix, resolved, err := a.themeSource(appearance.Theme)
+	override, _ := c.Get("template-preview").(*templatePreview)
+	var source fs.FS
+	var prefix, resolved string
+	if override != nil {
+		source, prefix, resolved = override.FS, override.Prefix, override.Theme
+	} else {
+		source, prefix, resolved, err = a.themeSource(appearance.Theme)
+	}
 	if err != nil {
 		return err
 	}
@@ -623,18 +686,21 @@ func (a *App) render(c *echo.Context, p store.Page, notFound bool, preview ...st
 		}
 	}
 	home := (c.Request().URL.Path == "/" || len(preview) > 0) && !notFound
+	if override != nil {
+		home = override.Page == "home.html" || override.Page == "archive.html"
+	}
 	if home && p.Title == "" {
 		p.Title = site.Title
 	}
-	pages, err := a.Service.Store.PublishedContent("page")
+	pages, err := a.Service.Store.PublishedContent("page", effectiveLanguage)
 	if err != nil {
 		return err
 	}
-	headerMenu, err := a.Service.Store.Menu("header")
+	headerMenu, err := a.publicMenu("header", effectiveLanguage)
 	if err != nil {
 		return err
 	}
-	footerMenu, err := a.Service.Store.Menu("footer")
+	footerMenu, err := a.publicMenu("footer", effectiveLanguage)
 	if err != nil {
 		return err
 	}
@@ -656,7 +722,7 @@ func (a *App) render(c *echo.Context, p store.Page, notFound bool, preview ...st
 			blogTerm = n
 		}
 	}
-	posts, total, err := a.Service.Store.PublicPosts(blogTerm, blogPage, settings.PostsPerPage)
+	posts, total, err := a.Service.Store.PublicPostsLanguage(blogTerm, blogPage, settings.PostsPerPage, effectiveLanguage)
 	if err != nil {
 		return err
 	}
@@ -674,7 +740,7 @@ func (a *App) render(c *echo.Context, p store.Page, notFound bool, preview ...st
 	if e != nil {
 		zone = time.UTC
 	}
-	meta := pageMetadata(site, appearance, p, home && (language == "" || language == "original"), private, notFound, blogPage, blogTerm)
+	meta := pageMetadata(site, appearance, p, home && (p.ID == 0 || language == ""), private, notFound, blogPage, blogTerm)
 	if settings.HomeMode == "page" && p.ID == settings.HomePageID && !private && !notFound {
 		meta.Canonical = site.BaseURL + "/"
 	}
@@ -692,9 +758,20 @@ func (a *App) render(c *echo.Context, p store.Page, notFound bool, preview ...st
 			meta.Canonical = canonical.String()
 		}
 	}
-	applySEOOptions(&meta, site, appearance, p, home && (language == "" || language == "original"), private, notFound, blogPage, blogTerm, terms, search, pages)
+	applySEOOptions(&meta, site, appearance, p, home && (p.ID == 0 || language == ""), private, notFound, blogPage, blogTerm, terms, search, pages)
 	if language != "" && language != "original" && !notFound {
 		meta.Locale = strings.ReplaceAll(language, "-", "_")
+	}
+	if !private && !notFound && search == nil && p.ID > 0 {
+		for _, link := range languageLinks {
+			versionSEO := languageMaterial.SEO
+			if tr, ok := languageMaterial.Translations[link.Code]; ok {
+				versionSEO = tr.SEO
+			}
+			if !versionSEO.NoIndex && (versionSEO.Canonical == "" || versionSEO.Canonical == site.BaseURL+link.URL) {
+				meta.Alternates = append(meta.Alternates, PublicLanguage{Code: link.Code, URL: site.BaseURL + link.URL})
+			}
+		}
 	}
 	if !home && meta.Description == "" {
 		meta.Description = settings.Description
@@ -703,6 +780,9 @@ func (a *App) render(c *echo.Context, p store.Page, notFound bool, preview ...st
 		c.Response().Header().Set("X-Robots-Tag", meta.Robots)
 	}
 	archive := home && !staticHome && (blogTerm > 0 || blogPage > 1)
+	if override != nil && override.Page == "archive.html" {
+		archive = true
+	}
 	if home && !staticHome {
 		page = "home.html"
 		if archive {
@@ -711,6 +791,9 @@ func (a *App) render(c *echo.Context, p store.Page, notFound bool, preview ...st
 	}
 	if search != nil {
 		page = "search.html"
+	}
+	if override != nil {
+		page = override.Page
 	}
 	page, err = resolveThemePage(source, prefix, page)
 	if err != nil {
@@ -726,10 +809,35 @@ func (a *App) render(c *echo.Context, p store.Page, notFound bool, preview ...st
 	} else if builtinTemplate(appearance.Theme) && prefix == "" {
 		assets = "/builtin-assets/" + appearance.Theme
 	}
+	if override != nil {
+		assets = override.Assets
+	}
 	t, err := themeTemplates(source, prefix, page, zone, settings.PostsPerPage)
 	if err != nil {
 		return err
 	}
+	homeLanguage := effectiveLanguage
+	if settings.HomeMode == "page" {
+		available, e := a.Service.Store.PublicLanguageAvailable(settings.HomePageID, effectiveLanguage)
+		if e != nil {
+			return e
+		}
+		if !available {
+			homeLanguage = ""
+		}
+	}
+	t.Funcs(template.FuncMap{"tr": func(text string) string { return publicText(meta.ContentLanguage, text) }, "siteURL": func(path string) string {
+		u, _ := url.Parse(path)
+		if u != nil && u.Path == "/" && settings.HomeMode == "page" {
+			return languageURL(path, homeLanguage)
+		}
+		return languageURL(path, effectiveLanguage)
+	}, "postCount": func(n int) string {
+		if meta.ContentLanguage == "ru" {
+			return postCount(n)
+		}
+		return publicText(meta.ContentLanguage, "Записи") + ": " + strconv.Itoa(n)
+	}})
 	views := postViews(posts, terms)
 	feed := views
 	var featured *PostView
@@ -766,8 +874,12 @@ func (a *App) render(c *echo.Context, p store.Page, notFound bool, preview ...st
 	}
 	var out themeOutput
 	// Only the server's strict JSON renderer may construct trusted HTML.
-	if err = executeTheme(t, &out, ThemeData{Template: page, Archive: archive, NotFound: notFound, Pagination: pagination, Search: search, ThemeAssets: assets, Kind: p.Kind, Slug: p.Slug, Year: time.Now().Year(), ReadingMinutes: minutes, Description: p.SEO.Description, Featured: featured, Spotlight: spotlight, Feed: feed, Related: related, Categories: categories, ActiveTerm: activeTerm, Appearance: appearance, SEO: meta, Preview: private, HeaderMenu: menuLinks(headerMenu.Items), FooterMenu: menuLinks(footerMenu.Items), HeaderMenuConfigured: headerMenu.Version > 0, PublishedAt: p.PublishedAt, Terms: terms, PostTerms: postTerms, BlogPage: blogPage, BlogTotal: total, BlogPageSize: settings.PostsPerPage, BlogTerm: blogTerm, Home: home, HomeIsPage: settings.HomeMode == "page", Pages: pages, Posts: posts, Site: ThemeSite{Title: site.Title, BaseURL: site.BaseURL, Timezone: site.Timezone, Description: settings.Description}, Title: p.Title, Cover: p.Cover, Body: template.HTML(body)}); err != nil {
+	if err = executeTheme(t, &out, ThemeData{URL: languageURL(languagePath, language), Languages: languageLinks, Language: effectiveLanguage, Template: page, Archive: archive, NotFound: notFound, Pagination: pagination, Search: search, ThemeAssets: assets, Kind: p.Kind, Slug: p.Slug, Year: time.Now().Year(), ReadingMinutes: minutes, Description: p.SEO.Description, Featured: featured, Spotlight: spotlight, Feed: feed, Related: related, Categories: categories, ActiveTerm: activeTerm, Appearance: appearance, SEO: meta, Preview: private, HeaderMenu: menuLinks(headerMenu.Items), FooterMenu: menuLinks(footerMenu.Items), HeaderMenuConfigured: headerMenu.Version > 0, PublishedAt: p.PublishedAt, Terms: terms, PostTerms: postTerms, BlogPage: blogPage, BlogTotal: total, BlogPageSize: settings.PostsPerPage, BlogTerm: blogTerm, Home: home, HomeIsPage: settings.HomeMode == "page", Pages: pages, Posts: posts, Site: ThemeSite{Title: site.Title, BaseURL: site.BaseURL, Timezone: site.Timezone, Description: settings.Description}, Title: p.Title, Cover: p.Cover, Body: template.HTML(body)}); err != nil {
 		return err
 	}
-	return c.HTML(status, out.String())
+	responsive, err := a.responsiveImages(out.String())
+	if err != nil {
+		return err
+	}
+	return c.HTML(status, responsive)
 }
