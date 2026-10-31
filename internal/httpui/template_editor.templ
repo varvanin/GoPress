@@ -26,7 +26,7 @@ templ TemplateReference(site,csrf string,sections []TemplateReferenceSection) {
  }
 }
 
-templ TemplateEditor(site,csrf,id string,files []string,selected,content,revision,message string,readonly,history,failed bool) {
+templ TemplateEditor(site,csrf,id string,files []string,selected,content,revision,message string,history,failed bool) {
  @AdminLayout(site,i18n.T(ctx,"Шаблоны"),csrf) {
  @AdminPageHeader(i18n.T(ctx,"Редактор шаблона"),-1) {
  @button.Button(button.Props{Href:"/admin/themes",Variant:button.VariantOutline,Size:button.SizeSm}) {
@@ -35,23 +35,12 @@ templ TemplateEditor(site,csrf,id string,files []string,selected,content,revisio
  @button.Button(button.Props{Href:"/admin/themes/reference",Target:"_blank",Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"hx-boost":"false","rel":"noopener"}}) {
  @icon.FileText()<span>{ i18n.T(ctx,"Справочник") }</span>
  }
- if readonly {
- <form method="post" action="/admin/themes/editor/copy"><input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="theme" value={ id }/>
- @button.Button(button.Props{Type:button.TypeSubmit,Size:button.SizeSm}) {
- { i18n.T(ctx,"Создать редактируемую копию") }
- }
- </form>
- } else {
  @button.Button(button.Props{Type:button.TypeSubmit,Form:"template-file-editor",Size:button.SizeSm}) {
  { i18n.T(ctx,"Сохранить файл") }
  }
  }
- }
  if message!="" {
  <p class={ "notice",templ.KV("notice-error",failed) } role="status">{ i18n.T(ctx,message) }</p>
- }
- if readonly {
- <p class="field-help template-editor-help">{ i18n.T(ctx,"Встроенный шаблон открыт для просмотра. Создайте копию для редактирования; оригинал останется доступен.") }</p>
  }
  <div class="template-editor-layout"><nav hx-target="#template-file-editor" hx-select="#template-file-editor" hx-swap="outerHTML show:none" class="template-file-nav" aria-label={ i18n.T(ctx,"Файлы шаблона") }><h2>{ i18n.T(ctx,"Файлы шаблона") }</h2><span class="template-editor-id">{ id }</span>
  for _,name:=range files {
@@ -59,10 +48,15 @@ templ TemplateEditor(site,csrf,id string,files []string,selected,content,revisio
  }
  </nav><form id="template-file-editor" method="post" action="/admin/themes/editor/save" data-change-form data-form-dirty={ boolString(failed) } class="template-code-panel" data-template-editor>
  <input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="theme" value={ id }/><input type="hidden" name="file" value={ selected }/><input type="hidden" name="revision" value={ revision }/>
- <div class="template-code-header"><h2>{ selected }</h2><span class="field-help" data-code-status></span></div>
- <label class="sr-only" for="template-source">{ i18n.T(ctx,"Код файла") }</label><textarea id="template-source" name="content" data-code-source data-filename={ selected } class="template-code-fallback" readonly?={ readonly } spellcheck="false" wrap="soft">{ content }</textarea>
+ <div class="template-code-header"><h2>{ selected }</h2><div class="template-code-actions">
+ @button.Button(button.Props{Variant:button.VariantGhost,Size:button.SizeSm,Disabled:true,Attributes:templ.Attributes{"data-format-source":true}}) {
+ @icon.Icon("code-xml")(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Форматировать") }</span>
+ }
+ </div></div>
+ <p class="notice notice-error" data-format-error role="alert" hidden></p>
+ <label class="sr-only" for="template-source">{ i18n.T(ctx,"Код файла") }</label><textarea id="template-source" name="content" data-code-source data-filename={ selected } class="template-code-fallback" spellcheck="false" wrap="soft">{ content }</textarea>
  <div class="template-code-footer"><p class="field-help">{ i18n.T(ctx,"Перед сохранением проверяются все HTML-файлы шаблона. Правки активного шаблона сразу появятся на сайте.") }</p>
- if history && !readonly {
+ if history {
  @button.Button(button.Props{Type:button.TypeSubmit,Size:button.SizeSm,Variant:button.VariantOutline,Attributes:templ.Attributes{"name":"intent","value":"restore","hx-confirm":i18n.T(ctx,"Вернуть предыдущую сохранённую версию этого файла?")}}) {
  { i18n.T(ctx,"Вернуть предыдущую версию") }
  }

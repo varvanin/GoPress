@@ -39,6 +39,19 @@ func (a *App) themeSource(mode string) (fs.FS, string, string, error) {
 	if mode == "" {
 		mode = "journal"
 	}
+	if builtinTemplate(mode) {
+		if _, err := os.Stat(a.deletedBuiltinPath(mode)); err == nil {
+			return nil, "", "", echo.NewHTTPError(404, "Шаблон не найден")
+		} else if !errors.Is(err, os.ErrNotExist) {
+			return nil, "", "", err
+		}
+		dir := a.builtinTemplatePath(mode)
+		if _, err := os.Stat(filepath.Join(dir, "layout.html")); err == nil {
+			return os.DirFS(dir), "", mode, nil
+		} else if !errors.Is(err, os.ErrNotExist) {
+			return nil, "", "", err
+		}
+	}
 	if mode == "minimal" {
 		return resources, "theme-minimal/", mode, nil
 	}

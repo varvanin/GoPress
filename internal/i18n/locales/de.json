@@ -1,4 +1,7 @@
 {
+  "Форматировать": "Formatieren",
+  "Не удалось отформатировать код. Исходный текст сохранён.": "Der Code konnte nicht formatiert werden. Der ursprüngliche Text wurde beibehalten.",
+  "Активный шаблон нельзя удалить.": "Die aktive Vorlage kann nicht gelöscht werden.",
   "(недоступен)": "(nicht verfügbar)",
   "/about или https://…": "/about oder https://…",
   "Alt и подпись применяются при новой вставке в материал.": "Alt-Text und Bildunterschrift gelten beim erneuten Einfügen.",

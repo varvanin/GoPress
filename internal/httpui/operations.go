@@ -18,6 +18,10 @@ import (
 func (a *App) operationGuard(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		path := c.Request().URL.Path
+		// Liveness must remain responsive while backups or recovery hold the site lock.
+		if path == "/healthz" {
+			return next(c)
+		}
 		exclusive := c.Request().Method == "POST" && (path == "/admin/tools/backups/create" || path == "/admin/tools/backups/restore" || path == "/admin/tools/backups/delete")
 		if exclusive {
 			a.Service.Operations.Lock()

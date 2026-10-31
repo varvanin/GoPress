@@ -231,17 +231,26 @@ var formShortcode = regexp.MustCompile(`<p(?: [^>]*)?>\[form id=([1-9][0-9]{0,18
 
 func (a *App) renderForms(c *echo.Context, body string) (string, error) {
 	var csrf string
+	loaded := map[int64]store.Form{}
 	return replaceContentBlocks(body, formShortcode, func(code string) (string, error) {
 		id, err := strconv.ParseInt(formShortcode.FindStringSubmatch(code)[1], 10, 64)
 		if err != nil {
 			return code, nil
 		}
-		f, err := a.Service.Store.Form(id)
-		if errors.Is(err, sql.ErrNoRows) || err == nil && !f.Enabled {
-			return "", nil
+		f, found := loaded[id]
+		if !found {
+			f, err = a.Service.Store.Form(id)
+			if errors.Is(err, sql.ErrNoRows) {
+				f = store.Form{}
+				err = nil
+			}
+			if err != nil {
+				return "", err
+			}
+			loaded[id] = f
 		}
-		if err != nil {
-			return "", err
+		if !f.Enabled {
+			return "", nil
 		}
 		c.Response().Header().Set("Cache-Control", "no-store")
 		if csrf == "" {

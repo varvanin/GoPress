@@ -644,7 +644,7 @@ func AppearancePage(site, csrf string, value store.Appearance, themes []ThemeInf
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if strings.HasPrefix(theme.ID, "theme:") && theme.ID != value.Theme {
+				if (strings.HasPrefix(theme.ID, "theme:") || builtinTemplate(theme.ID)) && theme.ID != value.Theme {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<form action=\"/admin/themes/delete\" method=\"post\" hx-confirm=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err

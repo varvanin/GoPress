@@ -163,17 +163,26 @@ func (a *App) renderFAQ(c *echo.Context, body string) (string, error) {
 	if !enabled {
 		return faqShortcode.ReplaceAllString(body, ""), nil
 	}
+	loaded := map[int64]store.FAQGroup{}
 	return replaceContentBlocks(body, faqShortcode, func(code string) (string, error) {
 		id, err := strconv.ParseInt(faqShortcode.FindStringSubmatch(code)[1], 10, 64)
 		if err != nil {
 			return code, nil
 		}
-		f, err := a.Service.Store.FAQ(id)
-		if errors.Is(err, sql.ErrNoRows) {
-			return "", nil
+		f, found := loaded[id]
+		if !found {
+			f, err = a.Service.Store.FAQ(id)
+			if errors.Is(err, sql.ErrNoRows) {
+				f = store.FAQGroup{}
+				err = nil
+			}
+			if err != nil {
+				return "", err
+			}
+			loaded[id] = f
 		}
-		if err != nil {
-			return "", err
+		if f.ID == 0 {
+			return "", nil
 		}
 		out := themeOutput{limit: 2 << 20}
 		err = PublicFAQ(f).Render(c.Request().Context(), &out)

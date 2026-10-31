@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"io"
@@ -155,6 +156,11 @@ func (v *Service) RestoreBackup(id string) error {
 		}
 		return err
 	}
+	_, siteErr := v.Store.Site()
+	if siteErr != nil && !errors.Is(siteErr, sql.ErrNoRows) {
+		return siteErr
+	}
+	v.installed.Store(siteErr == nil)
 	if err = os.Remove(marker); err != nil {
 		return err
 	}

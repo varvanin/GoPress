@@ -32,8 +32,8 @@ func TestTemplateEditorCopySaveValidationConflictAndRestore(t *testing.T) {
 		}
 	}
 
-	if !strings.Contains(readonly.Body.String(), "Создать редактируемую копию") || !strings.Contains(readonly.Body.String(), " readonly") {
-		t.Fatal("builtin editable")
+	if strings.Contains(readonly.Body.String(), "Создать редактируемую копию") || strings.Contains(readonly.Body.String(), " readonly") || !strings.Contains(readonly.Body.String(), "Сохранить файл") {
+		t.Fatal("builtin editor must allow direct editing")
 	}
 	// The editor's dynamic CSS gets a per-document nonce, retained by the full admin shell during SPA navigation.
 	nonceStart := strings.Index(readonly.Body.String(), `name="style-nonce" content="`)
@@ -47,7 +47,7 @@ func TestTemplateEditorCopySaveValidationConflictAndRestore(t *testing.T) {
 	status(t, adminHTML(b, "POST", "/admin/themes/editor/copy", url.Values{"theme": {"minimal"}}, false, false, false), 403)
 	status(t, adminHTML(b, "POST", "/admin/themes/editor/copy", url.Values{"theme": {"minimal"}}, false, false, true), 303)
 	id := "theme:minimal-copy"
-	files, dir, err := app.templateFiles(id, "")
+	files, dir, _, err := app.templateFiles(id, "", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -128,7 +128,7 @@ func TestTemplateEditorPermissionsAndSafePaths(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, dir, err := app.templateFiles(id, "")
+	_, dir, _, err := app.templateFiles(id, "", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -194,15 +194,106 @@ func TestTemplateSelectionReadsOnlyTheSelectedContents(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	selected, dir, err := app.templateFiles("custom", "page.html")
+	selected, dir, _, err := app.templateFiles("custom", "page.html", false)
 	if err != nil || dir != root || string(selected["page.html"].Data) != "page" {
 		t.Fatal(dir, err)
 	}
 	if len(selected["assets/image.webp"].Data) != 0 || len(selected["layout.html"].Data) != 0 {
 		t.Fatal("selection reads unrelated payloads")
 	}
-	full, _, err := app.templateFiles("custom", "")
+	full, _, _, err := app.templateFiles("custom", "", false)
 	if err != nil || len(full["assets/image.webp"].Data) != 4<<20 {
 		t.Fatal("copy/validation no longer receives the full package", err)
+	}
+}
+
+func TestBuiltinTemplatesDirectSaveAssetsRestoreAndDelete(t *testing.T) {
+	s, app, b := seoApp(t)
+	for _, id := range []string{"journal", "minimal", "studio"} {
+		files, dir, _, err := app.templateFiles(id, "", false)
+		if err != nil {
+			t.Fatal(err)
+		}
+		original := string(files["layout.html"].Data)
+		fields := url.Values{"theme": {id}, "file": {"layout.html"}, "revision": {templateFileHash([]byte(original))}, "content": {strings.Replace(original, "</body>", "<p>Direct edit</p></body>", 1)}}
+		if _, err = os.Stat(dir); !os.IsNotExist(err) {
+			t.Fatal("GET created template files", err)
+		}
+		fields.Set("content", "{{if}} unsaved")
+		status(t, adminHTML(b, "POST", "/admin/themes/editor/save", fields, true, false, true), 400)
+		if _, err = os.Stat(dir); !os.IsNotExist(err) {
+			t.Fatal("invalid save installed files")
+		}
+		fields.Set("content", strings.Replace(original, "</body>", "<p>Direct edit</p></body>", 1))
+		status(t, adminHTML(b, "POST", "/admin/themes/editor/save", fields, false, false, false), 403)
+		status(t, adminHTML(b, "POST", "/admin/themes/editor/save", fields, false, false, true), 303)
+		status(t, adminHTML(b, "POST", "/admin/themes/editor/save", fields, true, false, true), 409)
+		appearance, err := s.Appearance()
+		if err != nil {
+			t.Fatal(err)
+		}
+		appearance.Theme = id
+		if err = app.Service.SaveAppearance(context.Background(), appearance); err != nil {
+			t.Fatal(err)
+		}
+		page := b.request("GET", "/", "", "", false)
+		status(t, page, 200)
+		if !strings.Contains(page.Body.String(), "Direct edit") || !strings.Contains(page.Body.String(), "/builtin-assets/"+id+"/") {
+			t.Fatal("direct changes not public", id, page.Body.String())
+		}
+		css := "public.css"
+		if id == "minimal" {
+			css = "public-minimal.css"
+		}
+		if id == "studio" {
+			css = "public-studio.css"
+		}
+		cssOriginal := string(files["assets/"+css].Data)
+		if err = app.saveTemplateFile(id, "assets/"+css, templateFileHash([]byte(cssOriginal)), cssOriginal+"\n/* direct css */", false); err != nil {
+			t.Fatal(err)
+		}
+		asset := b.request("GET", "/builtin-assets/"+id+"/"+css, "", "", false)
+		status(t, asset, 200)
+		if !strings.Contains(asset.Body.String(), "direct css") {
+			t.Fatal("CSS not saved")
+		}
+		edited, err := os.ReadFile(filepath.Join(dir, "layout.html"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = app.saveTemplateFile(id, "layout.html", templateFileHash(edited), "", true); err != nil {
+			t.Fatal(err)
+		}
+		restored, _ := os.ReadFile(filepath.Join(dir, "layout.html"))
+		if string(restored) != original {
+			t.Fatal("restore changed builtin")
+		}
+		status(t, adminHTML(b, "POST", "/admin/themes/delete", url.Values{"theme": {id}}, false, false, true), 400)
+	}
+	// Studio is active; deleting another builtin removes it without touching content or packages.
+	status(t, adminHTML(b, "POST", "/admin/themes/delete", url.Values{"theme": {"minimal"}}, false, false, false), 403)
+	status(t, adminHTML(b, "POST", "/admin/themes/delete", url.Values{"theme": {"minimal"}}, false, false, true), 303)
+	themes, err := app.themes()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, theme := range themes {
+		if theme.ID == "minimal" {
+			t.Fatal("deleted builtin still listed")
+		}
+	}
+	if _, _, _, err = app.themeSource("minimal"); err == nil {
+		t.Fatal("deleted builtin resolves")
+	}
+	status(t, b.request("GET", templateEditorURL("minimal", "layout.html"), "", "", false), 404)
+	if _, err = os.Stat(app.builtinTemplatePath("minimal")); !os.IsNotExist(err) {
+		t.Fatal("deleted local files remain")
+	}
+	status(t, b.request("GET", "/builtin-assets/minimal/public-minimal.css", "", "", false), 404)
+	status(t, b.request("GET", "/builtin-assets/not-a-builtin/public.css", "", "", false), 404)
+	// Markers live under theme/ and survive a new App, like backups and updates.
+	fresh := &App{Service: app.Service}
+	if _, _, _, err = fresh.themeSource("minimal"); err == nil {
+		t.Fatal("deleted builtin reappeared")
 	}
 }

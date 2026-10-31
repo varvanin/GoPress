@@ -53,7 +53,7 @@ All parts load before the selected page. Other page bodies are not loaded togeth
 | `.Home`, `.HomeIsPage`, `.Archive`, `.NotFound`, `.Preview` | Home, selected-page home, archive, 404 and private-preview flags |
 | `.Template` | Actual selected filename after fallback |
 | `.Site.Title`, `.Site.Description`, `.Site.BaseURL`, `.Site.Timezone` | Site name, description, configured origin and timezone |
-| `.ThemeAssets` | Current asset base: `/theme-assets/ID` for packages, `/assets` for built-ins/legacy local templates |
+| `.ThemeAssets` | Current asset base: `/theme-assets/ID` for packages, `/builtin-assets/ID` for edited built-ins, `/assets` for untouched built-ins and legacy local templates |
 | `.Appearance.HomeTitle`, `.Appearance.HomeDescription`, `.Appearance.Theme` | Feed heading/description and selected template identifier |
 | `.SEO.RSS` | Whether RSS links should be visible; wrap custom subscription links in `{{if .SEO.RSS}}` |
 | `.SEO.ContentLanguage` | Selected content language code for `<html lang>`; originals use the language saved with the material |
@@ -127,7 +127,9 @@ The public CSP permits local scripts/styles/fonts, not inline JS/CSS or external
 
 Open Templates → Editor on a card. The left column lists root HTML, `parts` and CSS/JS under `assets`; the code panel provides highlighting, line numbers, search, wrapping and indentation. Ctrl/Cmd+S saves. Tab indents; Escape followed by Tab lets keyboard users leave the editor. A file must be at most 512 KiB to edit.
 
-Built-ins open read-only. Create an editable copy to install a separate package without automatically activating it; the original remains available. Uploaded packages and the legacy local template edit directly.
+Built-in templates can be edited directly. The first successful save stores a complete local version under the same template ID; subsequent updates preserve it. Uploaded packages and the legacy local template also edit directly. Inactive built-in and uploaded templates can be deleted from the catalog; activate another template before deleting the current one. Deleted built-ins stay hidden after updates.
+
+Use Format in the file header to format HTML, CSS or JavaScript with two-space indentation. Formatting runs locally in the browser, preserves Go actions and does not save the file. Undo reverts the formatting as one change; save explicitly to apply it to the site.
 
 Before replacement, the server renders the HTML template set. A failed check leaves the live file untouched and retains edits on screen. A stale file hash raises a conflict: copy your edits and reopen the current version rather than overwriting another tab.
 

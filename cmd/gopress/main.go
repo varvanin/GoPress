@@ -144,17 +144,17 @@ func run(args []string) error {
 		return nil
 	case "healthcheck":
 		client := &http.Client{Timeout: 3 * time.Second}
-		path := "/readyz"
+		path := "/healthz"
 		if *installed {
 			path += "?installed=1"
 		}
 		response, err := client.Get("http://" + *addr + path)
 		if err != nil {
-			return errors.New("readiness check failed")
+			return errors.New("health check failed")
 		}
 		defer response.Body.Close()
 		if response.StatusCode != 200 {
-			return errors.New("readiness check failed")
+			return errors.New("health check failed")
 		}
 		return nil
 	case "serve":

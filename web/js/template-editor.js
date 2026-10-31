@@ -3,7 +3,8 @@ import {EditorState,Compartment} from '@codemirror/state';
 import {Decoration,MatchDecorator,ViewPlugin,keymap} from '@codemirror/view';
 import {HighlightStyle,syntaxHighlighting} from '@codemirror/language';
 import {tags} from '@lezer/highlight';
-import {indentWithTab} from '@codemirror/commands';
+import {indentWithTab,isolateHistory} from '@codemirror/commands';
+import {t} from './i18n.js';
 import {html} from '@codemirror/lang-html';
 import {css} from '@codemirror/lang-css';
 import {javascript} from '@codemirror/lang-javascript';
@@ -23,7 +24,8 @@ const goTemplates=ViewPlugin.fromClass(class {
 export function mountSourceEditor(form){
  const source=form.querySelector('[data-code-source]');
  const host=document.createElement('div');host.className='template-codemirror';source.after(host);
- const status=form.querySelector('[data-code-status]');
+ const formatButton=form.querySelector('[data-format-source]'),formatError=form.querySelector('[data-format-error]');
+ let disposed=false,formatting=false;
  const access=new Compartment();
  const appearance=new Compartment();
  const skin=()=>EditorView.theme({},{dark:document.documentElement.dataset.adminTheme!=='light'});
@@ -42,14 +44,28 @@ export function mountSourceEditor(form){
    appearance.of(skin()),
    EditorView.updateListener.of(update=>{
     if(update.docChanged){source.value=update.state.doc.toString();source.dispatchEvent(new Event('input',{bubbles:true}));}
-    if(status){const cursor=update.state.selection.main.head,line=update.state.doc.lineAt(cursor);status.textContent=`${line.number}:${cursor-line.from+1} · ${update.state.doc.lines}`;}
    }),
   ]}),
  });
  const updateAppearance=()=>view.dispatch({effects:appearance.reconfigure(skin())});
  document.addEventListener('admin-theme-change',updateAppearance);
  source.hidden=true;
+ const format=async()=>{
+  if(formatting||!view.state.facet(EditorView.editable))return;
+  const before=view.state.doc;
+  formatting=true;formatButton.disabled=true;if(formatError)formatError.hidden=true;
+  try{
+   const {formatTemplateSource}=await import('/assets/template-formatter.js');
+   if(disposed||view.state.doc!==before||!view.state.facet(EditorView.editable))return;
+   const formatted=formatTemplateSource(before.toString(),source.dataset.filename);
+   if(formatted!==before.toString())view.dispatch({changes:{from:0,to:before.length,insert:formatted},selection:{anchor:Math.min(view.state.selection.main.head,formatted.length)},annotations:isolateHistory.of('full')});
+   view.focus();
+  }catch(error){
+   if(!disposed&&formatError){formatError.textContent=t('Не удалось отформатировать код. Исходный текст сохранён.');formatError.hidden=false;}
+  }finally{formatting=false;if(!disposed)formatButton.disabled=!view.state.facet(EditorView.editable);}
+ };
+ if(formatButton){formatButton.disabled=source.readOnly;formatButton.addEventListener('click',format);}
  const save=event=>{if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s'){event.preventDefault();if(!source.readOnly)form.requestSubmit();}};
  form.addEventListener('keydown',save);
- return {form,setPending(pending){view.dispatch({effects:access.reconfigure([EditorState.readOnly.of(pending||source.readOnly),EditorView.editable.of(!pending&&!source.readOnly)])});},destroy(){document.removeEventListener('admin-theme-change',updateAppearance);source.value=view.state.doc.toString();view.destroy();host.remove();source.hidden=false;form.removeEventListener('keydown',save);}};
+ return {form,setPending(pending){view.dispatch({effects:access.reconfigure([EditorState.readOnly.of(pending||source.readOnly),EditorView.editable.of(!pending&&!source.readOnly)])});if(formatButton)formatButton.disabled=pending||source.readOnly||formatting;},destroy(){disposed=true;formatButton?.removeEventListener('click',format);document.removeEventListener('admin-theme-change',updateAppearance);source.value=view.state.doc.toString();view.destroy();host.remove();source.hidden=false;form.removeEventListener('keydown',save);}};
 }

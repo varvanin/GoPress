@@ -54,7 +54,7 @@ func themeTemplates(source fs.FS, prefix, page string, zone *time.Location, size
 			if name == "." || !fs.ValidPath(name) || strings.ContainsAny(name, "\\:?#") {
 				return "", fmt.Errorf("asset: недопустимый путь %q", name)
 			}
-			if base != "/assets" && !strings.HasPrefix(base, "/theme-assets/") {
+			if base != "/assets" && !strings.HasPrefix(base, "/theme-assets/") && !strings.HasPrefix(base, "/builtin-assets/") {
 				return "", fmt.Errorf("asset: недопустимый адрес ресурсов")
 			}
 			segments := strings.Split(name, "/")

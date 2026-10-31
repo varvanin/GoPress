@@ -37,6 +37,15 @@ func legacyTheme(dir string) bool {
 }
 func (a *App) themes() ([]ThemeInfo, error) {
 	themes := []ThemeInfo{{ID: "journal", Name: "Журнал", Version: "1.0", Author: "GoPress", Description: "Редакционная лента, категории и удобное чтение."}, {ID: "minimal", Name: "Минимал", Version: "1.0", Author: "GoPress", Description: "Личный сайт с боковой навигацией, текстовой лентой и спокойным чтением."}, {ID: "studio", Name: "Студия", Version: "1.0", Author: "GoPress", Description: "Тёмное портфолио с крупными заголовками и сеткой проектов."}}
+	visible := themes[:0]
+	for _, theme := range themes {
+		if _, err := os.Stat(a.deletedBuiltinPath(theme.ID)); errors.Is(err, os.ErrNotExist) {
+			visible = append(visible, theme)
+		} else if err != nil {
+			return nil, err
+		}
+	}
+	themes = visible
 	if legacyTheme(a.Service.Store.Dir) {
 		themes = append(themes, ThemeInfo{ID: "custom", Name: "Локальный шаблон", Description: "Шаблоны из папки theme."})
 	}
@@ -238,8 +247,25 @@ func (a *App) themeRoutes(g *echo.Group) {
 		if err != nil {
 			return err
 		}
-		if !strings.HasPrefix(id, "theme:") || !service.ValidTheme(id) || current.Theme == id {
-			return a.appearancePage(c, 400, "Активный или встроенный шаблон нельзя удалить.", nil)
+		_, _, active, err := a.themeSource(current.Theme)
+		if err != nil {
+			return err
+		}
+		if (!strings.HasPrefix(id, "theme:") && !builtinTemplate(id)) || !service.ValidTheme(id) || active == id {
+			return a.appearancePage(c, 400, "Активный шаблон нельзя удалить.", nil)
+		}
+		if builtinTemplate(id) {
+			marker := a.deletedBuiltinPath(id)
+			if err = os.MkdirAll(filepath.Dir(marker), 0700); err != nil {
+				return err
+			}
+			if err = atomicTemplateFile(marker, []byte("deleted\n")); err != nil {
+				return err
+			}
+			if err = os.RemoveAll(a.builtinTemplatePath(id)); err != nil {
+				return err
+			}
+			return c.Redirect(303, "/admin/themes?deleted=1")
 		}
 		// Rename first so new requests cannot select a partially deleted theme.
 		root := filepath.Join(a.Service.Store.Dir, "theme", "packages")
@@ -364,6 +390,8 @@ func (a *App) themeRoutes(g *echo.Group) {
 }
 
 func (a *App) themeAsset(c *echo.Context) error {
+	a.themeMu.RLock()
+	defer a.themeMu.RUnlock()
 	id := c.Param("theme")
 	if !service.ValidTheme("theme:" + id) {
 		return echo.NewHTTPError(404, "Шаблон не найден")
@@ -372,7 +400,19 @@ func (a *App) themeAsset(c *echo.Context) error {
 	if name == "" || strings.ContainsAny(name, "\\:") || path.Clean(name) != name || strings.HasPrefix(name, "../") || strings.HasPrefix(name, "/") {
 		return echo.NewHTTPError(404, "Шаблон не найден")
 	}
-	root := os.DirFS(filepath.Join(a.Service.Store.Dir, "theme", "packages", id, "assets"))
+	dir := filepath.Join(a.Service.Store.Dir, "theme", "packages", id, "assets")
+	if c.Path() == "/builtin-assets/:theme/*" {
+		if !builtinTemplate(id) {
+			return echo.NewHTTPError(404, "Шаблон не найден")
+		}
+		if _, err := os.Stat(a.deletedBuiltinPath(id)); err == nil {
+			return echo.NewHTTPError(404, "Шаблон не найден")
+		} else if !errors.Is(err, os.ErrNotExist) {
+			return err
+		}
+		dir = filepath.Join(a.builtinTemplatePath(id), "assets")
+	}
+	root := os.DirFS(dir)
 	// Installed packages contain only regular files; no directory indexes or HTML are served.
 	file, err := root.Open(name)
 	if err != nil {

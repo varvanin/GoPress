@@ -1,4 +1,7 @@
 {
+  "Форматировать": "Format",
+  "Не удалось отформатировать код. Исходный текст сохранён.": "Could not format the code. The original text was preserved.",
+  "Активный шаблон нельзя удалить.": "The active template cannot be deleted.",
   "(недоступен)": "(unavailable)",
   "/about или https://…": "/about or https://…",
   "Alt и подпись применяются при новой вставке в материал.": "Alt text and captions apply when inserting an image again.",

@@ -82,3 +82,9 @@ test('updating uses its own confirmation label and reports preparation rather th
  assert.equal(deletionPrompt(submitter).label,'Обновить');
  assert.equal(actionMessage(submitter),'Проверка перед обновлением начата.');
 });
+
+test('restoring a template file confirms restoration rather than deletion',()=>{
+ const f={getAttribute:name=>name==='action'?'/admin/themes/editor/save':null,querySelector:()=>null};
+ const restore={name:'intent',value:'restore',form:f,closest:selector=>selector==='[hx-confirm]'?{getAttribute:()=> 'Вернуть предыдущую версию?'}:f};
+ assert.deepEqual(deletionPrompt(restore,{intent:'restore'}),{message:'Вернуть предыдущую версию?',label:'Восстановить'});
+});

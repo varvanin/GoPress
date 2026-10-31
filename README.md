@@ -32,7 +32,7 @@ Flags override environment values:
 | `--data` | `GOPRESS_DATA` | `./data` |
 | `--addr` | `GOPRESS_ADDR` | `127.0.0.1:8080` |
 
-Keep data on a local persistent disk, not NFS/SMB or a public web directory. Only one process may hold the site's directory lock. Shutdown with Ctrl+C/SIGTERM drains requests and closes SQLite. `/healthz` checks the process; `/readyz` checks the database, including before installation.
+Keep data on a local persistent disk, not NFS/SMB or a public web directory. Only one process may hold the site's directory lock. Shutdown with Ctrl+C/SIGTERM drains requests and closes SQLite. `/healthz` checks the process without waiting for backup/restore locks; `/readyz` checks the database, including before installation. Container `healthcheck` uses `/healthz`; `--installed` also requires the installation state established at startup, installation or restoration. Database readiness remains available separately at `/readyz?installed=1`.
 
 The current local verification platform is macOS amd64. Linux amd64/arm64 packages can be built; deployment acceptance is still required. The filesystem lock currently makes Windows unsupported.
 
@@ -114,7 +114,7 @@ Header and footer menus support ordered links and up to three levels. Removing a
 
 Journal, Minimal and Studio are distinct built-in templates. Install custom template ZIPs, preview without activation and switch without changing content. The catalog clearly identifies the active template. Built-in previews are design illustrations rather than browser screenshots.
 
-The in-app reference documents template selection, shared parts, variables, functions and conditions. The CodeMirror file editor supports HTML/CSS/JS, Go directives, line numbers, search, wrapping and Ctrl/Cmd+S. Built-ins are read-only until copied. Saves validate the HTML template set, check the file hash and atomically replace a file; the previous version can be restored.
+The in-app reference documents template selection, shared parts, variables, functions and conditions. The CodeMirror file editor supports HTML/CSS/JS, Go directives, line numbers, search, wrapping, an undoable Format action for HTML/CSS/JS and Ctrl/Cmd+S. Built-ins edit directly; saved local versions survive updates. Saves validate the HTML template set, check the file hash and atomically replace a file; the previous version can be restored.
 
 [Template guide](docs/THEMES.md) · [Developer reference](internal/httpui/starter/TEMPLATE_REFERENCE.md) · [Journal](docs/JOURNAL_DESIGN.md) · [Minimal](docs/MINIMAL_DESIGN.md)
 

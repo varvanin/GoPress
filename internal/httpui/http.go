@@ -6,6 +6,7 @@ import (
 	"embed"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"html/template"
 	"io"
 	"io/fs"
@@ -17,6 +18,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/labstack/echo/v5"
@@ -129,12 +131,17 @@ func New(v *service.Service) *App {
 			if strings.Contains(err.Error(), "constraint failed") {
 				code, msg = 409, "Conflicting URL or reference"
 			} else {
-				slog.Error("request failed", "route", c.Path())
+				slog.Error("request failed", "route", c.Path(), "request_id", c.Response().Header().Get("X-Request-ID"), "cause", requestErrorDetail(err))
 			}
 		}
 		_ = c.String(code, msg)
 	}
-	e.GET("/healthz", func(c *echo.Context) error { return c.String(200, "ok") })
+	e.GET("/healthz", func(c *echo.Context) error {
+		if c.QueryParam("installed") == "1" && !v.Installed() {
+			return echo.NewHTTPError(503, "Site is not installed")
+		}
+		return c.String(200, "ok")
+	})
 	e.GET("/readyz", func(c *echo.Context) error {
 		if c.QueryParam("installed") == "1" {
 			if _, err := v.Store.Site(); err != nil {
@@ -150,6 +157,7 @@ func New(v *service.Service) *App {
 	e.GET("/assets/*", echo.WrapHandler(http.StripPrefix("/assets/", http.FileServer(http.FS(assets)))))
 	e.GET("/install", a.installForm)
 	e.GET("/theme-assets/:theme/*", a.themeAsset)
+	e.GET("/builtin-assets/:theme/*", a.themeAsset)
 	e.POST("/install", a.install, a.csrf)
 	e.GET("/login", a.loginForm)
 	e.POST("/login", a.login, a.csrf)
@@ -305,6 +313,25 @@ func New(v *service.Service) *App {
 	})
 	return a
 }
+
+// Log operational causes without request data, credentials or private file paths.
+func requestErrorDetail(err error) string {
+	var errno syscall.Errno
+	if errors.As(err, &errno) {
+		return errno.Error()
+	}
+	for _, cause := range []error{fs.ErrPermission, fs.ErrNotExist, context.Canceled, context.DeadlineExceeded, io.ErrUnexpectedEOF} {
+		if errors.Is(err, cause) {
+			return cause.Error()
+		}
+	}
+	var code interface{ Code() int }
+	if errors.As(err, &code) {
+		return fmt.Sprintf("database error, code %d", code.Code())
+	}
+	return fmt.Sprintf("unexpected error (%T)", err)
+}
+
 func requestBodyLimit(path string) int64 {
 	switch {
 	case path == "/admin/tools/backups/import":
@@ -696,6 +723,8 @@ func (a *App) render(c *echo.Context, p store.Page, notFound bool, preview ...st
 	assets := "/assets"
 	if strings.HasPrefix(appearance.Theme, "theme:") {
 		assets = "/theme-assets/" + strings.TrimPrefix(appearance.Theme, "theme:")
+	} else if builtinTemplate(appearance.Theme) && prefix == "" {
+		assets = "/builtin-assets/" + appearance.Theme
 	}
 	t, err := themeTemplates(source, prefix, page, zone, settings.PostsPerPage)
 	if err != nil {

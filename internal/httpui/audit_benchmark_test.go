@@ -1,7 +1,6 @@
 package httpui
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -31,14 +30,18 @@ func BenchmarkTemplateEditorSelection(b *testing.B) {
 		}
 	}
 	app := &App{Service: &service.Service{Store: &store.Store{Dir: dir}}}
-	for _, selected := range []string{"", "page.html"} {
-		b.Run(fmt.Sprintf("selected=%q", selected), func(b *testing.B) {
+	for _, mode := range []struct {
+		name, file string
+		save       bool
+	}{{"full", "", false}, {"selected", "page.html", false}, {"save", "page.html", true}} {
+		b.Run(mode.name, func(b *testing.B) {
 			b.ReportAllocs()
 			for b.Loop() {
-				if _, _, err := app.templateFiles("custom", selected); err != nil {
+				if _, _, _, err := app.templateFiles("custom", mode.file, mode.save); err != nil {
 					b.Fatal(err)
 				}
 			}
 		})
 	}
+
 }

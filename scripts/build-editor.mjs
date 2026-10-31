@@ -9,9 +9,10 @@ const result = await build({
   banner: { js: '/*! Third-party licenses: /assets/frontend-LICENSES.txt */' },
 });
 await build({entryPoints:['web/js/admin.js'],bundle:true,format:'esm',minify:true,external:['/assets/*'],outfile:'internal/httpui/assets/admin.js'});
-const codeResult=await build({entryPoints:['web/js/template-editor.js'],bundle:true,format:'esm',minify:true,metafile:true,legalComments:'eof',outfile:'internal/httpui/assets/template-editor.js',banner:{js:'/*! CodeMirror; third-party licenses: /assets/frontend-LICENSES.txt */'}});
+const codeResult=await build({entryPoints:['web/js/template-editor.js'],bundle:true,format:'esm',minify:true,metafile:true,external:['/assets/*'],legalComments:'eof',outfile:'internal/httpui/assets/template-editor.js',banner:{js:'/*! CodeMirror; third-party licenses: /assets/frontend-LICENSES.txt */'}});
+const formatterResult=await build({entryPoints:['web/js/template-formatter.js'],bundle:true,format:'esm',minify:true,metafile:true,legalComments:'eof',outfile:'internal/httpui/assets/template-formatter.js',banner:{js:'/*! JS Beautify; third-party licenses: /assets/frontend-LICENSES.txt */'}});
 const packages = new Set();
-for (const input of Object.keys({...result.metafile.inputs,...codeResult.metafile.inputs})) {
+for (const input of Object.keys({...result.metafile.inputs,...codeResult.metafile.inputs,...formatterResult.metafile.inputs})) {
   if (!input.startsWith('node_modules/')) continue;
   const parts = input.slice('node_modules/'.length).split('/');
   packages.add(parts[0].startsWith('@') ? parts.slice(0, 2).join('/') : parts[0]);

@@ -553,20 +553,27 @@ func (a *App) packageModuleRoutes(g *echo.Group) {
 var moduleShortcode = regexp.MustCompile(`<p(?: [^>]*)?>\[module id=(?:"|&quot;|&#34;)([a-z][a-z0-9-]{0,47})(?:"|&quot;|&#34;)\]</p>`)
 
 func (a *App) renderModules(c *echo.Context, body string) (string, error) {
+	rendered := map[string]string{}
 	return replaceContentBlocks(body, moduleShortcode, func(code string) (string, error) {
 		id := moduleShortcode.FindStringSubmatch(code)[1]
+		if value, found := rendered[id]; found {
+			return value, nil
+		}
 		p, err := a.Service.Store.ModuleContent(id)
 		if errors.Is(err, sql.ErrNoRows) || err == nil && !p.Enabled {
+			rendered[id] = ""
 			return "", nil
 		}
 		if err != nil {
 			return "", err
 		}
-		rendered, err := renderModule(p)
+		content, err := renderModule(p)
 		if err != nil {
 			return "", fmt.Errorf("module %s: %w", id, err)
 		}
-		return `<link rel="stylesheet" href="/module-assets/` + id + `/style.css"><section class="gp-module gp-module-` + id + `">` + rendered + `</section>`, nil
+		value := `<section class="gp-module gp-module-` + id + `">` + content + `</section>`
+		rendered[id] = value
+		return `<link rel="stylesheet" href="/module-assets/` + id + `/style.css">` + value, nil
 	})
 }
 

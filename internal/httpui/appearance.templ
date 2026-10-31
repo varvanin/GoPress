@@ -76,7 +76,7 @@ templ AppearancePage(site, csrf string, value store.Appearance, themes []ThemeIn
 							@button.Button(button.Props{Href: templateEditorURL(theme.ID, "layout.html"), Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Редактор"), "title": i18n.T(ctx, "Редактор")}}) {
 								@icon.PenLine(icon.Props{Class: "size-4"})
 							}
-							if strings.HasPrefix(theme.ID,"theme:") && theme.ID!=value.Theme {
+							if (strings.HasPrefix(theme.ID,"theme:") || builtinTemplate(theme.ID)) && theme.ID!=value.Theme {
 								<form action="/admin/themes/delete" method="post" hx-confirm={ i18n.T(ctx, "Удалить шаблон «") + theme.Name + i18n.T(ctx, "»? Материалы сайта сохранятся.") }>
 									<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="theme" value={ theme.ID }/>
 									@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Удалить шаблон ") + theme.Name, "title": i18n.T(ctx, "Удалить шаблон")}}) {

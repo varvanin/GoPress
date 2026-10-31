@@ -58,6 +58,7 @@ export function deletionPrompt(element, parameters={}) {
  if(action==='delete')return {message:t('Удалить выбранную категорию или тег? Связи с материалами будут удалены.'),label:t('Удалить')};
  if(form?.getAttribute('action')==='/admin/updates/install')return {message:t('Установить обновление? GoPress создаст резервную копию и временно включит обслуживание сайта.'),label:t('Обновить')};
  const question=element?.closest?.('[hx-confirm]')?.getAttribute('hx-confirm');
+ if(question&&form?.getAttribute('action')==='/admin/themes/editor/save'&&value('intent')==='restore')return {message:question,label:t('Восстановить')};
  return question?{message:question,label:form?.getAttribute('action')?.endsWith('/backups/restore')?t('Восстановить'):t('Удалить')}:null;
 }
 export function actionMessage(element, parameters={}) {

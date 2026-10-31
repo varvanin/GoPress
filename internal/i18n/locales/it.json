@@ -1,4 +1,7 @@
 {
+  "Форматировать": "Formatta",
+  "Не удалось отформатировать код. Исходный текст сохранён.": "Impossibile formattare il codice. Il testo originale è stato conservato.",
+  "Активный шаблон нельзя удалить.": "Il template attivo non può essere eliminato.",
   "(недоступен)": "(non disponibile)",
   "/about или https://…": "/about o https://…",
   "Alt и подпись применяются при новой вставке в материал.": "Testo alternativo e didascalia si applicano al nuovo inserimento dell'immagine.",

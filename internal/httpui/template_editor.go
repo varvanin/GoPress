@@ -43,16 +43,16 @@ func templateFileHash(raw []byte) string {
 	sum := sha256.Sum256(raw)
 	return hex.EncodeToString(sum[:])
 }
-func (a *App) templateFiles(id, selected string) (fstest.MapFS, string, error) {
+func (a *App) templateFiles(id, selected string, forSave bool) (fstest.MapFS, string, int, error) {
 	if !service.ValidTheme(id) || id == "" {
-		return nil, "", service.ErrInvalid
+		return nil, "", 0, service.ErrInvalid
 	}
 	source, prefix, resolved, err := a.themeSource(id)
 	if err != nil {
-		return nil, "", err
+		return nil, "", 0, err
 	}
 	if resolved != id {
-		return nil, "", service.ErrInvalid
+		return nil, "", 0, service.ErrInvalid
 	}
 	result := fstest.MapFS{}
 	root := strings.TrimSuffix(prefix, "/")
@@ -85,16 +85,23 @@ func (a *App) templateFiles(id, selected string) (fstest.MapFS, string, error) {
 			return service.ErrInvalid
 		}
 		var raw []byte
-		if selected == "" || rel == selected {
-			if selected != "" && stat.Size() > 512<<10 {
+		if selected == "" || rel == selected || forSave && strings.HasSuffix(rel, ".html") {
+			if rel == selected && stat.Size() > 512<<10 {
 				return echo.NewHTTPError(400, "Файл превышает 512 KiB")
 			}
 			raw, err = fs.ReadFile(source, name)
 			if err != nil {
 				return err
 			}
+			if prefix != "" && strings.HasSuffix(rel, ".html") {
+				raw = templateAssetURLs(raw)
+			}
 		}
-		total += int(stat.Size())
+		if raw != nil {
+			total += len(raw)
+		} else {
+			total += int(stat.Size())
+		}
 		if total > 32<<20 || len(result) >= 256 {
 			return service.ErrInvalid
 		}
@@ -102,7 +109,7 @@ func (a *App) templateFiles(id, selected string) (fstest.MapFS, string, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, "", err
+		return nil, "", 0, err
 	}
 	if prefix != "" {
 		css := "public.css"
@@ -124,18 +131,28 @@ func (a *App) templateFiles(id, selected string) (fstest.MapFS, string, error) {
 			if selected == "" || selected == "assets/"+name {
 				raw, err = resources.ReadFile("assets/" + name)
 				if err != nil {
-					return nil, "", err
+					return nil, "", 0, err
 				}
+			}
+			info, err := fs.Stat(resources, "assets/"+name)
+			if err != nil {
+				return nil, "", 0, err
+			}
+			total += int(info.Size())
+			if total > 32<<20 {
+				return nil, "", 0, service.ErrInvalid
 			}
 			result["assets/"+name] = &fstest.MapFile{Data: raw, Mode: 0600}
 		}
-		return result, "", nil
+		return result, a.builtinTemplatePath(id), total, nil
 	}
 	dir := filepath.Join(a.Service.Store.Dir, "theme")
-	if strings.HasPrefix(id, "theme:") {
+	if builtinTemplate(id) {
+		dir = a.builtinTemplatePath(id)
+	} else if strings.HasPrefix(id, "theme:") {
 		dir = filepath.Join(dir, "packages", strings.TrimPrefix(id, "theme:"))
 	}
-	return result, dir, nil
+	return result, dir, total, nil
 }
 func (a *App) templateEditor(c *echo.Context, status int, message, submitted string, failed bool) error {
 	a.themeMu.RLock()
@@ -151,7 +168,7 @@ func (a *App) templateEditor(c *echo.Context, status int, message, submitted str
 	if selected == "" {
 		selected = "layout.html"
 	}
-	files, dir, err := a.templateFiles(id, selected)
+	files, _, _, err := a.templateFiles(id, selected, false)
 	if err != nil {
 		return err
 	}
@@ -175,51 +192,94 @@ func (a *App) templateEditor(c *echo.Context, status int, message, submitted str
 		content = submitted
 		revision = c.FormValue("revision")
 	}
-	history := false
-	if dir != "" {
-		_, e := os.Stat(a.templateHistoryPath(id, selected))
-		history = e == nil
-	}
+	_, historyErr := os.Stat(a.templateHistoryPath(id, selected))
+	history := historyErr == nil
 	site, err := a.Service.Store.Site()
 	if err != nil {
 		return err
 	}
-	return htmlComponent(c, status, TemplateEditor(site.Title, a.csrfToken(c), id, names, selected, content, revision, message, dir == "", history, failed))
+	return htmlComponent(c, status, TemplateEditor(site.Title, a.csrfToken(c), id, names, selected, content, revision, message, history, failed))
 }
 func (a *App) templateHistoryPath(id, name string) string {
 	return filepath.Join(a.Service.Store.Dir, "theme", "editor-history", templateFileHash([]byte(id)), templateFileHash([]byte(name))+".json")
 }
-func atomicTemplateFile(filename string, data []byte) error {
+func stageTemplateFile(filename string, data []byte) (string, error) {
 	temp, err := os.CreateTemp(filepath.Dir(filename), ".gopress-edit-")
 	if err != nil {
-		return err
+		return "", err
 	}
 	name := temp.Name()
-	defer os.Remove(name)
 	if err = temp.Chmod(0600); err == nil {
 		_, err = temp.Write(data)
 	}
 	if err == nil {
 		err = temp.Sync()
 	}
-	closeErr := temp.Close()
+	err = errors.Join(err, temp.Close())
+	if err != nil {
+		os.Remove(name)
+		return "", err
+	}
+	return name, nil
+}
+func atomicTemplateFile(filename string, data []byte) error {
+	staged, err := stageTemplateFile(filename, data)
 	if err != nil {
 		return err
 	}
-	if closeErr != nil {
-		return closeErr
-	}
-	return os.Rename(name, filename)
+	defer os.Remove(staged)
+	return os.Rename(staged, filename)
 }
+
+// Keep the old history recoverable until the prepared working file is committed.
+func commitTemplateSave(staged, target, stagedHistory, history string) error {
+	rollback, err := os.MkdirTemp(filepath.Dir(history), ".history-")
+	if err != nil {
+		return err
+	}
+	keep := false
+	defer func() {
+		if !keep {
+			os.RemoveAll(rollback)
+		}
+	}()
+	previous := filepath.Join(rollback, "previous.json")
+	err = os.Rename(history, previous)
+	hadHistory := err == nil
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	if err = os.Rename(stagedHistory, history); err == nil {
+		err = os.Rename(staged, target)
+	}
+	if err == nil {
+		return nil
+	}
+	var restoreErr error
+	if hadHistory {
+		restoreErr = os.Rename(previous, history)
+	} else {
+		restoreErr = os.Remove(history)
+		if errors.Is(restoreErr, os.ErrNotExist) {
+			restoreErr = nil
+		}
+	}
+	if restoreErr != nil {
+		keep = true
+		return fmt.Errorf("save failed: %w; history recovery failed: %v; previous history: %s", err, restoreErr, previous)
+	}
+	return err
+}
+
 func (a *App) saveTemplateFile(id, name, revision, content string, restore bool) error {
 	a.themeMu.Lock()
 	defer a.themeMu.Unlock()
-	files, dir, err := a.templateFiles(id, "")
+	files, dir, size, err := a.templateFiles(id, name, true)
 	if err != nil {
 		return err
 	}
 	old, ok := files[name]
-	if dir == "" || !ok || !editableTemplateFile(name) {
+	if !ok || !editableTemplateFile(name) {
 		return service.ErrInvalid
 	}
 	if templateFileHash(old.Data) != revision {
@@ -235,7 +295,7 @@ func (a *App) saveTemplateFile(id, name, revision, content string, restore bool)
 			return err
 		}
 	}
-	if !utf8.ValidString(content) || len(content) > 512<<10 {
+	if !utf8.ValidString(content) || len(content) > 512<<10 || size-len(old.Data)+len(content) > 32<<20 {
 		return service.ErrInvalid
 	}
 	if bytes.Equal(old.Data, []byte(content)) {
@@ -249,18 +309,87 @@ func (a *App) saveTemplateFile(id, name, revision, content string, restore bool)
 		return err
 	}
 	previous, _ := json.Marshal(string(old.Data))
-	if err = atomicTemplateFile(historyPath, previous); err != nil {
+	target := filepath.Join(dir, filepath.FromSlash(name))
+	var staged string
+	if builtinTemplate(id) {
+		if _, statErr := os.Stat(dir); errors.Is(statErr, os.ErrNotExist) {
+			// The initial local version needs all assets; later saves need only HTML and the edited file.
+			full, _, _, readErr := a.templateFiles(id, "", false)
+			if readErr != nil {
+				return readErr
+			}
+			full[name] = files[name]
+			staged, err = stageBuiltinTemplate(dir, full)
+			target = dir
+		} else if statErr != nil {
+			return statErr
+		}
+	}
+	if staged == "" && err == nil {
+		staged, err = stageTemplateFile(target, []byte(content))
+	}
+	if err != nil {
 		return err
 	}
-	return atomicTemplateFile(filepath.Join(dir, filepath.FromSlash(name)), []byte(content))
+	defer os.RemoveAll(staged)
+	stagedHistory, err := stageTemplateFile(historyPath, previous)
+	if err != nil {
+		return err
+	}
+	defer os.Remove(stagedHistory)
+	return commitTemplateSave(staged, target, stagedHistory, historyPath)
 }
+
+func builtinTemplate(id string) bool { return id == "journal" || id == "minimal" || id == "studio" }
+func (a *App) builtinTemplatePath(id string) string {
+	return filepath.Join(a.Service.Store.Dir, "theme", "builtins", id)
+}
+func (a *App) deletedBuiltinPath(id string) string {
+	return filepath.Join(a.Service.Store.Dir, "theme", "deleted-builtins", id)
+}
+
+// Publish the whole local template only after every file has been written.
+func stageBuiltinTemplate(dir string, files fstest.MapFS) (string, error) {
+	root := filepath.Dir(dir)
+	if err := os.MkdirAll(root, 0700); err != nil {
+		return "", err
+	}
+	stage, err := os.MkdirTemp(root, ".edit-")
+	if err != nil {
+		return "", err
+	}
+	ok := false
+	defer func() {
+		if !ok {
+			os.RemoveAll(stage)
+		}
+	}()
+	for name, file := range files {
+		target := filepath.Join(stage, filepath.FromSlash(name))
+		if err = os.MkdirAll(filepath.Dir(target), 0700); err != nil {
+			return "", err
+		}
+		if err = atomicTemplateFile(target, file.Data); err != nil {
+			return "", err
+		}
+	}
+	ok = true
+	return stage, nil
+}
+func templateAssetURLs(raw []byte) []byte {
+	for _, css := range []string{"public.css", "public-minimal.css", "public-studio.css"} {
+		raw = bytes.ReplaceAll(raw, []byte("/assets/"+css), []byte(`{{asset .ThemeAssets "`+css+`"}}`))
+	}
+	return raw
+}
+
 func (a *App) copyBuiltinTemplate(id string) (string, error) {
 	a.themeMu.Lock()
 	defer a.themeMu.Unlock()
 	if id != "journal" && id != "minimal" && id != "studio" {
 		return "", service.ErrInvalid
 	}
-	files, _, err := a.templateFiles(id, "")
+	files, _, _, err := a.templateFiles(id, "", false)
 	if err != nil {
 		return "", err
 	}
@@ -289,9 +418,7 @@ func (a *App) copyBuiltinTemplate(id string) (string, error) {
 	for filename, file := range files {
 		data := file.Data
 		if strings.HasSuffix(filename, ".html") {
-			for _, css := range []string{"public.css", "public-minimal.css", "public-studio.css"} {
-				data = bytes.ReplaceAll(data, []byte("/assets/"+css), []byte(`{{asset .ThemeAssets "`+css+`"}}`))
-			}
+			data = templateAssetURLs(data)
 		}
 		entry, err := w.Create(filename)
 		if err != nil {

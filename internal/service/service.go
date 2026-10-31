@@ -14,6 +14,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 	"unicode/utf8"
 
@@ -46,6 +47,7 @@ type Service struct {
 	Background        sync.WaitGroup
 	resetSlots        chan struct{}
 	InstallToken      string
+	installed         atomic.Bool
 	mu                sync.Mutex
 	attempts          map[string]attempt
 	dummy             []byte
@@ -67,8 +69,10 @@ func New(s *store.Store) (*Service, error) {
 	} else if err != nil {
 		return nil, err
 	}
+	v.installed.Store(v.InstallToken == "")
 	return v, nil
 }
+func (v *Service) Installed() bool { return v.installed.Load() }
 func Token() string {
 	var b [32]byte
 	if _, err := rand.Read(b[:]); err != nil {
@@ -100,7 +104,11 @@ func (v *Service) Install(ctx context.Context, token string, site store.Site, em
 	if err != nil {
 		return err
 	}
-	return v.Store.Install(ctx, site, email, hash)
+	if err = v.Store.Install(ctx, site, email, hash); err != nil {
+		return err
+	}
+	v.installed.Store(true)
+	return nil
 }
 func (v *Service) Login(ip, email, password string) (string, error) {
 	if !v.allowAttempt("login:"+ip, 5) {
