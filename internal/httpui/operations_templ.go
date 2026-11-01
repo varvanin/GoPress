@@ -79,9 +79,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						}
 						ctx = templ.InitializeContext(ctx)
 						var templ_7745c5c3_Var5 string
-						templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Создать бэкап"))
+						templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Create backup"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 20, Col: 46}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 20, Col: 34}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 						if templ_7745c5c3_Err != nil {
@@ -96,7 +96,7 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = AdminPageHeader(i18n.T(ctx, "Инструменты"), -1).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AdminPageHeader(i18n.T(ctx, "Tools"), -1).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -142,9 +142,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Разделы инструментов"))
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Tools sections"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 27, Col: 100}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 27, Col: 75}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 			if templ_7745c5c3_Err != nil {
@@ -176,9 +176,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Резервные копии"))
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Backups"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 28, Col: 174}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 28, Col: 152}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -210,9 +210,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var13 string
-			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Состояние системы"))
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "System status"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 29, Col: 186}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 29, Col: 166}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -244,9 +244,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var15 string
-			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Журнал действий"))
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Audit log"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 30, Col: 188}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 30, Col: 168}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -279,9 +279,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var17 string
-					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Режим обслуживания"))
+					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Maintenance mode"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 36, Col: 61}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 36, Col: 42}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -292,9 +292,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var18 string
-					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "В режиме обслуживания публичный сайт возвращает 503, изменения контента и фоновые задачи приостановлены. Вход и инструменты доступны."))
+					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "In maintenance mode the public site returns 503. Content changes and background jobs are paused. Sign-in and tools remain available."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 37, Col: 288}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 37, Col: 176}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -331,9 +331,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						ctx = templ.InitializeContext(ctx)
 						if active {
 							var templ_7745c5c3_Var21 string
-							templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Отключить обслуживание"))
+							templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Disable maintenance"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 42, Col: 68}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 42, Col: 44}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 							if templ_7745c5c3_Err != nil {
@@ -341,9 +341,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 							}
 						} else {
 							var templ_7745c5c3_Var22 string
-							templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Включить обслуживание"))
+							templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Enable maintenance"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 44, Col: 66}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 44, Col: 43}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 							if templ_7745c5c3_Err != nil {
@@ -383,9 +383,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var24 string
-					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Диагностика"))
+					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Diagnostics"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 50, Col: 48}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 50, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -396,9 +396,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var25 string
-					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Проверка пройдена"))
+					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Check passed"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 108}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 87}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {
@@ -409,9 +409,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var26 string
-					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Схема базы"))
+					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Database schema"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 165}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 140}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 					if templ_7745c5c3_Err != nil {
@@ -424,7 +424,7 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					var templ_7745c5c3_Var27 string
 					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(d.Schema))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 200}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 175}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 					if templ_7745c5c3_Err != nil {
@@ -435,9 +435,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var28 string
-					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Размер базы"))
+					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Database size"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 259}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 226}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 					if templ_7745c5c3_Err != nil {
@@ -450,7 +450,7 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					var templ_7745c5c3_Var29 string
 					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(storageSize(d.DatabaseBytes))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 300}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 267}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 					if templ_7745c5c3_Err != nil {
@@ -461,9 +461,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var30 string
-					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Свободное место"))
+					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Free disk space"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 367}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 320}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 					if templ_7745c5c3_Err != nil {
@@ -476,7 +476,7 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					var templ_7745c5c3_Var31 string
 					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(storageSize(int64(d.FreeBytes)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 411}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 364}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 					if templ_7745c5c3_Err != nil {
@@ -487,9 +487,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var32 string
-					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Пользователи"))
+					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Users"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 473}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 407}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 					if templ_7745c5c3_Err != nil {
@@ -502,7 +502,7 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					var templ_7745c5c3_Var33 string
 					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(d.Users))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 507}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 441}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 					if templ_7745c5c3_Err != nil {
@@ -513,9 +513,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var34 string
-					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Материалы сайта"))
+					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Site content"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 574}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 491}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 					if templ_7745c5c3_Err != nil {
@@ -528,7 +528,7 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					var templ_7745c5c3_Var35 string
 					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(d.Pages))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 608}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 525}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 					if templ_7745c5c3_Err != nil {
@@ -539,9 +539,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var36 string
-					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Заявки"))
+					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Submissions"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 658}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 574}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 					if templ_7745c5c3_Err != nil {
@@ -554,7 +554,7 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					var templ_7745c5c3_Var37 string
 					templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(d.Entries))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 694}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 51, Col: 610}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 					if templ_7745c5c3_Err != nil {
@@ -587,9 +587,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var39 string
-					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Обновление и откат"))
+					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Update and rollback"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 54, Col: 60}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 54, Col: 45}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 					if templ_7745c5c3_Err != nil {
@@ -613,9 +613,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var41 string
-					templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Перед обновлением создайте и скачайте бэкап. Включите обслуживание, остановите процесс, замените бинарник, выполните migrate и doctor, затем запустите сайт. Для отката восстанавливайте вместе прежнюю версию приложения и проверенную копию данных. Web-процесс не заменяет бинарник."))
+					templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Create and download a backup before updating. Enable maintenance, stop the process, replace the binary, run migrate and doctor, then start the site. To roll back, restore the previous application version together with a verified data backup. The web process never replaces the binary."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 56, Col: 544}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 56, Col: 328}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 					if templ_7745c5c3_Err != nil {
@@ -641,9 +641,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var42 string
-				templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Журнал действий"))
+				templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Audit log"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 63, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 63, Col: 36}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 				if templ_7745c5c3_Err != nil {
@@ -656,7 +656,7 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 				var templ_7745c5c3_Var43 string
 				templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(total))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 63, Col: 108}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 63, Col: 88}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 				if templ_7745c5c3_Err != nil {
@@ -667,9 +667,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var44 string
-				templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Срок хранения"))
+				templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Retention"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 65, Col: 58}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 65, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 				if templ_7745c5c3_Err != nil {
@@ -706,9 +706,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var47 string
-				templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Хранить журнал, дней"))
+				templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Audit retention, days"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 68, Col: 69}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 68, Col: 53}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 				if templ_7745c5c3_Err != nil {
@@ -721,7 +721,7 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 				var templ_7745c5c3_Var48 string
 				templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.Itoa(settings.AuditRetentionDays))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 68, Col: 200}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 68, Col: 184}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var48)
 				if templ_7745c5c3_Err != nil {
@@ -744,9 +744,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					}
 					ctx = templ.InitializeContext(ctx)
 					var templ_7745c5c3_Var50 string
-					templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Сохранить"))
+					templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Save"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 70, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 70, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 					if templ_7745c5c3_Err != nil {
@@ -768,9 +768,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var51 string
-					templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Событий пока нет"))
+					templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "No events yet"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 76, Col: 81}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 76, Col: 64}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 					if templ_7745c5c3_Err != nil {
@@ -781,9 +781,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var52 string
-					templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Здесь появятся входы пользователей, изменения материалов и действия в настройках. Старые действия до включения журнала не восстанавливаются."))
+					templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "User sign-ins, content changes and settings actions appear here. Actions before logging was enabled cannot be recovered."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 76, Col: 368}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 76, Col: 210}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 					if templ_7745c5c3_Err != nil {
@@ -848,9 +848,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 									}
 									ctx = templ.InitializeContext(ctx)
 									var templ_7745c5c3_Var57 string
-									templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Время"))
+									templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Time"))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 84, Col: 38}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 84, Col: 32}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
 									if templ_7745c5c3_Err != nil {
@@ -875,9 +875,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 									}
 									ctx = templ.InitializeContext(ctx)
 									var templ_7745c5c3_Var59 string
-									templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Пользователь"))
+									templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "User"))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 87, Col: 52}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 87, Col: 32}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var59))
 									if templ_7745c5c3_Err != nil {
@@ -902,9 +902,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 									}
 									ctx = templ.InitializeContext(ctx)
 									var templ_7745c5c3_Var61 string
-									templ_7745c5c3_Var61, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Действие"))
+									templ_7745c5c3_Var61, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Action"))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 90, Col: 44}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 90, Col: 34}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var61))
 									if templ_7745c5c3_Err != nil {
@@ -929,9 +929,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 									}
 									ctx = templ.InitializeContext(ctx)
 									var templ_7745c5c3_Var63 string
-									templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Объект"))
+									templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Object"))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 93, Col: 40}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 93, Col: 34}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var63))
 									if templ_7745c5c3_Err != nil {
@@ -1133,9 +1133,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 							}
 							ctx = templ.InitializeContext(ctx)
 							var templ_7745c5c3_Var75 string
-							templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Назад"))
+							templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Back"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 122, Col: 37}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 122, Col: 31}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var75))
 							if templ_7745c5c3_Err != nil {
@@ -1162,9 +1162,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 							}
 							ctx = templ.InitializeContext(ctx)
 							var templ_7745c5c3_Var77 string
-							templ_7745c5c3_Var77, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Далее"))
+							templ_7745c5c3_Var77, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Next"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 127, Col: 37}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 127, Col: 31}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var77))
 							if templ_7745c5c3_Err != nil {
@@ -1212,9 +1212,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var79 string
-					templ_7745c5c3_Var79, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Резервные копии"))
+					templ_7745c5c3_Var79, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Backups"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 140, Col: 56}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 140, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var79))
 					if templ_7745c5c3_Err != nil {
@@ -1225,9 +1225,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var80 string
-					templ_7745c5c3_Var80, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Бэкап включает базу, загрузки и темы. Почтовые секреты исключены. Перед восстановлением создаётся копия текущего сайта; все сессии будут отозваны."))
+					templ_7745c5c3_Var80, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "The backup includes the database, uploads and templates, excluding email secrets. A copy of the current site is made before restoration; all sessions will be revoked."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 141, Col: 314}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 141, Col: 211}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var80))
 					if templ_7745c5c3_Err != nil {
@@ -1251,9 +1251,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var82 string
-					templ_7745c5c3_Var82, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Импортировать бэкап"))
+					templ_7745c5c3_Var82, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Import backup"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 146, Col: 70}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 146, Col: 46}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var82))
 					if templ_7745c5c3_Err != nil {
@@ -1277,9 +1277,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var84 string
-					templ_7745c5c3_Var84, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Архив бэкапа ZIP — до 1 GiB"))
+					templ_7745c5c3_Var84, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Backup ZIP archive — up to 1 GiB"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 148, Col: 123}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 148, Col: 115}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var84))
 					if templ_7745c5c3_Err != nil {
@@ -1302,9 +1302,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 						}
 						ctx = templ.InitializeContext(ctx)
 						var templ_7745c5c3_Var86 string
-						templ_7745c5c3_Var86, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Импортировать бэкап"))
+						templ_7745c5c3_Var86, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Import backup"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 150, Col: 63}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 150, Col: 39}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var86))
 						if templ_7745c5c3_Err != nil {
@@ -1326,9 +1326,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var87 string
-						templ_7745c5c3_Var87, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Резервных копий пока нет"))
+						templ_7745c5c3_Var87, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "No backups yet"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 155, Col: 97}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 155, Col: 66}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var87))
 						if templ_7745c5c3_Err != nil {
@@ -1339,9 +1339,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var88 string
-						templ_7745c5c3_Var88, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Создайте первую копию кнопкой вверху или импортируйте ZIP-архив."))
+						templ_7745c5c3_Var88, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Create the first backup using the button above or import a ZIP archive."))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 155, Col: 239}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 155, Col: 163}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var88))
 						if templ_7745c5c3_Err != nil {
@@ -1376,9 +1376,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var90 string
-							templ_7745c5c3_Var90, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "По расписанию"))
+							templ_7745c5c3_Var90, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Scheduled"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 161, Col: 67}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 161, Col: 51}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var90))
 							if templ_7745c5c3_Err != nil {
@@ -1419,9 +1419,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 							}
 							ctx = templ.InitializeContext(ctx)
 							var templ_7745c5c3_Var93 string
-							templ_7745c5c3_Var93, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Скачать"))
+							templ_7745c5c3_Var93, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Download"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 166, Col: 41}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 166, Col: 35}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var93))
 							if templ_7745c5c3_Err != nil {
@@ -1476,9 +1476,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 							}
 							ctx = templ.InitializeContext(ctx)
 							var templ_7745c5c3_Var97 string
-							templ_7745c5c3_Var97, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Проверить"))
+							templ_7745c5c3_Var97, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Verify"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 171, Col: 46}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 171, Col: 34}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var97))
 							if templ_7745c5c3_Err != nil {
@@ -1495,9 +1495,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var98 string
-						templ_7745c5c3_Var98, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Удалить эту резервную копию?"))
+						templ_7745c5c3_Var98, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Delete this backup?"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 174, Col: 147}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 174, Col: 114}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var98)
 						if templ_7745c5c3_Err != nil {
@@ -1546,9 +1546,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 							}
 							ctx = templ.InitializeContext(ctx)
 							var templ_7745c5c3_Var102 string
-							templ_7745c5c3_Var102, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Удалить"))
+							templ_7745c5c3_Var102, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Delete"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 177, Col: 42}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 177, Col: 34}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var102))
 							if templ_7745c5c3_Err != nil {
@@ -1570,9 +1570,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var103 string
-							templ_7745c5c3_Var103, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Восстановить сайт из выбранного бэкапа? Текущая версия будет сохранена отдельной копией. Потребуется войти заново."))
+							templ_7745c5c3_Var103, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Restore the site from this backup? The current site will be preserved in another backup. You will need to sign in again."))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 182, Col: 331}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 182, Col: 239}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var103)
 							if templ_7745c5c3_Err != nil {
@@ -1609,9 +1609,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var106 string
-							templ_7745c5c3_Var106, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Введите RESTORE для подтверждения"))
+							templ_7745c5c3_Var106, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Type RESTORE to confirm"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 185, Col: 84}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 185, Col: 51}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var106))
 							if templ_7745c5c3_Err != nil {
@@ -1638,9 +1638,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 								}
 								ctx = templ.InitializeContext(ctx)
 								var templ_7745c5c3_Var108 string
-								templ_7745c5c3_Var108, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Восстановить"))
+								templ_7745c5c3_Var108, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Restore"))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 189, Col: 52}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 189, Col: 35}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var108))
 								if templ_7745c5c3_Err != nil {
@@ -1673,9 +1673,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var109 string
-				templ_7745c5c3_Var109, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Восстановление сайта"))
+				templ_7745c5c3_Var109, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Site restoration"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 198, Col: 65}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 198, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var109))
 				if templ_7745c5c3_Err != nil {
@@ -1686,9 +1686,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var110 string
-				templ_7745c5c3_Var110, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Включите режим обслуживания в состоянии системы."))
+				templ_7745c5c3_Var110, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Enable maintenance in system status."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 199, Col: 120}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 199, Col: 66}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var110))
 				if templ_7745c5c3_Err != nil {
@@ -1699,9 +1699,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var111 string
-				templ_7745c5c3_Var111, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Выберите проверенную копию и подтвердите восстановление."))
+				templ_7745c5c3_Var111, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Select a verified backup and confirm restoration."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 199, Col: 253}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 199, Col: 142}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var111))
 				if templ_7745c5c3_Err != nil {
@@ -1712,9 +1712,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var112 string
-				templ_7745c5c3_Var112, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Проверьте сайт и отключите обслуживание."))
+				templ_7745c5c3_Var112, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Check the site and disable maintenance."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 199, Col: 355}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 199, Col: 208}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var112))
 				if templ_7745c5c3_Err != nil {
@@ -1725,9 +1725,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var113 string
-				templ_7745c5c3_Var113, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Перед восстановлением текущий сайт сохраняется отдельно. После замены потребуется войти заново."))
+				templ_7745c5c3_Var113, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "The current site is backed up before restoration. You will need to sign in again afterwards."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 200, Col: 203}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 200, Col: 117}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var113))
 				if templ_7745c5c3_Err != nil {
@@ -1738,9 +1738,9 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var114 string
-				templ_7745c5c3_Var114, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Состояние системы"))
+				templ_7745c5c3_Var114, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "System status"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 201, Col: 110}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 201, Col: 90}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var114))
 				if templ_7745c5c3_Err != nil {
@@ -1753,7 +1753,7 @@ func Tools(site, csrf, tab string, active bool, backups []service.BackupInfo, d 
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = AdminLayout(site, i18n.T(ctx, "Инструменты"), csrf).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = AdminLayout(site, i18n.T(ctx, "Tools"), csrf).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1799,9 +1799,9 @@ func BackupSchedulePanel(csrf, zone string, value store.BackupSchedule, failed b
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var117 string
-			templ_7745c5c3_Var117, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Автоматические резервные копии"))
+			templ_7745c5c3_Var117, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Automatic backups"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 211, Col: 79}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 211, Col: 38}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var117))
 			if templ_7745c5c3_Err != nil {
@@ -1861,9 +1861,9 @@ func BackupSchedulePanel(csrf, zone string, value store.BackupSchedule, failed b
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var121 string
-			templ_7745c5c3_Var121, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Создавать копию ежедневно"))
+			templ_7745c5c3_Var121, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Create a backup daily"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 214, Col: 177}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 214, Col: 150}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var121))
 			if templ_7745c5c3_Err != nil {
@@ -1874,9 +1874,9 @@ func BackupSchedulePanel(csrf, zone string, value store.BackupSchedule, failed b
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var122 string
-			templ_7745c5c3_Var122, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Час запуска"))
+			templ_7745c5c3_Var122, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Start hour"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 216, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 216, Col: 34}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var122))
 			if templ_7745c5c3_Err != nil {
@@ -1891,9 +1891,9 @@ func BackupSchedulePanel(csrf, zone string, value store.BackupSchedule, failed b
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var123 string
-			templ_7745c5c3_Var123, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Хранить автоматических копий"))
+			templ_7745c5c3_Var123, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Automatic copies to keep"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 217, Col: 78}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 217, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var123))
 			if templ_7745c5c3_Err != nil {
@@ -1908,9 +1908,9 @@ func BackupSchedulePanel(csrf, zone string, value store.BackupSchedule, failed b
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var124 string
-			templ_7745c5c3_Var124, templ_7745c5c3_Err = templ.JoinStringErrs(zone + " · " + i18n.T(ctx, "Ручные копии не удаляются расписанием."))
+			templ_7745c5c3_Var124, templ_7745c5c3_Err = templ.JoinStringErrs(zone + " · " + i18n.T(ctx, "The schedule does not delete manual backups."))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 219, Col: 122}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 219, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var124))
 			if templ_7745c5c3_Err != nil {
@@ -1926,9 +1926,9 @@ func BackupSchedulePanel(csrf, zone string, value store.BackupSchedule, failed b
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var125 string
-				templ_7745c5c3_Var125, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Последняя попытка: ") + tableContentDate(value.LastAttempt, zone))
+				templ_7745c5c3_Var125, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Last attempt: ") + tableContentDate(value.LastAttempt, zone))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 221, Col: 115}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 221, Col: 94}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var125))
 				if templ_7745c5c3_Err != nil {
@@ -1945,9 +1945,9 @@ func BackupSchedulePanel(csrf, zone string, value store.BackupSchedule, failed b
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var126 string
-				templ_7745c5c3_Var126, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Последняя успешная копия: ") + tableContentDate(value.LastSuccess, zone))
+				templ_7745c5c3_Var126, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Last successful backup: ") + tableContentDate(value.LastSuccess, zone))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 224, Col: 128}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 224, Col: 104}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var126))
 				if templ_7745c5c3_Err != nil {
@@ -1964,9 +1964,9 @@ func BackupSchedulePanel(csrf, zone string, value store.BackupSchedule, failed b
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var127 string
-				templ_7745c5c3_Var127, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Автоматическое резервное копирование не завершено. Проверьте место на диске и журнал сервера."))
+				templ_7745c5c3_Var127, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Automatic backup did not complete. Check disk space and the server log."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 227, Col: 235}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 227, Col: 133}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var127))
 				if templ_7745c5c3_Err != nil {
@@ -1994,9 +1994,9 @@ func BackupSchedulePanel(csrf, zone string, value store.BackupSchedule, failed b
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var129 string
-				templ_7745c5c3_Var129, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Сохранить расписание"))
+				templ_7745c5c3_Var129, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Save schedule"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 229, Col: 165}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/operations.templ`, Line: 229, Col: 139}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var129))
 				if templ_7745c5c3_Err != nil {

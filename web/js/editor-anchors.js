@@ -39,10 +39,10 @@ export function mountAnchors(form,editor,report) {
  };
  const apply=value=>{
   const current=block();
-  if(!current||current.pos!==target?.pos||current.node!==target?.node){report(t('Выберите один заголовок или абзац и откройте якорь заново.'));return;}
+  if(!current||current.pos!==target?.pos||current.node!==target?.node){report(t('Select one heading or paragraph and reopen the anchor panel.'));return;}
   let duplicate=false;
   editor.state.doc.descendants((node,pos)=>{if(pos!==current.pos&&node.attrs.anchor===value&&value)duplicate=true;});
-  if(duplicate){report(t('Это имя якоря уже используется в тексте.'));return;}
+  if(duplicate){report(t('This anchor name is already used in the text.'));return;}
   editor.chain().focus().updateAttributes(current.node.type.name,{anchor:value||null}).run();
   panel.hidden=true;
  };
@@ -50,13 +50,13 @@ export function mountAnchors(form,editor,report) {
  name.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();panel.querySelector('[data-anchor-apply]').click();}});
  panel.querySelector('[data-anchor-apply]').addEventListener('click',()=>{
   const value=name.value.trim();
-  if(!validAnchor(value)){report(t('Имя якоря: латинская буква, затем строчные буквы, цифры или дефисы. До 64 символов.'));return;}
+  if(!validAnchor(value)){report(t('Anchor name: a lowercase Latin letter followed by lowercase letters, numbers or hyphens. Up to 64 characters.'));return;}
   apply(value);
  });
  panel.querySelector('[data-anchor-remove]').addEventListener('click',()=>apply(''));
  return()=>{
   const current=block();
-  if(!current){report(t('Выберите один заголовок или абзац для якоря.'));return;}
+  if(!current){report(t('Select one heading or paragraph for the anchor.'));return;}
   panel.hidden=!panel.hidden;target=current;
   if(!panel.hidden){name.value=current.node.attrs.anchor||'';updateLink();name.focus();}
  };

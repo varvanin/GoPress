@@ -86,9 +86,9 @@ func Forms(site, csrf string, forms []store.Form, smtp bool, settings store.Sett
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var5 string
-					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Создать форму"))
+					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Create form"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 19, Col: 63}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 19, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -106,7 +106,7 @@ func Forms(site, csrf string, forms []store.Form, smtp bool, settings store.Sett
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = AdminPageHeader(i18n.T(ctx, "Формы"), len(forms)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AdminPageHeader(i18n.T(ctx, "Forms"), len(forms)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -136,9 +136,9 @@ func Forms(site, csrf string, forms []store.Form, smtp bool, settings store.Sett
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var7 string
-					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Создайте первую форму"))
+					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Create your first form"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 27, Col: 66}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 27, Col: 48}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -149,9 +149,9 @@ func Forms(site, csrf string, forms []store.Form, smtp bool, settings store.Sett
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var8 string
-					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Добавьте поля, укажите email получателя и вставьте короткий код в страницу или запись."))
+					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Add fields, set a recipient email and paste the shortcode into a page or post."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 28, Col: 178}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 28, Col: 103}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -209,9 +209,9 @@ func Forms(site, csrf string, forms []store.Form, smtp bool, settings store.Sett
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var11 string
-					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Активна"))
+					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Active"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 41, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 41, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
@@ -227,9 +227,9 @@ func Forms(site, csrf string, forms []store.Form, smtp bool, settings store.Sett
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var12 string
-					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Отключена"))
+					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Disabled"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 43, Col: 48}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 43, Col: 38}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -283,9 +283,9 @@ func Forms(site, csrf string, forms []store.Form, smtp bool, settings store.Sett
 					}
 					ctx = templ.InitializeContext(ctx)
 					var templ_7745c5c3_Var16 string
-					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Заявки"))
+					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Submissions"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 53, Col: 35}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 53, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -310,9 +310,9 @@ func Forms(site, csrf string, forms []store.Form, smtp bool, settings store.Sett
 					}
 					ctx = templ.InitializeContext(ctx)
 					var templ_7745c5c3_Var18 string
-					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Редактировать"))
+					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Edit"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 56, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 56, Col: 27}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -358,9 +358,9 @@ func Forms(site, csrf string, forms []store.Form, smtp bool, settings store.Sett
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var20 string
-				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Заявки"))
+				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Submissions"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 65, Col: 94}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 65, Col: 93}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
@@ -397,9 +397,9 @@ func Forms(site, csrf string, forms []store.Form, smtp bool, settings store.Sett
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var23 string
-				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Хранить заявки, дней"))
+				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Submission retention, days"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 69, Col: 92}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 69, Col: 81}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 				if templ_7745c5c3_Err != nil {
@@ -423,9 +423,9 @@ func Forms(site, csrf string, forms []store.Form, smtp bool, settings store.Sett
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var25 string
-				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Заявки старше выбранного срока удаляются автоматически вместе с очередью уведомлений."))
+				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Submissions older than this period and their queued notifications are deleted automatically."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 71, Col: 204}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 71, Col: 136}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 				if templ_7745c5c3_Err != nil {
@@ -448,9 +448,9 @@ func Forms(site, csrf string, forms []store.Form, smtp bool, settings store.Sett
 					}
 					ctx = templ.InitializeContext(ctx)
 					var templ_7745c5c3_Var27 string
-					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Сохранить"))
+					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Save"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 73, Col: 41}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 73, Col: 27}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 					if templ_7745c5c3_Err != nil {
@@ -478,9 +478,9 @@ func Forms(site, csrf string, forms []store.Form, smtp bool, settings store.Sett
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var28 string
-				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Почтовые уведомления не настроены. Заявки сохраняются в админке."))
+				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Email notifications are not configured. Submissions are saved in the admin panel."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 79, Col: 163}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 79, Col: 125}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 				if templ_7745c5c3_Err != nil {
@@ -491,9 +491,9 @@ func Forms(site, csrf string, forms []store.Form, smtp bool, settings store.Sett
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var29 string
-				templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Настроить почту"))
+				templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Configure email"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 80, Col: 107}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 80, Col: 93}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 				if templ_7745c5c3_Err != nil {
@@ -510,7 +510,7 @@ func Forms(site, csrf string, forms []store.Form, smtp bool, settings store.Sett
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = AdminLayout(site, i18n.T(ctx, "Формы"), csrf).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = AdminLayout(site, i18n.T(ctx, "Forms"), csrf).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -576,9 +576,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 					}
 					ctx = templ.InitializeContext(ctx)
 					var templ_7745c5c3_Var34 string
-					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Все формы"))
+					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "All forms"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 92, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 92, Col: 29}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 					if templ_7745c5c3_Err != nil {
@@ -604,9 +604,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 						}
 						ctx = templ.InitializeContext(ctx)
 						var templ_7745c5c3_Var36 string
-						templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Заявки"))
+						templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Submissions"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 96, Col: 33}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 96, Col: 32}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 						if templ_7745c5c3_Err != nil {
@@ -636,9 +636,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 					}
 					ctx = templ.InitializeContext(ctx)
 					var templ_7745c5c3_Var38 string
-					templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Сохранить форму"))
+					templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Save form"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 100, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 100, Col: 29}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 					if templ_7745c5c3_Err != nil {
@@ -652,7 +652,7 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = AdminPageHeader(i18n.T(ctx, "Конструктор формы"), -1).Render(templ.WithChildren(ctx, templ_7745c5c3_Var32), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AdminPageHeader(i18n.T(ctx, "Form builder"), -1).Render(templ.WithChildren(ctx, templ_7745c5c3_Var32), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -715,9 +715,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var43 string
-					templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Код для вставки"))
+					templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Embed code"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 108, Col: 71}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 108, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 					if templ_7745c5c3_Err != nil {
@@ -741,9 +741,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var45 string
-					templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Копировать"))
+					templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Copy"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 115, Col: 98}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 115, Col: 82}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 					if templ_7745c5c3_Err != nil {
@@ -754,9 +754,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var46 string
-					templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Вставьте этот код отдельным абзацем в редакторе страницы или записи. После публикации вместо кода появится форма."))
+					templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Paste this code as a separate paragraph in a page or post. The published page will display the form."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 117, Col: 251}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 117, Col: 142}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
 					if templ_7745c5c3_Err != nil {
@@ -780,9 +780,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var48 string
-					templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Открыть готовую форму ↗"))
+					templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Open saved form ↗"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 122, Col: 61}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 122, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 					if templ_7745c5c3_Err != nil {
@@ -859,9 +859,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var53 string
-				templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Настройки"))
+				templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Settings"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 137, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 137, Col: 33}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 				if templ_7745c5c3_Err != nil {
@@ -872,9 +872,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var54 string
-				templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Название формы"))
+				templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Form name"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 138, Col: 55}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 138, Col: 37}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
 				if templ_7745c5c3_Err != nil {
@@ -887,7 +887,7 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 				var templ_7745c5c3_Var55 string
 				templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.ResolveAttributeValue(f.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 138, Col: 134}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 138, Col: 116}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var55)
 				if templ_7745c5c3_Err != nil {
@@ -898,9 +898,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var56 string
-				templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Обратная связь"))
+				templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Contact"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 138, Col: 193}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 138, Col: 155}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var56)
 				if templ_7745c5c3_Err != nil {
@@ -911,9 +911,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var57 string
-				templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Email получателя"))
+				templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Recipient email"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 139, Col: 54}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 139, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
 				if templ_7745c5c3_Err != nil {
@@ -926,7 +926,7 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 				var templ_7745c5c3_Var58 string
 				templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.ResolveAttributeValue(f.Recipient)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 139, Col: 156}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 139, Col: 145}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var58)
 				if templ_7745c5c3_Err != nil {
@@ -937,9 +937,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var59 string
-				templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Текст кнопки"))
+				templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Button label"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 141, Col: 52}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 141, Col: 41}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var59))
 				if templ_7745c5c3_Err != nil {
@@ -952,7 +952,7 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 				var templ_7745c5c3_Var60 string
 				templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.ResolveAttributeValue(f.Button)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 141, Col: 134}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 141, Col: 123}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var60)
 				if templ_7745c5c3_Err != nil {
@@ -963,15 +963,15 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var61 string
-				templ_7745c5c3_Var61, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Состояние"))
+				templ_7745c5c3_Var61, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "State"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 143, Col: 41}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 143, Col: 28}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var61))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = AdminSelect("form-enabled", "enabled", strconv.FormatBool(f.Enabled), i18n.T(ctx, "Состояние формы"), []selectcomp.ItemData{{Value: "true", Label: i18n.T(ctx, "Активна")}, {Value: "false", Label: i18n.T(ctx, "Отключена")}}, nil).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = AdminSelect("form-enabled", "enabled", strconv.FormatBool(f.Enabled), i18n.T(ctx, "Form state"), []selectcomp.ItemData{{Value: "true", Label: i18n.T(ctx, "Active")}, {Value: "false", Label: i18n.T(ctx, "Disabled")}}, nil).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -980,9 +980,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var62 string
-				templ_7745c5c3_Var62, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Сообщение после отправки"))
+				templ_7745c5c3_Var62, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Success message"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 147, Col: 74}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 147, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var62))
 				if templ_7745c5c3_Err != nil {
@@ -995,7 +995,7 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 				var templ_7745c5c3_Var63 string
 				templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.JoinStringErrs(f.Success)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 147, Col: 165}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 147, Col: 134}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var63))
 				if templ_7745c5c3_Err != nil {
@@ -1028,9 +1028,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var65 string
-				templ_7745c5c3_Var65, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Поля формы"))
+				templ_7745c5c3_Var65, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Form fields"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 150, Col: 97}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 150, Col: 89}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var65))
 				if templ_7745c5c3_Err != nil {
@@ -1041,9 +1041,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var66 string
-				templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "До 20 полей"))
+				templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Up to 20 fields"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 150, Col: 163}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 150, Col: 152}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var66))
 				if templ_7745c5c3_Err != nil {
@@ -1084,9 +1084,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var68 string
-					templ_7745c5c3_Var68, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Добавить поле"))
+					templ_7745c5c3_Var68, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Add field"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 157, Col: 65}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 157, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var68))
 					if templ_7745c5c3_Err != nil {
@@ -1116,7 +1116,7 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = FormFieldEditor(store.FormField{Type: "text", Label: i18n.T(ctx, "Новое поле")}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = FormFieldEditor(store.FormField{Type: "text", Label: i18n.T(ctx, "New field")}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1141,9 +1141,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var70 string
-				templ_7745c5c3_Var70, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Предпросмотр"))
+				templ_7745c5c3_Var70, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Preview"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 164, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 164, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var70))
 				if templ_7745c5c3_Err != nil {
@@ -1154,9 +1154,9 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var71 string
-				templ_7745c5c3_Var71, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Так посетитель увидит поля. Отправка доступна после сохранения."))
+				templ_7745c5c3_Var71, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "This is how visitors will see the fields. Submission is available after saving."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 165, Col: 159}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 165, Col: 121}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var71))
 				if templ_7745c5c3_Err != nil {
@@ -1178,7 +1178,7 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = AdminLayout(site, i18n.T(ctx, "Формы"), csrf).Render(templ.WithChildren(ctx, templ_7745c5c3_Var31), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = AdminLayout(site, i18n.T(ctx, "Forms"), csrf).Render(templ.WithChildren(ctx, templ_7745c5c3_Var31), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1212,9 +1212,9 @@ func FormFieldEditor(field store.FormField) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var73 string
-		templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Название поля"))
+		templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Field label"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 82}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 68}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var73))
 		if templ_7745c5c3_Err != nil {
@@ -1227,7 +1227,7 @@ func FormFieldEditor(field store.FormField) templ.Component {
 		var templ_7745c5c3_Var74 string
 		templ_7745c5c3_Var74, templ_7745c5c3_Err = templ.ResolveAttributeValue(field.Label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 148}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 134}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var74)
 		if templ_7745c5c3_Err != nil {
@@ -1238,9 +1238,9 @@ func FormFieldEditor(field store.FormField) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var75 string
-		templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Переместить поле выше"))
+		templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Move field up"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 326}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 285}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var75)
 		if templ_7745c5c3_Err != nil {
@@ -1251,9 +1251,9 @@ func FormFieldEditor(field store.FormField) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var76 string
-		templ_7745c5c3_Var76, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Выше"))
+		templ_7745c5c3_Var76, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Move up"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 360}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 318}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var76)
 		if templ_7745c5c3_Err != nil {
@@ -1272,9 +1272,9 @@ func FormFieldEditor(field store.FormField) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var77 string
-		templ_7745c5c3_Var77, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Переместить поле ниже"))
+		templ_7745c5c3_Var77, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Move field down"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 537}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 470}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var77)
 		if templ_7745c5c3_Err != nil {
@@ -1285,9 +1285,9 @@ func FormFieldEditor(field store.FormField) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var78 string
-		templ_7745c5c3_Var78, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Ниже"))
+		templ_7745c5c3_Var78, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Move down"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 571}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 505}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var78)
 		if templ_7745c5c3_Err != nil {
@@ -1306,9 +1306,9 @@ func FormFieldEditor(field store.FormField) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var79 string
-		templ_7745c5c3_Var79, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Удалить поле"))
+		templ_7745c5c3_Var79, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Remove field"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 734}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 657}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var79)
 		if templ_7745c5c3_Err != nil {
@@ -1319,9 +1319,9 @@ func FormFieldEditor(field store.FormField) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var80 string
-		templ_7745c5c3_Var80, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Удалить поле"))
+		templ_7745c5c3_Var80, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Remove field"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 783}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 174, Col: 695}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var80)
 		if templ_7745c5c3_Err != nil {
@@ -1340,15 +1340,15 @@ func FormFieldEditor(field store.FormField) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var81 string
-		templ_7745c5c3_Var81, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Тип"))
+		templ_7745c5c3_Var81, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Type"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 177, Col: 26}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 177, Col: 24}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var81))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = AdminSelect("", "field_type", field.Type, i18n.T(ctx, "Тип поля"), []selectcomp.ItemData{{Value: "text", Label: i18n.T(ctx, "Текст")}, {Value: "email", Label: "Email"}, {Value: "tel", Label: i18n.T(ctx, "Телефон")}, {Value: "textarea", Label: i18n.T(ctx, "Сообщение")}, {Value: "select", Label: i18n.T(ctx, "Список вариантов")}, {Value: "checkbox", Label: i18n.T(ctx, "Флажок / согласие")}}, nil).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = AdminSelect("", "field_type", field.Type, i18n.T(ctx, "Field type"), []selectcomp.ItemData{{Value: "text", Label: i18n.T(ctx, "Text")}, {Value: "email", Label: "Email"}, {Value: "tel", Label: i18n.T(ctx, "Phone")}, {Value: "textarea", Label: i18n.T(ctx, "Message")}, {Value: "select", Label: i18n.T(ctx, "Dropdown")}, {Value: "checkbox", Label: i18n.T(ctx, "Checkbox / consent")}}, nil).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1357,15 +1357,15 @@ func FormFieldEditor(field store.FormField) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var82 string
-		templ_7745c5c3_Var82, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Заполнение"))
+		templ_7745c5c3_Var82, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Requirement"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 181, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 181, Col: 31}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var82))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = AdminSelect("", "field_required", strconv.FormatBool(field.Required), i18n.T(ctx, "Обязательное поле"), []selectcomp.ItemData{{Value: "true", Label: i18n.T(ctx, "Обязательно")}, {Value: "false", Label: i18n.T(ctx, "Необязательно")}}, nil).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = AdminSelect("", "field_required", strconv.FormatBool(field.Required), i18n.T(ctx, "Required field"), []selectcomp.ItemData{{Value: "true", Label: i18n.T(ctx, "Required")}, {Value: "false", Label: i18n.T(ctx, "Optional")}}, nil).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1384,9 +1384,9 @@ func FormFieldEditor(field store.FormField) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var83 string
-		templ_7745c5c3_Var83, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Варианты — каждый с новой строки"))
+		templ_7745c5c3_Var83, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Options — one per line"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 186, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 186, Col: 43}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var83))
 		if templ_7745c5c3_Err != nil {
@@ -1471,9 +1471,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 					}
 					ctx = templ.InitializeContext(ctx)
 					var templ_7745c5c3_Var89 string
-					templ_7745c5c3_Var89, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Экспорт CSV"))
+					templ_7745c5c3_Var89, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Export CSV"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 198, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 198, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var89))
 					if templ_7745c5c3_Err != nil {
@@ -1498,9 +1498,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 					}
 					ctx = templ.InitializeContext(ctx)
 					var templ_7745c5c3_Var91 string
-					templ_7745c5c3_Var91, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Конструктор формы"))
+					templ_7745c5c3_Var91, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Form builder"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 202, Col: 53}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 202, Col: 32}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var91))
 					if templ_7745c5c3_Err != nil {
@@ -1514,7 +1514,7 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = AdminPageHeader(i18n.T(ctx, "Заявки: ")+f.Name, total).Render(templ.WithChildren(ctx, templ_7745c5c3_Var87), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AdminPageHeader(i18n.T(ctx, "Submissions: ")+f.Name, total).Render(templ.WithChildren(ctx, templ_7745c5c3_Var87), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1524,9 +1524,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var92 string
-				templ_7745c5c3_Var92, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Уведомление поставлено в очередь."))
+				templ_7745c5c3_Var92, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Notification queued."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 206, Col: 110}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 206, Col: 68}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var92))
 				if templ_7745c5c3_Err != nil {
@@ -1547,9 +1547,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var93 string
-				templ_7745c5c3_Var93, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Уведомление отправлено."))
+				templ_7745c5c3_Var93, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Notification sent."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 209, Col: 95}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 209, Col: 69}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var93))
 				if templ_7745c5c3_Err != nil {
@@ -1570,9 +1570,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var94 string
-				templ_7745c5c3_Var94, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Не удалось отправить уведомление. Проверьте настройки SMTP. Заявка сохранена."))
+				templ_7745c5c3_Var94, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Could not send the notification. Check SMTP settings. The submission was saved."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 212, Col: 202}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 212, Col: 142}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var94))
 				if templ_7745c5c3_Err != nil {
@@ -1593,9 +1593,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var95 string
-				templ_7745c5c3_Var95, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Заявок пока нет"))
+				templ_7745c5c3_Var95, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "No submissions yet"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 215, Col: 80}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 215, Col: 70}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var95))
 				if templ_7745c5c3_Err != nil {
@@ -1606,9 +1606,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var96 string
-				templ_7745c5c3_Var96, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Они появятся здесь после отправки формы на сайте."))
+				templ_7745c5c3_Var96, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Submissions will appear here when visitors send the form."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 215, Col: 196}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 215, Col: 153}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var96))
 				if templ_7745c5c3_Err != nil {
@@ -1637,9 +1637,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var98 string
-			templ_7745c5c3_Var98, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Удалить выбранные заявки навсегда?"))
+			templ_7745c5c3_Var98, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Permanently delete the selected submissions?"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 217, Col: 214}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 217, Col: 194}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var98)
 			if templ_7745c5c3_Err != nil {
@@ -1663,9 +1663,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var100 string
-			templ_7745c5c3_Var100, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Выбрать все заявки на странице"))
+			templ_7745c5c3_Var100, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Select all submissions on this page"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 219, Col: 195}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 219, Col: 174}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var100)
 			if templ_7745c5c3_Err != nil {
@@ -1676,9 +1676,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var101 string
-			templ_7745c5c3_Var101, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Выбрано: 0"))
+			templ_7745c5c3_Var101, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Selected: 0"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 220, Col: 79}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 220, Col: 73}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var101))
 			if templ_7745c5c3_Err != nil {
@@ -1701,9 +1701,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 				}
 				ctx = templ.InitializeContext(ctx)
 				var templ_7745c5c3_Var103 string
-				templ_7745c5c3_Var103, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Удалить выбранное"))
+				templ_7745c5c3_Var103, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Delete selected"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 222, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 222, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var103))
 				if templ_7745c5c3_Err != nil {
@@ -1750,9 +1750,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var106 string
-					templ_7745c5c3_Var106, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Выбрать заявку"))
+					templ_7745c5c3_Var106, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Select submission"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 230, Col: 156}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 230, Col: 146}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var106)
 					if templ_7745c5c3_Err != nil {
@@ -1763,9 +1763,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var107 string
-					templ_7745c5c3_Var107, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Заявка №") + strconv.FormatInt(e.ID, 10))
+					templ_7745c5c3_Var107, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Submission #") + strconv.FormatInt(e.ID, 10))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 231, Col: 66}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 231, Col: 62}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var107))
 					if templ_7745c5c3_Err != nil {
@@ -1830,9 +1830,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var111 string
-						templ_7745c5c3_Var111, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Уведомление поставлено в очередь."))
+						templ_7745c5c3_Var111, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Notification queued."))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 244, Col: 103}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 244, Col: 61}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var111))
 						if templ_7745c5c3_Err != nil {
@@ -1848,9 +1848,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var112 string
-						templ_7745c5c3_Var112, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Email отправлен"))
+						templ_7745c5c3_Var112, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Email sent"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 246, Col: 72}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 246, Col: 58}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var112))
 						if templ_7745c5c3_Err != nil {
@@ -1866,9 +1866,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var113 string
-						templ_7745c5c3_Var113, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Email не отправлен. Заявка сохранена."))
+						templ_7745c5c3_Var113, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Email not sent. Submission saved."))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 248, Col: 111}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 248, Col: 81}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var113))
 						if templ_7745c5c3_Err != nil {
@@ -1917,9 +1917,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 							}
 							ctx = templ.InitializeContext(ctx)
 							var templ_7745c5c3_Var117 string
-							templ_7745c5c3_Var117, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Отправить email повторно"))
+							templ_7745c5c3_Var117, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Retry email"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 254, Col: 58}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 254, Col: 28}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var117))
 							if templ_7745c5c3_Err != nil {
@@ -1952,9 +1952,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var118 string
-			templ_7745c5c3_Var118, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Страницы заявок"))
+			templ_7745c5c3_Var118, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Submission pages"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 262, Col: 91}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 262, Col: 78}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var118)
 			if templ_7745c5c3_Err != nil {
@@ -1965,9 +1965,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var119 string
-			templ_7745c5c3_Var119, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(total) + i18n.T(ctx, " заявок"))
+			templ_7745c5c3_Var119, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(total) + i18n.T(ctx, " submissions"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 263, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 263, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var119))
 			if templ_7745c5c3_Err != nil {
@@ -1991,9 +1991,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 					}
 					ctx = templ.InitializeContext(ctx)
 					var templ_7745c5c3_Var121 string
-					templ_7745c5c3_Var121, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Назад"))
+					templ_7745c5c3_Var121, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Back"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 267, Col: 32}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 267, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var121))
 					if templ_7745c5c3_Err != nil {
@@ -2020,9 +2020,9 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 					}
 					ctx = templ.InitializeContext(ctx)
 					var templ_7745c5c3_Var123 string
-					templ_7745c5c3_Var123, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Далее"))
+					templ_7745c5c3_Var123, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Next"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 272, Col: 32}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 272, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var123))
 					if templ_7745c5c3_Err != nil {
@@ -2041,7 +2041,7 @@ func FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pag
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = AdminLayout(site, i18n.T(ctx, "Формы"), csrf).Render(templ.WithChildren(ctx, templ_7745c5c3_Var86), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = AdminLayout(site, i18n.T(ctx, "Forms"), csrf).Render(templ.WithChildren(ctx, templ_7745c5c3_Var86), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

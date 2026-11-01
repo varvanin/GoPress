@@ -61,11 +61,11 @@ func (a *App) aiRoutes(g *echo.Group) {
 		text, err := a.Service.GenerateAI(c.Request().Context(), in)
 		switch {
 		case errors.Is(err, service.ErrAINotConfigured):
-			return c.JSON(400, map[string]string{"error": i18n.T(c.Request().Context(), "Попросите администратора настроить OpenRouter в разделе ИИ.")})
+			return c.JSON(400, map[string]string{"error": i18n.T(c.Request().Context(), "Ask an administrator to configure OpenRouter under AI.")})
 		case errors.Is(err, service.ErrRateLimit):
-			return c.JSON(429, map[string]string{"error": i18n.T(c.Request().Context(), "ИИ занят или достигнут лимит запросов. Повторите позже.")})
+			return c.JSON(429, map[string]string{"error": i18n.T(c.Request().Context(), "AI is busy or the request limit has been reached. Try again later.")})
 		case errors.Is(err, service.ErrAIUnavailable):
-			return c.JSON(502, map[string]string{"error": i18n.T(c.Request().Context(), "OpenRouter не вернул текст. Проверьте ключ, баланс и модель или повторите позже.")})
+			return c.JSON(502, map[string]string{"error": i18n.T(c.Request().Context(), "OpenRouter returned no text. Check the key, balance and model, or try again later.")})
 		case err != nil:
 			return err
 		}

@@ -7,25 +7,25 @@ import "gopress/internal/ui/components/button"
 import "gopress/internal/ui/components/icon"
 
 templ Modules(site,csrf string,modules []ModuleInfo,installed bool,query,state string,total int) {
- @AdminLayout(site,i18n.T(ctx,"Модули"),csrf) {
- @AdminPageHeader(i18n.T(ctx,"Модули"),total) {
+ @AdminLayout(site,i18n.T(ctx,"Modules"),csrf) {
+ @AdminPageHeader(i18n.T(ctx,"Modules"),total) {
  @button.Button(button.Props{Href:"/admin/modules/upload",Size:button.SizeSm}) {
- @icon.Plus()<span>{ i18n.T(ctx,"Загрузить свой модуль") }</span>
+ @icon.Plus()<span>{ i18n.T(ctx,"Upload your module") }</span>
  }
  @button.Button(button.Props{Href:"/admin/modules/reference.md",Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"hx-boost":"false"}}) {
- @icon.FileText()<span>{ i18n.T(ctx,"Справочник") }</span>
+ @icon.FileText()<span>{ i18n.T(ctx,"Template reference") }</span>
  }
  @button.Button(button.Props{Href:"/admin/modules/starter.zip",Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"hx-boost":"false"}}) {
- @icon.ArrowDown()<span>{ i18n.T(ctx,"ZIP-образец") }</span>
+ @icon.ArrowDown()<span>{ i18n.T(ctx,"Sample ZIP") }</span>
  }
  }
  if installed {
- <p class="notice" role="status">{ i18n.T(ctx,"Модуль установлен. Настройте его и включите для показа на сайте.") }</p>
+ <p class="notice" role="status">{ i18n.T(ctx,"Module installed. Configure and enable it to show it on the site.") }</p>
  }
  <section id="module-results" class="module-results">
  <form method="get" action="/admin/modules" class="module-controls" role="search" hx-get="/admin/modules" hx-trigger="submit, change" hx-target="#module-results" hx-select="#module-results" hx-swap="outerHTML show:none" hx-push-url="true">
- @AdminSearch("module-search",query,i18n.T(ctx,"Поиск"))
- @AdminSelect("module-state","state",state,i18n.T(ctx,"Состояние"),[]selectcomp.ItemData{{Value:"",Label:i18n.T(ctx,"Все")},{Value:"enabled",Label:i18n.T(ctx,"Включён")},{Value:"disabled",Label:i18n.T(ctx,"Отключён")}},nil)
+ @AdminSearch("module-search",query,i18n.T(ctx,"Search"))
+ @AdminSelect("module-state","state",state,i18n.T(ctx,"State"),[]selectcomp.ItemData{{Value:"",Label:i18n.T(ctx,"All")},{Value:"enabled",Label:i18n.T(ctx,"Enabled")},{Value:"disabled",Label:i18n.T(ctx,"Disabled")}},nil)
  </form>
  <div class="theme-catalog module-catalog">
  for _,m:=range modules {
@@ -43,9 +43,9 @@ templ Modules(site,csrf string,modules []ModuleInfo,installed bool,query,state s
  </div>
  <div class="theme-card-info"><div class="theme-card-title"><h2>{ builtinModuleName(ctx,m) }</h2><span class="theme-active-label">
  if m.Enabled {
- @icon.Check(icon.Props{Class:"size-3"})<span>{ i18n.T(ctx,"Включён") }</span>
+ @icon.Check(icon.Props{Class:"size-3"})<span>{ i18n.T(ctx,"Enabled") }</span>
  } else {
- { i18n.T(ctx,"Отключён") }
+ { i18n.T(ctx,"Disabled") }
  }
  </span></div><p>
  if m.Builtin {
@@ -58,18 +58,18 @@ templ Modules(site,csrf string,modules []ModuleInfo,installed bool,query,state s
  <form method="post" action={ templ.SafeURL(moduleTogglePath(m)) }><input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="q" value={ query }/><input type="hidden" name="state" value={ state }/><input type="hidden" name="id" value={ m.ID }/><input type="hidden" name="version" value={ strconv.FormatInt(m.Revision,10) }/><input type="hidden" name="enabled" value={ strconv.FormatBool(!m.Enabled) }/>
  @button.Button(button.Props{Type:button.TypeSubmit,Variant:moduleButtonVariant(m.Enabled),Size:button.SizeSm}) {
  if m.Enabled {
- { i18n.T(ctx,"Отключить") }
+ { i18n.T(ctx,"Disable") }
  } else {
- { i18n.T(ctx,"Включить") }
+ { i18n.T(ctx,"Enable") }
  }
  }
  </form>
  @button.Button(button.Props{Href:moduleEditorPath(m),Variant:button.VariantGhost,Size:button.SizeSm}) {
- { i18n.T(ctx,"Настроить") }
+ { i18n.T(ctx,"Configure") }
  }
  if !m.Builtin && !m.Enabled {
- <form method="post" action="/admin/modules/package/delete" hx-confirm={ i18n.T(ctx,"Удалить модуль и его настройки навсегда?") }><input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="q" value={ query }/><input type="hidden" name="state" value={ state }/><input type="hidden" name="id" value={ m.ID }/><input type="hidden" name="version" value={ strconv.FormatInt(m.Revision,10) }/>
- @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantGhost,Size:button.SizeIconSm,Attributes:templ.Attributes{"aria-label":i18n.T(ctx,"Удалить модуль"),"title":i18n.T(ctx,"Удалить модуль")}}) {
+ <form method="post" action="/admin/modules/package/delete" hx-confirm={ i18n.T(ctx,"Permanently delete the module and its settings?") }><input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="q" value={ query }/><input type="hidden" name="state" value={ state }/><input type="hidden" name="id" value={ m.ID }/><input type="hidden" name="version" value={ strconv.FormatInt(m.Revision,10) }/>
+ @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantGhost,Size:button.SizeIconSm,Attributes:templ.Attributes{"aria-label":i18n.T(ctx,"Delete module"),"title":i18n.T(ctx,"Delete module")}}) {
  @icon.Icon("trash-2")(icon.Props{Class:"size-4"})
  }
  </form>
@@ -79,7 +79,7 @@ templ Modules(site,csrf string,modules []ModuleInfo,installed bool,query,state s
  }
  </div>
  if len(modules)==0 {
- <p class="module-empty">{ i18n.T(ctx,"Совпадений не найдено.") }</p>
+ <p class="module-empty">{ i18n.T(ctx,"No matches found.") }</p>
  }
  </section>
  }
@@ -99,10 +99,10 @@ func moduleButtonVariant(enabled bool) button.Variant {
 }
 
 templ ModuleUpload(site,csrf,message string) {
- @AdminLayout(site,i18n.T(ctx,"Модули"),csrf) {
- @AdminPageHeader(i18n.T(ctx,"Загрузить свой модуль"),-1) {
+ @AdminLayout(site,i18n.T(ctx,"Modules"),csrf) {
+ @AdminPageHeader(i18n.T(ctx,"Upload your module"),-1) {
  @button.Button(button.Props{Href:"/admin/modules",Size:button.SizeSm,Variant:button.VariantOutline}) {
- { i18n.T(ctx,"Назад") }
+ { i18n.T(ctx,"Back") }
  }
  }
  if message!="" {
@@ -110,22 +110,22 @@ templ ModuleUpload(site,csrf,message string) {
  }
  <div class="site-settings"><section class="theme-upload-panel"><form method="post" action="/admin/modules/upload" enctype="multipart/form-data" hx-encoding="multipart/form-data" class="theme-upload-form" data-change-form>
  <input type="hidden" name="csrf" value={ csrf }/>
- <div class="field"><label for="module-zip">{ i18n.T(ctx,"Архив модуля GoPress") }</label><input id="module-zip" type="file" name="module_zip" accept=".zip,application/zip" required class="site-input"/><p class="field-help">{ i18n.T(ctx,"module.json, template.html, style.css и превью PNG/JPEG. ZIP до 8 MiB. После установки модуль выключен.") }</p></div>
+ <div class="field"><label for="module-zip">{ i18n.T(ctx,"GoPress module archive") }</label><input id="module-zip" type="file" name="module_zip" accept=".zip,application/zip" required class="site-input"/><p class="field-help">{ i18n.T(ctx,"module.json, template.html, style.css and a PNG/JPEG preview. ZIP up to 8 MiB. New modules start disabled.") }</p></div>
  @button.Button(button.Props{Type:button.TypeSubmit,Size:button.SizeSm}) {
- @icon.Plus()<span>{ i18n.T(ctx,"Установить") }</span>
+ @icon.Plus()<span>{ i18n.T(ctx,"Install") }</span>
  }
  </form></section></div>
  }
 }
 
 templ ModuleEditor(site,csrf string,info ModuleInfo,p store.ModulePackage,settings map[string]string,message string) {
- @AdminLayout(site,i18n.T(ctx,"Модули"),csrf) {
+ @AdminLayout(site,i18n.T(ctx,"Modules"),csrf) {
  @AdminPageHeader(info.Name,-1) {
  @button.Button(button.Props{Href:"/admin/modules",Size:button.SizeSm,Variant:button.VariantOutline}) {
- { i18n.T(ctx,"Модули") }
+ { i18n.T(ctx,"Modules") }
  }
  @button.Button(button.Props{Type:button.TypeSubmit,Form:"module-settings",Size:button.SizeSm}) {
- { i18n.T(ctx,"Сохранить") }
+ { i18n.T(ctx,"Save") }
  }
  }
  if message!="" {
@@ -144,9 +144,9 @@ templ ModuleEditor(site,csrf string,info ModuleInfo,p store.ModulePackage,settin
  </label>
  }
  if len(info.Fields)==0 {
- <p class="field-help">{ i18n.T(ctx,"У этого модуля нет настраиваемых полей.") }</p>
+ <p class="field-help">{ i18n.T(ctx,"This module has no configurable fields.") }</p>
  }
- </section></form><aside class="management-context"><h2>{ i18n.T(ctx,"Код для вставки") }</h2><input class="site-input" readonly data-faq-code value={ moduleCode(info.ID) } aria-label={ i18n.T(ctx,"Код для вставки") }/><p>{ i18n.T(ctx,"Вставьте код отдельным абзацем в страницу или запись и включите модуль в каталоге.") }</p><p>{ info.Description }</p></aside></div>
+ </section></form><aside class="management-context"><h2>{ i18n.T(ctx,"Embed code") }</h2><input class="site-input" readonly data-faq-code value={ moduleCode(info.ID) } aria-label={ i18n.T(ctx,"Embed code") }/><p>{ i18n.T(ctx,"Paste the code as a separate paragraph in a page or post and enable the module in the catalog.") }</p><p>{ info.Description }</p></aside></div>
  }
 }
 func moduleInputType(kind string) string {

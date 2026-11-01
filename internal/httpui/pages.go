@@ -26,7 +26,7 @@ func (a *App) pageOptions(ctx context.Context, p store.Page) ([]selectcomp.ItemD
 	if err != nil {
 		return nil, nil, err
 	}
-	parents := []selectcomp.ItemData{{Value: "0", Label: i18n.T(ctx, "Без родителя")}}
+	parents := []selectcomp.ItemData{{Value: "0", Label: i18n.T(ctx, "No parent")}}
 	for _, page := range pages {
 		if page.ID != p.ID {
 			parents = append(parents, selectcomp.ItemData{Value: strconv.FormatInt(page.ID, 10), Label: page.Title})
@@ -48,7 +48,7 @@ func (a *App) pageOptions(ctx context.Context, p store.Page) ([]selectcomp.ItemD
 	if err != nil {
 		return nil, nil, err
 	}
-	templates := []selectcomp.ItemData{{Value: "page.html", Label: i18n.T(ctx, "Стандартный")}}
+	templates := []selectcomp.ItemData{{Value: "page.html", Label: i18n.T(ctx, "Default")}}
 	found := p.Template == "" || p.Template == "page.html"
 	for _, entry := range entries {
 		if !entry.IsDir() && entry.Name() != "page.html" && service.ValidPageTemplate(entry.Name()) {
@@ -57,7 +57,7 @@ func (a *App) pageOptions(ctx context.Context, p store.Page) ([]selectcomp.ItemD
 		}
 	}
 	if !found {
-		templates = append(templates, selectcomp.ItemData{Value: p.Template, Label: p.Template + " " + i18n.T(ctx, "(недоступен)")})
+		templates = append(templates, selectcomp.ItemData{Value: p.Template, Label: p.Template + " " + i18n.T(ctx, "(unavailable)")})
 	}
 	return parents, templates, nil
 }
@@ -143,5 +143,5 @@ func originalLanguageOptions(p store.Page) []selectcomp.ItemData {
 }
 
 func menuLanguageOptions(ctx context.Context) []selectcomp.ItemData {
-	return append([]selectcomp.ItemData{{Value: "", Label: i18n.T(ctx, "По умолчанию")}}, materialLanguages()...)
+	return append([]selectcomp.ItemData{{Value: "", Label: i18n.T(ctx, "Default")}}, materialLanguages()...)
 }

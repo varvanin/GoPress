@@ -47,7 +47,7 @@ func pageMetadata(site store.Site, a store.Appearance, p store.Page, home, priva
 			m.Description = a.HomeDescription
 		}
 		if m.Description == "" {
-			m.Description = "Последние записи — " + site.Title
+			m.Description = "Latest posts — " + site.Title
 		}
 	} else if m.Description == "" {
 		m.Description = service.Excerpt(p.Document, 160)
@@ -262,7 +262,7 @@ func (a *App) rss(c *echo.Context) error {
 		feed.Channel.Description = settings.Description
 	}
 	if feed.Channel.Description == "" {
-		feed.Channel.Description = "Последние записи — " + site.Title
+		feed.Channel.Description = "Latest posts — " + site.Title
 	}
 	if !appearance.SEO.NoIndex {
 		posts, e := a.Service.Store.FeedPosts()

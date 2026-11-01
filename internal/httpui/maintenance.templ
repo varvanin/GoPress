@@ -6,9 +6,9 @@ import "gopress/internal/ui/components/icon"
 
 templ MaintenancePage(retry string) {
  @AuthLayout("Технические работы") {
- <p class="maintenance-description" role="status">{ i18n.T(ctx,"Сайт временно недоступен. Проводим технические работы — пожалуйста, зайдите немного позже.") }</p>
+ <p class="maintenance-description" role="status">{ i18n.T(ctx,"The site is temporarily unavailable while we carry out maintenance. Please check back later.") }</p>
  @button.Button(button.Props{Href:retry,Size:button.SizeSm,Variant:button.VariantOutline,Class:"maintenance-refresh"}) {
- @icon.Icon("rotate-ccw")(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Обновить страницу") }</span>
+ @icon.Icon("rotate-ccw")(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Refresh page") }</span>
  }
  }
 }

@@ -83,7 +83,7 @@ func (a *App) formRoutes(g *echo.Group) {
 	a.entryRoutes(g)
 	g.GET("/forms", a.formsPage)
 	g.GET("/forms/new", func(c *echo.Context) error {
-		return a.formEditor(c, 200, store.Form{Enabled: true, Button: i18n.T(c.Request().Context(), "Отправить"), Success: i18n.T(c.Request().Context(), "Спасибо! Ваша заявка отправлена."), Fields: []store.FormField{{Label: i18n.T(c.Request().Context(), "Имя"), Type: "text", Required: true}, {Label: "Email", Type: "email", Required: true}, {Label: i18n.T(c.Request().Context(), "Сообщение"), Type: "textarea", Required: true}}}, "")
+		return a.formEditor(c, 200, store.Form{Enabled: true, Button: i18n.T(c.Request().Context(), "Send"), Success: i18n.T(c.Request().Context(), "Thank you! Your submission has been sent."), Fields: []store.FormField{{Label: i18n.T(c.Request().Context(), "Name"), Type: "text", Required: true}, {Label: "Email", Type: "email", Required: true}, {Label: i18n.T(c.Request().Context(), "Message"), Type: "textarea", Required: true}}}, "")
 	})
 	g.GET("/forms/:form/edit", func(c *echo.Context) error {
 		id, err := formID(c)

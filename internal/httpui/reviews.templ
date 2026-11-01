@@ -12,8 +12,8 @@ import (
 )
 
 templ ReviewsPage(site, csrf, zone string, items []store.ContentReview, postedID int64, comment, message string) {
-	@AdminLayout(site, i18n.T(ctx, "Записи"), csrf) {
-		@AdminPageHeader(i18n.T(ctx, "Проверка публикаций"), len(items))
+	@AdminLayout(site, i18n.T(ctx, "Posts"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, "Publication review"), len(items))
 		if message != "" {
 			<p class="notice notice-error" role="alert">{ i18n.T(ctx, message) }</p>
 		}
@@ -22,7 +22,7 @@ templ ReviewsPage(site, csrf, zone string, items []store.ContentReview, postedID
 				if len(items) == 0 {
 					<section class="empty-state">
 						<span class="empty-icon">@icon.Icon("clipboard-list")(icon.Props{Class: "size-6"})</span>
-						<h2>{ i18n.T(ctx, "Нет материалов на проверке") }</h2>
+						<h2>{ i18n.T(ctx, "No content awaiting review") }</h2>
 					</section>
 				}
 				for _, r := range items {
@@ -40,13 +40,13 @@ templ ReviewsPage(site, csrf, zone string, items []store.ContentReview, postedID
 								{ "v" + strconv.FormatInt(r.Version, 10) + " · " + tableContentDate(r.RequestedAt, zone) }
 							</p>
 							<div class="review-item-links">
-								<a class="context-link" href={ templ.SafeURL("/admin/pages/" + strconv.FormatInt(r.PageID, 10) + "/preview") } target="_blank" rel="noopener">{ i18n.T(ctx, "Предпросмотр") }</a>
-								<a class="context-link" href={ templ.SafeURL("/admin/pages/" + strconv.FormatInt(r.PageID, 10) + "/edit") }>{ i18n.T(ctx, "Редактировать") }</a>
+								<a class="context-link" href={ templ.SafeURL("/admin/pages/" + strconv.FormatInt(r.PageID, 10) + "/preview") } target="_blank" rel="noopener">{ i18n.T(ctx, "Preview") }</a>
+								<a class="context-link" href={ templ.SafeURL("/admin/pages/" + strconv.FormatInt(r.PageID, 10) + "/edit") }>{ i18n.T(ctx, "Edit") }</a>
 							</div>
 						</div>
 						if !r.Current {
 							<p class="notice notice-warning" role="alert">
-								{ i18n.T(ctx, "Черновик изменён после отправки. Нужна повторная отправка на проверку.") }
+								{ i18n.T(ctx, "Draft changed after submission. Submit it for review again.") }
 							</p>
 						}
 						if r.Comment != "" {
@@ -58,7 +58,7 @@ templ ReviewsPage(site, csrf, zone string, items []store.ContentReview, postedID
 								<input type="hidden" name="page_id" value={ strconv.FormatInt(r.PageID, 10) }/>
 								<input type="hidden" name="version" value={ strconv.FormatInt(r.Version, 10) }/>
 								<label>
-									{ i18n.T(ctx, "Комментарий автору") }
+									{ i18n.T(ctx, "Comment for author") }
 									@input.Input(input.Props{
 										Name: "comment",
 										Value: reviewComment(r, postedID, comment),
@@ -72,7 +72,7 @@ templ ReviewsPage(site, csrf, zone string, items []store.ContentReview, postedID
 										Disabled: !r.Current || r.Comment != "",
 										Attributes: templ.Attributes{"name": "action", "value": "publish"},
 									}) {
-										<span>{ i18n.T(ctx, "Опубликовать") }</span>
+										<span>{ i18n.T(ctx, "Publish") }</span>
 									}
 									@button.Button(button.Props{
 										Type: button.TypeSubmit,
@@ -80,7 +80,7 @@ templ ReviewsPage(site, csrf, zone string, items []store.ContentReview, postedID
 										Size: button.SizeSm,
 										Attributes: templ.Attributes{"name": "action", "value": "return"},
 									}) {
-										<span>{ i18n.T(ctx, "Вернуть автору") }</span>
+										<span>{ i18n.T(ctx, "Return to author") }</span>
 									}
 								</div>
 							</form>
@@ -89,20 +89,20 @@ templ ReviewsPage(site, csrf, zone string, items []store.ContentReview, postedID
 				}
 			</div>
 			<aside class="management-context">
-				<h2>{ i18n.T(ctx, "Проверка публикаций") }</h2>
-				<p>{ i18n.T(ctx, "Авторы отправляют черновики на проверку перед публикацией. Редакторы и администраторы могут одобрить материал или вернуть его на доработку.") }</p>
+				<h2>{ i18n.T(ctx, "Publication review") }</h2>
+				<p>{ i18n.T(ctx, "Authors submit drafts for review before publication. Editors and administrators can approve the content or return it for revision.") }</p>
 				<dl class="context-definitions">
 					<div>
-						<dt>{ i18n.T(ctx, "Опубликовать") }</dt>
-						<dd>{ i18n.T(ctx, "Материал сразу становится доступен на сайте.") }</dd>
+						<dt>{ i18n.T(ctx, "Publish") }</dt>
+						<dd>{ i18n.T(ctx, "The content becomes available on the website immediately.") }</dd>
 					</div>
 					<div>
-						<dt>{ i18n.T(ctx, "Вернуть автору") }</dt>
-						<dd>{ i18n.T(ctx, "Материал возвращается в черновики вместе с комментарием.") }</dd>
+						<dt>{ i18n.T(ctx, "Return to author") }</dt>
+						<dd>{ i18n.T(ctx, "The content returns to drafts along with your comment.") }</dd>
 					</div>
 					<div>
-						<dt>{ i18n.T(ctx, "Комментарий автору") }</dt>
-						<dd>{ i18n.T(ctx, "Автор увидит комментарий при открытии материала в редакторе.") }</dd>
+						<dt>{ i18n.T(ctx, "Comment for author") }</dt>
+						<dd>{ i18n.T(ctx, "The author will see the comment when opening the content in the editor.") }</dd>
 					</div>
 				</dl>
 			</aside>

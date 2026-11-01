@@ -59,9 +59,9 @@ func AdminThemeToggle(compact bool) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var3 string
-				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Светлая тема"))
+				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Light appearance"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin_theme.templ`, Line: 11, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin_theme.templ`, Line: 11, Col: 68}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -72,9 +72,9 @@ func AdminThemeToggle(compact bool) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var4 string
-				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Тёмная тема"))
+				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Dark appearance"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin_theme.templ`, Line: 11, Col: 155}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin_theme.templ`, Line: 11, Col: 142}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -87,7 +87,7 @@ func AdminThemeToggle(compact bool) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantGhost, Size: button.SizeSm, Class: themeToggleClass(compact), Attributes: templ.Attributes{"data-admin-theme-toggle": true, "data-label-light": i18n.T(ctx, "Светлая тема"), "data-label-dark": i18n.T(ctx, "Тёмная тема"), "aria-label": i18n.T(ctx, "Светлая тема"), "title": i18n.T(ctx, "Светлая тема")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantGhost, Size: button.SizeSm, Class: themeToggleClass(compact), Attributes: templ.Attributes{"data-admin-theme-toggle": true, "data-label-light": i18n.T(ctx, "Light appearance"), "data-label-dark": i18n.T(ctx, "Dark appearance"), "aria-label": i18n.T(ctx, "Light appearance"), "title": i18n.T(ctx, "Light appearance")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

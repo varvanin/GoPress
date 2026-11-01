@@ -15,7 +15,7 @@ templ AdminPageHeader(title string, count int) {
 		<div class="content-heading-title">
 			<h1>{ i18n.T(ctx, title) }</h1>
 			if count>=0 {
-				<span class="content-count" aria-label={ i18n.T(ctx, "Количество результатов") }>{ strconv.Itoa(count) }</span>
+				<span class="content-count" aria-label={ i18n.T(ctx, "Number of results") }>{ strconv.Itoa(count) }</span>
 			}
 		</div>
 		<div class="page-heading-actions">
@@ -28,7 +28,7 @@ templ AdminSearch(id, value, placeholder string) {
 	<div class="content-search-field">
 		<label for={ id } class="sr-only">{ i18n.T(ctx,placeholder) }</label>
 		@input.Input(input.Props{ID: id, Name: "q", Value: value, Placeholder: i18n.T(ctx, placeholder), Attributes: templ.Attributes{"maxlength": "200", "type": "search"}})
-		@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Найти"), "title": i18n.T(ctx, "Найти")}}) {
+		@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Search"), "title": i18n.T(ctx, "Search")}}) {
 			@icon.Icon("search")(icon.Props{Class: "size-4"})
 		}
 	</div>

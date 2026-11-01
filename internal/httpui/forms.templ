@@ -13,10 +13,10 @@ import "gopress/internal/ui/components/card"
 import selectcomp "gopress/internal/ui/components/select"
 
 templ Forms(site, csrf string, forms []store.Form, smtp bool,settings store.Settings) {
-	@AdminLayout(site, i18n.T(ctx, "Формы"), csrf) {
-		@AdminPageHeader(i18n.T(ctx, "Формы"), len(forms)) {
+	@AdminLayout(site, i18n.T(ctx, "Forms"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, "Forms"), len(forms)) {
 			@button.Button(button.Props{Href: "/admin/forms/new", Size: button.SizeSm}) {
-				@icon.Plus()<span>{ i18n.T(ctx,"Создать форму") }</span>
+				@icon.Plus()<span>{ i18n.T(ctx,"Create form") }</span>
 			}
 		}
 		<div class="management-workspace forms-workspace">
@@ -24,8 +24,8 @@ templ Forms(site, csrf string, forms []store.Form, smtp bool,settings store.Sett
 				if len(forms)==0 {
 					@card.Card(card.Props{Class: "forms-empty"}) {
 						@icon.FileText(icon.Props{Class: "size-6"})
-						<h2>{ i18n.T(ctx,"Создайте первую форму") }</h2>
-						<p>{ i18n.T(ctx,"Добавьте поля, укажите email получателя и вставьте короткий код в страницу или запись.") }</p>
+						<h2>{ i18n.T(ctx,"Create your first form") }</h2>
+						<p>{ i18n.T(ctx,"Add fields, set a recipient email and paste the shortcode into a page or post.") }</p>
 					}
 				}
 		<div class="forms-list">
@@ -38,9 +38,9 @@ templ Forms(site, csrf string, forms []store.Form, smtp bool,settings store.Sett
 						>{ f.Name }</a>
 						<p class="field-help">
 							if f.Enabled {
-								<span>{ i18n.T(ctx,"Активна") }</span>
+								<span>{ i18n.T(ctx,"Active") }</span>
 							} else {
-								<span>{ i18n.T(ctx,"Отключена") }</span>
+								<span>{ i18n.T(ctx,"Disabled") }</span>
 							}
 							<span>· { f.Recipient }</span>
 						</p>
@@ -50,10 +50,10 @@ templ Forms(site, csrf string, forms []store.Form, smtp bool,settings store.Sett
 					</code>
 					<div class="flex gap-2">
 						@button.Button(button.Props{Href: formPath(f.ID) + "/entries", Variant: button.VariantOutline, Size: button.SizeSm}) {
-							{ i18n.T(ctx,"Заявки") }
+							{ i18n.T(ctx,"Submissions") }
 						}
 						@button.Button(button.Props{Href: formPath(f.ID) + "/edit", Variant: button.VariantGhost, Size: button.SizeSm}) {
-							{ i18n.T(ctx,"Редактировать") }
+							{ i18n.T(ctx,"Edit") }
 						}
 					</div>
 				</article>
@@ -62,22 +62,22 @@ templ Forms(site, csrf string, forms []store.Form, smtp bool,settings store.Sett
 			</div>
 			<aside class="forms-context">
 				@card.Card(card.Props{Class: "forms-retention"}) {
-					<h2>@icon.Icon("database")(icon.Props{Class: "size-4"})<span>{ i18n.T(ctx,"Заявки") }</span></h2>
+					<h2>@icon.Icon("database")(icon.Props{Class: "size-4"})<span>{ i18n.T(ctx,"Submissions") }</span></h2>
 					<form method="post" action="/admin/forms/retention" data-change-form>
 						<input type="hidden" name="csrf" value={ csrf }/>
 						<input type="hidden" name="version" value={ strconv.FormatInt(settings.Version,10) }/>
-						<label for="form-retention-days">{ i18n.T(ctx,"Хранить заявки, дней") }</label>
+						<label for="form-retention-days">{ i18n.T(ctx,"Submission retention, days") }</label>
 						<input id="form-retention-days" type="number" name="days" class="site-input" required min="1" max="3650" value={ strconv.Itoa(settings.FormRetentionDays) }/>
-						<p class="field-help">{ i18n.T(ctx,"Заявки старше выбранного срока удаляются автоматически вместе с очередью уведомлений.") }</p>
+						<p class="field-help">{ i18n.T(ctx,"Submissions older than this period and their queued notifications are deleted automatically.") }</p>
 						@button.Button(button.Props{Type:button.TypeSubmit,Size:button.SizeSm,Variant:button.VariantOutline}) {
-							{ i18n.T(ctx,"Сохранить") }
+							{ i18n.T(ctx,"Save") }
 						}
 					</form>
 				}
 				if !smtp {
 					<div class="forms-mail-status">
-						<p class="field-help">{ i18n.T(ctx,"Почтовые уведомления не настроены. Заявки сохраняются в админке.") }</p>
-						<a href="/admin/settings?tab=mail" class="context-link">{ i18n.T(ctx,"Настроить почту") }</a>
+						<p class="field-help">{ i18n.T(ctx,"Email notifications are not configured. Submissions are saved in the admin panel.") }</p>
+						<a href="/admin/settings?tab=mail" class="context-link">{ i18n.T(ctx,"Configure email") }</a>
 					</div>
 				}
 			</aside>
@@ -86,18 +86,18 @@ templ Forms(site, csrf string, forms []store.Form, smtp bool,settings store.Sett
 }
 
 templ FormEditor(site, csrf string, f store.Form, message string) {
-	@AdminLayout(site, i18n.T(ctx, "Формы"), csrf) {
-		@AdminPageHeader(i18n.T(ctx, "Конструктор формы"), -1) {
+	@AdminLayout(site, i18n.T(ctx, "Forms"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, "Form builder"), -1) {
 			@button.Button(button.Props{Href: "/admin/forms", Variant: button.VariantOutline, Size: button.SizeSm}) {
-				{ i18n.T(ctx,"Все формы") }
+				{ i18n.T(ctx,"All forms") }
 			}
 			if f.ID>0 {
 				@button.Button(button.Props{Href: formPath(f.ID) + "/entries", Variant: button.VariantOutline, Size: button.SizeSm}) {
-					{ i18n.T(ctx,"Заявки") }
+					{ i18n.T(ctx,"Submissions") }
 				}
 			}
 			@button.Button(button.Props{Type: button.TypeSubmit, Form: "form-builder", Size: button.SizeSm}) {
-				{ i18n.T(ctx,"Сохранить форму") }
+				{ i18n.T(ctx,"Save form") }
 			}
 		}
 		if message!="" {
@@ -105,21 +105,21 @@ templ FormEditor(site, csrf string, f store.Form, message string) {
 		}
 		if f.ID>0 {
 			@card.Card(card.Props{Class: "form-embed settings-panel px-4"}) {
-				<label for="form-code">{ i18n.T(ctx,"Код для вставки") }</label>
+				<label for="form-code">{ i18n.T(ctx,"Embed code") }</label>
 				<div class="flex gap-2">
 					<input
 						id="form-code"
 						class="site-input"
 						value={ formCode(f.ID) }
 						readonly
-					/><button type="button" data-copy-form class="form-copy">{ i18n.T(ctx,"Копировать") }</button>
+					/><button type="button" data-copy-form class="form-copy">{ i18n.T(ctx,"Copy") }</button>
 				</div>
-				<p class="field-help">{ i18n.T(ctx,"Вставьте этот код отдельным абзацем в редакторе страницы или записи. После публикации вместо кода появится форма.") }</p><a
+				<p class="field-help">{ i18n.T(ctx,"Paste this code as a separate paragraph in a page or post. The published page will display the form.") }</p><a
 	class="text-xs underline"
 	href={ templ.SafeURL("/forms/" + strconv.FormatInt(f.ID, 10)) }
 	target="_blank"
 	rel="noopener"
->{ i18n.T(ctx,"Открыть готовую форму ↗") }</a>
+>{ i18n.T(ctx,"Open saved form ↗") }</a>
 			}
 		}
 		<div class="form-builder-layout">
@@ -134,35 +134,35 @@ templ FormEditor(site, csrf string, f store.Form, message string) {
 	value={ strconv.FormatInt(f.Version, 10) }
 />
 				@card.Card(card.Props{Class: "settings-panel form-settings px-4"}) {
-					<h2>{ i18n.T(ctx,"Настройки") }</h2>
-					<label>{ i18n.T(ctx,"Название формы") }<input class="site-input" name="name" required maxlength="120" value={ f.Name } placeholder={ i18n.T(ctx, "Обратная связь") }/></label>
-					<label>{ i18n.T(ctx,"Email получателя") }<input class="site-input" name="recipient" type="email" required maxlength="254" value={ f.Recipient } placeholder="mail@example.com"/></label>
+					<h2>{ i18n.T(ctx,"Settings") }</h2>
+					<label>{ i18n.T(ctx,"Form name") }<input class="site-input" name="name" required maxlength="120" value={ f.Name } placeholder={ i18n.T(ctx, "Contact") }/></label>
+					<label>{ i18n.T(ctx,"Recipient email") }<input class="site-input" name="recipient" type="email" required maxlength="254" value={ f.Recipient } placeholder="mail@example.com"/></label>
 					<div class="form-setting-pair">
-						<label>{ i18n.T(ctx,"Текст кнопки") }<input class="site-input" name="button" required maxlength="80" value={ f.Button }/></label>
+						<label>{ i18n.T(ctx,"Button label") }<input class="site-input" name="button" required maxlength="80" value={ f.Button }/></label>
 						<label>
-							{ i18n.T(ctx,"Состояние") }
-							@AdminSelect("form-enabled", "enabled", strconv.FormatBool(f.Enabled), i18n.T(ctx, "Состояние формы"), []selectcomp.ItemData{{Value: "true", Label: i18n.T(ctx, "Активна")}, {Value: "false", Label: i18n.T(ctx, "Отключена")}}, nil)
+							{ i18n.T(ctx,"State") }
+							@AdminSelect("form-enabled", "enabled", strconv.FormatBool(f.Enabled), i18n.T(ctx, "Form state"), []selectcomp.ItemData{{Value: "true", Label: i18n.T(ctx, "Active")}, {Value: "false", Label: i18n.T(ctx, "Disabled")}}, nil)
 						</label>
 					</div>
-					<label>{ i18n.T(ctx,"Сообщение после отправки") }<textarea class="site-input" name="success" required maxlength="500" rows="2">{ f.Success }</textarea></label>
+					<label>{ i18n.T(ctx,"Success message") }<textarea class="site-input" name="success" required maxlength="500" rows="2">{ f.Success }</textarea></label>
 				}
 				@card.Card(card.Props{Class: "settings-panel form-fields-panel px-4"}) {
-					<div class="flex items-center justify-between gap-2"><h2>{ i18n.T(ctx,"Поля формы") }</h2><span class="field-help">{ i18n.T(ctx,"До 20 полей") }</span></div>
+					<div class="flex items-center justify-between gap-2"><h2>{ i18n.T(ctx,"Form fields") }</h2><span class="field-help">{ i18n.T(ctx,"Up to 20 fields") }</span></div>
 					<div data-form-fields class="form-fields">
 						for _, field := range f.Fields {
 							@FormFieldEditor(field)
 						}
 					</div>
 					@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"data-add-form-field": true}}) {
-						@icon.Plus()<span>{ i18n.T(ctx,"Добавить поле") }</span>
+						@icon.Plus()<span>{ i18n.T(ctx,"Add field") }</span>
 					}
 					<p class="field-help" data-form-builder-status aria-live="polite"></p>
 				}
-				<template data-form-field-template>@FormFieldEditor(store.FormField{Type: "text", Label: i18n.T(ctx, "Новое поле")})</template>
+				<template data-form-field-template>@FormFieldEditor(store.FormField{Type: "text", Label: i18n.T(ctx, "New field")})</template>
 			</form>
 			@card.Card(card.Props{Class: "settings-panel form-preview px-4"}) {
-				<h2>{ i18n.T(ctx,"Предпросмотр") }</h2>
-				<p class="field-help">{ i18n.T(ctx,"Так посетитель увидит поля. Отправка доступна после сохранения.") }</p>
+				<h2>{ i18n.T(ctx,"Preview") }</h2>
+				<p class="field-help">{ i18n.T(ctx,"This is how visitors will see the fields. Submission is available after saving.") }</p>
 				<div data-form-preview></div>
 			}
 		</div>
@@ -171,19 +171,19 @@ templ FormEditor(site, csrf string, f store.Form, message string) {
 
 templ FormFieldEditor(field store.FormField) {
 	<div class="form-field-editor" data-form-field>
-		<div class="form-field-heading"><label>{ i18n.T(ctx,"Название поля") }<input class="site-input" name="field_label" value={ field.Label } required maxlength="120"/></label><div class="form-field-actions"><button type="button" data-form-field-up aria-label={ i18n.T(ctx, "Переместить поле выше") } title={ i18n.T(ctx, "Выше") }>@icon.ArrowLeft(icon.Props{Class: "size-4 rotate-90"})</button><button type="button" data-form-field-down aria-label={ i18n.T(ctx, "Переместить поле ниже") } title={ i18n.T(ctx, "Ниже") }>@icon.ArrowRight(icon.Props{Class: "size-4 rotate-90"})</button><button type="button" data-remove-form-field aria-label={ i18n.T(ctx, "Удалить поле") } title={ i18n.T(ctx, "Удалить поле") }>@icon.Icon("trash-2")(icon.Props{Class: "size-4"})</button></div></div>
+		<div class="form-field-heading"><label>{ i18n.T(ctx,"Field label") }<input class="site-input" name="field_label" value={ field.Label } required maxlength="120"/></label><div class="form-field-actions"><button type="button" data-form-field-up aria-label={ i18n.T(ctx, "Move field up") } title={ i18n.T(ctx, "Move up") }>@icon.ArrowLeft(icon.Props{Class: "size-4 rotate-90"})</button><button type="button" data-form-field-down aria-label={ i18n.T(ctx, "Move field down") } title={ i18n.T(ctx, "Move down") }>@icon.ArrowRight(icon.Props{Class: "size-4 rotate-90"})</button><button type="button" data-remove-form-field aria-label={ i18n.T(ctx, "Remove field") } title={ i18n.T(ctx, "Remove field") }>@icon.Icon("trash-2")(icon.Props{Class: "size-4"})</button></div></div>
 		<div class="form-setting-pair">
 			<label>
-				{ i18n.T(ctx,"Тип") }
-				@AdminSelect("", "field_type", field.Type, i18n.T(ctx, "Тип поля"), []selectcomp.ItemData{{Value: "text", Label: i18n.T(ctx, "Текст")}, {Value: "email", Label: "Email"}, {Value: "tel", Label: i18n.T(ctx, "Телефон")}, {Value: "textarea", Label: i18n.T(ctx, "Сообщение")}, {Value: "select", Label: i18n.T(ctx, "Список вариантов")}, {Value: "checkbox", Label: i18n.T(ctx, "Флажок / согласие")}}, nil)
+				{ i18n.T(ctx,"Type") }
+				@AdminSelect("", "field_type", field.Type, i18n.T(ctx, "Field type"), []selectcomp.ItemData{{Value: "text", Label: i18n.T(ctx, "Text")}, {Value: "email", Label: "Email"}, {Value: "tel", Label: i18n.T(ctx, "Phone")}, {Value: "textarea", Label: i18n.T(ctx, "Message")}, {Value: "select", Label: i18n.T(ctx, "Dropdown")}, {Value: "checkbox", Label: i18n.T(ctx, "Checkbox / consent")}}, nil)
 			</label>
 			<label>
-				{ i18n.T(ctx,"Заполнение") }
-				@AdminSelect("", "field_required", strconv.FormatBool(field.Required), i18n.T(ctx, "Обязательное поле"), []selectcomp.ItemData{{Value: "true", Label: i18n.T(ctx, "Обязательно")}, {Value: "false", Label: i18n.T(ctx, "Необязательно")}}, nil)
+				{ i18n.T(ctx,"Requirement") }
+				@AdminSelect("", "field_required", strconv.FormatBool(field.Required), i18n.T(ctx, "Required field"), []selectcomp.ItemData{{Value: "true", Label: i18n.T(ctx, "Required")}, {Value: "false", Label: i18n.T(ctx, "Optional")}}, nil)
 			</label>
 		</div>
 		<label data-form-field-options hidden?={ field.Type!="select" }>
-			{ i18n.T(ctx,"Варианты — каждый с новой строки") }
+			{ i18n.T(ctx,"Options — one per line") }
 			<textarea class="site-input" name="field_options" rows="3" maxlength="4000">
 				{ strings.Join(field.Options,"\n") }
 			</textarea>
@@ -192,34 +192,34 @@ templ FormFieldEditor(field store.FormField) {
 }
 
 templ FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, page, total int, mail string) {
-	@AdminLayout(site, i18n.T(ctx, "Формы"), csrf) {
-		@AdminPageHeader(i18n.T(ctx, "Заявки: ")+f.Name, total) {
+	@AdminLayout(site, i18n.T(ctx, "Forms"), csrf) {
+		@AdminPageHeader(i18n.T(ctx, "Submissions: ")+f.Name, total) {
 @button.Button(button.Props{Href:formPath(f.ID)+"/entries/export",Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"hx-boost":"false"}}) {
-{ i18n.T(ctx,"Экспорт CSV") }
+{ i18n.T(ctx,"Export CSV") }
 }
 
 			@button.Button(button.Props{Href: formPath(f.ID) + "/edit", Variant: button.VariantOutline, Size: button.SizeSm}) {
-				{ i18n.T(ctx,"Конструктор формы") }
+				{ i18n.T(ctx,"Form builder") }
 			}
 		}
 		if mail=="queued" {
-<p class="notice" role="status">{ i18n.T(ctx,"Уведомление поставлено в очередь.") }</p>
+<p class="notice" role="status">{ i18n.T(ctx,"Notification queued.") }</p>
 }
 		if mail=="sent" {
-			<p class="notice" role="status">{ i18n.T(ctx,"Уведомление отправлено.") }</p>
+			<p class="notice" role="status">{ i18n.T(ctx,"Notification sent.") }</p>
 		}
 		if mail=="failed" {
-			<p class="notice notice-error" role="alert">{ i18n.T(ctx,"Не удалось отправить уведомление. Проверьте настройки SMTP. Заявка сохранена.") }</p>
+			<p class="notice notice-error" role="alert">{ i18n.T(ctx,"Could not send the notification. Check SMTP settings. The submission was saved.") }</p>
 		}
 		if len(entries)==0 {
-			<section class="empty-state"><h2>{ i18n.T(ctx,"Заявок пока нет") }</h2><p>{ i18n.T(ctx,"Они появятся здесь после отправки формы на сайте.") }</p></section>
+			<section class="empty-state"><h2>{ i18n.T(ctx,"No submissions yet") }</h2><p>{ i18n.T(ctx,"Submissions will appear here when visitors send the form.") }</p></section>
 		}
-<form id="entry-delete-form" method="post" action={ templ.SafeURL(formPath(f.ID)+"/entries/delete") } class="content-bulk" hx-confirm={ i18n.T(ctx,"Удалить выбранные заявки навсегда?") }>
+<form id="entry-delete-form" method="post" action={ templ.SafeURL(formPath(f.ID)+"/entries/delete") } class="content-bulk" hx-confirm={ i18n.T(ctx,"Permanently delete the selected submissions?") }>
 <input type="hidden" name="csrf" value={ csrf }/>
-<label class="content-selection"><input type="checkbox" data-select-all data-selection-form="entry-delete-form" aria-label={ i18n.T(ctx,"Выбрать все заявки на странице") }/></label>
-<span data-selection-count aria-live="polite">{ i18n.T(ctx,"Выбрано: 0") }</span>
+<label class="content-selection"><input type="checkbox" data-select-all data-selection-form="entry-delete-form" aria-label={ i18n.T(ctx,"Select all submissions on this page") }/></label>
+<span data-selection-count aria-live="polite">{ i18n.T(ctx,"Selected: 0") }</span>
 @button.Button(button.Props{Type:button.TypeSubmit,Size:button.SizeSm,Variant:button.VariantOutline,Attributes:templ.Attributes{"data-bulk-action":true,"disabled":true}}) {
-{ i18n.T(ctx,"Удалить выбранное") }
+{ i18n.T(ctx,"Delete selected") }
 }
 </form>
 		<div class="form-entries">
@@ -227,8 +227,8 @@ templ FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pa
 				@card.Card(card.Props{Class: "settings-panel form-entry px-4"}) {
 					<div class="flex items-center justify-between gap-2 flex-wrap">
 						<h2>
-<input type="checkbox" name="selection" form="entry-delete-form" value={ strconv.FormatInt(e.ID,10) } aria-label={ i18n.T(ctx,"Выбрать заявку") }/>
-							{ i18n.T(ctx,"Заявка №")+strconv.FormatInt(e.ID,10) }
+<input type="checkbox" name="selection" form="entry-delete-form" value={ strconv.FormatInt(e.ID,10) } aria-label={ i18n.T(ctx,"Select submission") }/>
+							{ i18n.T(ctx,"Submission #")+strconv.FormatInt(e.ID,10) }
 						</h2>
 						<time class="field-help">
 							{ contentDate(e.CreatedAt) }
@@ -241,17 +241,17 @@ templ FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pa
 					</dl>
 					<div class="form-entry-mail">
 						if e.MailStatus=="pending" || e.MailStatus=="retry" {
-<span class="field-help">{ i18n.T(ctx,"Уведомление поставлено в очередь.") }</span>
+<span class="field-help">{ i18n.T(ctx,"Notification queued.") }</span>
 } else if e.MailStatus=="sent" {
-							<span class="field-help">{ i18n.T(ctx,"Email отправлен") }</span>
+							<span class="field-help">{ i18n.T(ctx,"Email sent") }</span>
 						} else {
-							<span class="field-help">{ i18n.T(ctx,"Email не отправлен. Заявка сохранена.") }</span>
+							<span class="field-help">{ i18n.T(ctx,"Email not sent. Submission saved.") }</span>
 							<form
 								method="post"
 								action={ templ.SafeURL(formPath(f.ID) + "/entries/" + strconv.FormatInt(e.ID, 10) + "/retry") }
 							>
 								<input type="hidden" name="csrf" value={ csrf }/>@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm}) {
-	{ i18n.T(ctx,"Отправить email повторно") }
+	{ i18n.T(ctx,"Retry email") }
 }
 							</form>
 						}
@@ -259,17 +259,17 @@ templ FormEntries(site, csrf string, f store.Form, entries []store.FormEntry, pa
 				}
 			}
 		</div>
-		<nav class="content-pagination" aria-label={ i18n.T(ctx, "Страницы заявок") }>
-			<span>{ strconv.Itoa(total)+i18n.T(ctx," заявок") }</span>
+		<nav class="content-pagination" aria-label={ i18n.T(ctx, "Submission pages") }>
+			<span>{ strconv.Itoa(total)+i18n.T(ctx," submissions") }</span>
 			<div class="flex gap-2">
 				if page>1 {
 					@button.Button(button.Props{Href: formPath(f.ID) + "/entries?page=" + strconv.Itoa(page-1), Variant: button.VariantOutline, Size: button.SizeSm}) {
-						{ i18n.T(ctx,"Назад") }
+						{ i18n.T(ctx,"Back") }
 					}
 				}
 				if page*25<total {
 					@button.Button(button.Props{Href: formPath(f.ID) + "/entries?page=" + strconv.Itoa(page+1), Variant: button.VariantOutline, Size: button.SizeSm}) {
-						{ i18n.T(ctx,"Далее") }
+						{ i18n.T(ctx,"Next") }
 					}
 				}
 			</div>

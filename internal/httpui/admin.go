@@ -118,18 +118,18 @@ func partialRequest(ctx context.Context) bool {
 	return value
 }
 func adminSection(title string) string {
-	// Match known section titles directly: translated words can have several Russian sources.
+	// Match known section titles. Keys are English; translated values are checked per language.
 	for _, item := range []struct{ title, path string }{
-		{"Пользователи", "/admin/users"}, {"Пользователь", "/admin/users"}, {"Мой профиль", "/admin/account"},
-		{"Модули", "/admin/modules"}, {"Шаблоны", "/admin/themes"}, {"Инструменты", "/admin/tools"},
-		{"Обновления", "/admin/settings"}, {"ИИ", "/admin/settings"}, {"Настройки", "/admin/settings"},
-		{"Формы", "/admin/forms"}, {"SEO", "/admin/seo"}, {"Медиатека", "/admin/media"}, {"Меню", "/admin/menus"},
-		{"Категории и теги", "/admin/posts/terms"}, {"Записи", "/admin/posts"}, {"Страницы", "/admin/pages"},
+		{"Users", "/admin/users"}, {"User", "/admin/users"}, {"My profile", "/admin/account"},
+		{"Modules", "/admin/modules"}, {"Templates", "/admin/themes"}, {"Tools", "/admin/tools"},
+		{"Updates", "/admin/settings"}, {"AI", "/admin/settings"}, {"Settings", "/admin/settings"},
+		{"Forms", "/admin/forms"}, {"SEO", "/admin/seo"}, {"Media library", "/admin/media"}, {"Menus", "/admin/menus"},
+		{"Categories and tags", "/admin/posts/terms"}, {"Posts", "/admin/posts"}, {"Pages", "/admin/pages"},
 	} {
 		if title == item.title {
 			return item.path
 		}
-		for _, language := range []string{"en", "pl", "de", "uk", "it", "es", "cs"} {
+		for _, language := range []string{"ru", "pl", "de", "uk", "it", "es", "cs"} {
 			if i18n.Catalog(language)[item.title] == title {
 				return item.path
 			}
@@ -137,13 +137,13 @@ func adminSection(title string) string {
 	}
 	title = i18n.Source(title)
 
-	if strings.Contains(title, "Категории") {
+	if strings.Contains(title, "Categories") || strings.Contains(title, "tags") {
 		return "/admin/posts/terms"
 	}
-	if strings.Contains(strings.ToLower(title), "запис") {
+	if strings.Contains(strings.ToLower(title), "post") {
 		return "/admin/posts"
 	}
-	if strings.Contains(strings.ToLower(title), "страниц") {
+	if strings.Contains(strings.ToLower(title), "page") {
 		return "/admin/pages"
 	}
 	return "/admin"

@@ -17,9 +17,9 @@ export function mediaDrop(event) {
   form.classList.remove('is-dragging');
   if(form.classList.contains('htmx-request'))return;
   const files=event.dataTransfer.files;
-  if(files.length!==1){toast(t('Перетащите одно изображение.'),'error');return;}
+  if(files.length!==1){toast(t('Drop one image at a time.'),'error');return;}
   if(!['image/png','image/jpeg'].includes(files[0].type)||files[0].size>8*1024*1024){
-    toast(t('Не удалось загрузить изображение. Нужен PNG или JPEG до 8 MiB и 16 миллионов пикселей.'),'error');return;
+    toast(t('Could not upload the image. Use PNG or JPEG up to 8 MiB and 16 million pixels.'),'error');return;
   }
   const input=form.querySelector('input[type="file"]');
   input.files=files;

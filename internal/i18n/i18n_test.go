@@ -15,23 +15,23 @@ import (
 )
 
 func TestLanguagesAndCatalogCoverage(t *testing.T) {
-	for _, language := range []string{"en", "pl", "de", "uk", "it", "es", "cs"} {
+	for _, language := range []string{"ru", "pl", "de", "uk", "it", "es", "cs"} {
 		ctx := WithLanguage(context.Background(), language)
-		if T(ctx, " Настройки ") == " Настройки " || T(ctx, "My own title") != "My own title" {
+		if T(ctx, " Settings ") == " Settings " || T(ctx, "My own title") != "My own title" {
 			t.Fatal("translation or fallback", language)
 		}
 	}
-	if T(context.Background(), "Настройки") != "Настройки" || Language(WithLanguage(context.Background(), "xx")) != "ru" {
+	if T(context.Background(), "Settings") != "Settings" || Language(WithLanguage(context.Background(), "xx")) != "en" {
 		t.Fatal("default language")
 	}
 	for language, catalog := range catalogs {
 		if !Supported(language) || Language(WithLanguage(context.Background(), language)) != language {
 			t.Fatal("unsupported loaded catalog", language)
 		}
-		if len(catalog) != len(catalogs["en"]) {
+		if len(catalog) != len(catalogs["ru"]) {
 			t.Fatal("catalog keys differ", language)
 		}
-		for key, value := range catalogs["en"] {
+		for key, value := range catalogs["ru"] {
 			translated := catalog[key]
 			if value == "" || translated == "" {
 				t.Fatal("incomplete catalog", language, key)
@@ -81,7 +81,7 @@ func TestLanguagesAndCatalogCoverage(t *testing.T) {
 				t.Fatal(err)
 			}
 			key = strings.TrimSpace(key)
-			for _, language := range []string{"en", "pl", "de", "uk", "it", "es", "cs"} {
+			for _, language := range []string{"ru", "pl", "de", "uk", "it", "es", "cs"} {
 				if catalogs[language][key] == "" {
 					t.Errorf("%s: missing %s translation for %q", path, language, key)
 				}

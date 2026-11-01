@@ -12,16 +12,16 @@ templ SEOPage(site, csrf string, value store.Appearance, details store.Site, tab
 	@AdminLayout(site, "SEO", csrf) {
 		@AdminPageHeader("SEO", -1) {
 			@button.Button(button.Props{Type: button.TypeSubmit, Form: "site-seo-form", Size: button.SizeSm}) {
-				@icon.Check()<span>{ i18n.T(ctx,"Сохранить") }</span>
+				@icon.Check()<span>{ i18n.T(ctx,"Save") }</span>
 			}
 		}
-		<a class="context-link" href="/admin/seo/redirects">{ i18n.T(ctx,"Перенаправления и 404") }</a>
+		<a class="context-link" href="/admin/seo/redirects">{ i18n.T(ctx,"Redirects and 404s") }</a>
 		<nav class="content-list-tabs settings-tabs" aria-label="SEO" hx-target="#seo-panel" hx-select="#seo-panel" hx-swap="outerHTML show:none">
-			<a data-seo-tab-link href="/admin/seo?tab=search" aria-current={ activeTab(tab == "search") }>@icon.Icon("search")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Поиск") }</span></a>
-			<a data-seo-tab-link href="/admin/seo?tab=index" aria-current={ activeTab(tab == "index") }>@icon.Icon("globe")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Индексация") }</span></a>
-			<a data-seo-tab-link href="/admin/seo?tab=social" aria-current={ activeTab(tab == "social") }>@icon.Icon("share-2")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Соцсети") }</span></a>
-			<a data-seo-tab-link href="/admin/seo?tab=schema" aria-current={ activeTab(tab == "schema") }>@icon.Icon("code-xml")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Данные сайта") }</span></a>
-			<a data-seo-tab-link href="/admin/seo?tab=files" aria-current={ activeTab(tab == "files") }>@icon.Icon("file-text")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Файлы") }</span></a>
+			<a data-seo-tab-link href="/admin/seo?tab=search" aria-current={ activeTab(tab == "search") }>@icon.Icon("search")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Search") }</span></a>
+			<a data-seo-tab-link href="/admin/seo?tab=index" aria-current={ activeTab(tab == "index") }>@icon.Icon("globe")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Indexing") }</span></a>
+			<a data-seo-tab-link href="/admin/seo?tab=social" aria-current={ activeTab(tab == "social") }>@icon.Icon("share-2")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Social media") }</span></a>
+			<a data-seo-tab-link href="/admin/seo?tab=schema" aria-current={ activeTab(tab == "schema") }>@icon.Icon("code-xml")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Site identity") }</span></a>
+			<a data-seo-tab-link href="/admin/seo?tab=files" aria-current={ activeTab(tab == "files") }>@icon.Icon("file-text")(icon.Props{Class:"size-3.5"})<span>{ i18n.T(ctx,"Files") }</span></a>
 		</nav>
 		<div id="seo-panel">
 		if message!="" {
@@ -43,9 +43,9 @@ templ SEOPage(site, csrf string, value store.Appearance, details store.Site, tab
 							@SEOInput("post_title", "Заголовки записей", value.SEOOptions.PostTitle, "{title} {separator} {site}", 300)
 							@SEOInput("category_title", "Заголовки категорий", value.SEOOptions.CategoryTitle, "{category} {separator} {site}", 300)
 							@SEOInput("search_title", "Заголовок поиска", value.SEOOptions.SearchTitle, "{query} {separator} {site}", 300)
-							<p class="field-help">{ i18n.T(ctx,"Переменные: {title}, {site}, {separator}, {page}, {category}, {query}. Индивидуальный SEO-заголовок материала имеет приоритет.") }</p>
+							<p class="field-help">{ i18n.T(ctx,"Variables: {title}, {site}, {separator}, {page}, {category}, {query}. An individual SEO title takes priority.") }</p>
 							@SEOTextarea("description_fallback", "Запасное описание", value.SEOOptions.DescriptionFallback, 500)
-							<p class="field-help">{ i18n.T(ctx,"Пустое поле использует описание материала или начало опубликованного текста.") }</p>
+							<p class="field-help">{ i18n.T(ctx,"An empty field uses the content description or the beginning of the published text.") }</p>
 						}
 					case "index":
 						@SEOPanel("Индексация сайта") {
@@ -55,34 +55,34 @@ templ SEOPage(site, csrf string, value store.Appearance, details store.Site, tab
 							@SEOCheck("noindex_posts", "Не индексировать записи", value.SEOOptions.NoIndexPosts)
 							@SEOCheck("noindex_categories", "Не индексировать категории", value.SEOOptions.NoIndexCategories)
 							@SEOCheck("noindex_pagination", "Не индексировать страницы пагинации", value.SEOOptions.NoIndexPagination)
-							<p class="field-help">{ i18n.T(ctx,"Закрытые от индексации материалы исключаются из sitemap. Поиск, предпросмотры и 404 всегда получают noindex.") }</p>
+							<p class="field-help">{ i18n.T(ctx,"Content excluded from indexing is omitted from the sitemap. Search, previews and 404 pages always use noindex.") }</p>
 						}
 						@SEOPanel("Директивы поисковых роботов") {
 							@SEOCheck("nofollow", "Не переходить по ссылкам (nofollow)", value.SEOOptions.NoFollow)
 							@SEOCheck("nosnippet", "Не показывать текстовый сниппет", value.SEOOptions.NoSnippet)
 							@SEOCheck("noimageindex", "Не индексировать изображения страницы", value.SEOOptions.NoImageIndex)
 							<div class="settings-pair">@SEOInput("max_snippet", "Длина сниппета (max-snippet)", value.SEOOptions.MaxSnippet, "-1", 6)@SEOInput("max_video_preview", "Превью видео, секунд (max-video-preview)", value.SEOOptions.MaxVideoPreview, "-1", 6)</div>
-							<label>{ i18n.T(ctx,"Размер превью изображений") }@AdminSelect("seo-image-preview", "max_image_preview", value.SEOOptions.MaxImagePreview, i18n.T(ctx, "Размер превью изображений"), []selectcomp.ItemData{{Value: "", Label: i18n.T(ctx, "По умолчанию")}, {Value: "none", Label: i18n.T(ctx, "Не показывать")}, {Value: "standard", Label: i18n.T(ctx, "Стандартное")}, {Value: "large", Label: i18n.T(ctx, "Большое")}}, nil)</label>
-							<p class="field-help">{ i18n.T(ctx,"Пусто — не добавлять директиву; -1 — без ограничения; 0 — запретить превью.") }</p>
+							<label>{ i18n.T(ctx,"Image preview size") }@AdminSelect("seo-image-preview", "max_image_preview", value.SEOOptions.MaxImagePreview, i18n.T(ctx, "Image preview size"), []selectcomp.ItemData{{Value: "", Label: i18n.T(ctx, "Default")}, {Value: "none", Label: i18n.T(ctx, "Hide")}, {Value: "standard", Label: i18n.T(ctx, "Standard")}, {Value: "large", Label: i18n.T(ctx, "Large")}}, nil)</label>
+							<p class="field-help">{ i18n.T(ctx,"Empty omits the directive; -1 means unlimited; 0 disables previews.") }</p>
 							@SEOCheck("disable_canonical", "Не выводить canonical URL", value.SEOOptions.DisableCanonical)
-							<p class="field-help">{ i18n.T(ctx,"Обычно canonical включён. Отдельный адрес можно задать в SEO-настройках материала.") }</p>
+							<p class="field-help">{ i18n.T(ctx,"Canonical URLs are normally enabled. Set an individual URL in the content SEO settings.") }</p>
 						}
 					case "social":
 						@SEOPanel("Карточки ссылок") {
 							@SEOCheck("disable_og", "Отключить Open Graph", value.SEOOptions.DisableOpenGraph)
 							@SEOCheck("disable_twitter", "Отключить карточки X / Twitter", value.SEOOptions.DisableTwitter)
 							@SEOInput("default_image", "Изображение по умолчанию", value.SEOOptions.DefaultImage, "/uploads/social-cover.webp", 2048)
-							<p class="field-help">{ i18n.T(ctx,"Абсолютный HTTP/HTTPS URL или путь /uploads/… Индивидуальное изображение материала важнее обложки; затем используется запасное изображение.") }</p>
+							<p class="field-help">{ i18n.T(ctx,"An absolute HTTP/HTTPS URL or /uploads/… path. A custom social image overrides the cover, followed by the fallback image.") }</p>
 							@SEOInput("social_title", "Заголовок главной для соцсетей", value.SEOOptions.SocialTitle, "", 200)
 							@SEOTextarea("social_description", "Описание главной для соцсетей", value.SEOOptions.SocialDescription, 500)
 							<div class="settings-pair">@SEOInput("og_locale", "Локаль Open Graph", value.SEOOptions.Locale, "ru_RU", 10)@SEOInput("twitter_site", "Аккаунт X / Twitter", value.SEOOptions.TwitterSite, "@account", 16)</div>
-							<label>{ i18n.T(ctx,"Формат карточки X / Twitter") }@AdminSelect("seo-twitter-card", "twitter_card", value.SEOOptions.TwitterCard, i18n.T(ctx, "Формат карточки X / Twitter"), []selectcomp.ItemData{{Value: "", Label: i18n.T(ctx, "Автоматически")}, {Value: "summary", Label: "Summary"}, {Value: "summary_large_image", Label: "Summary large image"}}, nil)</label>
+							<label>{ i18n.T(ctx,"X / Twitter card format") }@AdminSelect("seo-twitter-card", "twitter_card", value.SEOOptions.TwitterCard, i18n.T(ctx, "X / Twitter card format"), []selectcomp.ItemData{{Value: "", Label: i18n.T(ctx, "Automatic")}, {Value: "summary", Label: "Summary"}, {Value: "summary_large_image", Label: "Summary large image"}}, nil)</label>
 						}
 					case "schema":
 						@SEOPanel("Структурированные данные") {
 							@SEOCheck("schema_enabled", "Формировать JSON-LD", value.SEOOptions.SchemaEnabled)
-							<p class="field-help">{ i18n.T(ctx,"WebSite и издатель на главной; BlogPosting для записей; BreadcrumbList для материалов. Данные берутся из опубликованной версии.") }</p>
-							<label>{ i18n.T(ctx,"Тип издателя") }@AdminSelect("seo-organization-type", "organization_type", value.SEOOptions.OrganizationType, i18n.T(ctx, "Тип издателя"), []selectcomp.ItemData{{Value: "", Label: i18n.T(ctx, "Не указывать")}, {Value: "Organization", Label: i18n.T(ctx, "Организация")}, {Value: "Person", Label: i18n.T(ctx, "Человек")}}, nil)</label>
+							<p class="field-help">{ i18n.T(ctx,"WebSite and publisher on the home page; BlogPosting for posts; BreadcrumbList for content. Data comes from the published version.") }</p>
+							<label>{ i18n.T(ctx,"Publisher type") }@AdminSelect("seo-organization-type", "organization_type", value.SEOOptions.OrganizationType, i18n.T(ctx, "Publisher type"), []selectcomp.ItemData{{Value: "", Label: i18n.T(ctx, "Unspecified")}, {Value: "Organization", Label: i18n.T(ctx, "Organization")}, {Value: "Person", Label: i18n.T(ctx, "Person")}}, nil)</label>
 							@SEOInput("organization_name", "Название организации или имя", value.SEOOptions.OrganizationName, "", 200)
 							@SEOInput("logo_url", "URL логотипа", value.SEOOptions.LogoURL, "/uploads/logo.png", 2048)
 							@SEOTextarea("social_profiles", "Официальные профили — по одному URL в строке", value.SEOOptions.SocialProfiles, 16384)
@@ -91,7 +91,7 @@ templ SEOPage(site, csrf string, value store.Appearance, details store.Site, tab
 							@SEOInput("google_verification", "Google Search Console", value.SEOOptions.GoogleVerification, "", 200)
 							@SEOInput("bing_verification", "Bing Webmaster Tools", value.SEOOptions.BingVerification, "", 200)
 							@SEOInput("yandex_verification", "Яндекс Вебмастер", value.SEOOptions.YandexVerification, "", 200)
-							<p class="field-help">{ i18n.T(ctx,"Вставьте только значение content из метатега подтверждения, без HTML.") }</p>
+							<p class="field-help">{ i18n.T(ctx,"Paste only the verification meta tag content value, without HTML.") }</p>
 						}
 					case "files":
 						@SEOPanel("Карта сайта") {
@@ -100,21 +100,21 @@ templ SEOPage(site, csrf string, value store.Appearance, details store.Site, tab
 							@SEOCheck("sitemap_exclude_posts", "Исключить записи из sitemap", value.SEOOptions.ExcludeSitemapPosts)
 							@SEOCheck("sitemap_categories", "Добавлять категории в sitemap", value.SEOOptions.IncludeSitemapCategories)
 							@SEOTextarea("sitemap_exclude_paths", "Исключённые пути — по одному в строке", value.SEOOptions.ExcludeSitemapPaths, 16384)
-							<p class="field-help">{ i18n.T(ctx,"Точные пути: /about, /contacts. До 100 строк. Это исключение из sitemap, а не запрет индексации.") }</p>
+							<p class="field-help">{ i18n.T(ctx,"Exact paths: /about, /contacts. Up to 100 lines. This excludes URLs from the sitemap, not from indexing.") }</p>
 						}
 						@SEOPanel("Robots.txt и RSS") {
 							@SEOTextarea("robots_text", "Собственный robots.txt", value.SEOOptions.RobotsText, 16384)
-							<p class="field-help">{ i18n.T(ctx,"Пусто — стандартный robots.txt. Свой текст заменяет файл целиком; {site_url} подставляет адрес сайта. Disallow запрещает обход, но не гарантирует удаление из поиска.") }</p>
+							<p class="field-help">{ i18n.T(ctx,"Empty uses the default robots.txt. Custom text replaces the entire file; {site_url} inserts the site URL. Disallow blocks crawling but does not guarantee removal from search.") }</p>
 							@SEOCheck("disable_rss", "Отключить RSS-ленту", value.SEOOptions.DisableRSS)
 						}
 				}
 			</form>
 			<aside class="management-context seo-context">
-				<section><h2>{ i18n.T(ctx,"Предпросмотр главной") }</h2><div class="seo-search-preview" data-seo-preview data-site={ details.Title } data-fallback-description={ value.HomeDescription }><span>{ details.BaseURL }</span><strong data-seo-preview-title>{ seoPreviewTitle(details,value) }</strong><p data-seo-preview-description>{ seoPreviewDescription(value) }</p></div><p>{ i18n.T(ctx,"Пример метаданных. Поисковик может выбрать другой заголовок и описание.") }</p></section>
-				<section><h2>{ i18n.T(ctx,"Индивидуальные настройки") }</h2><p>{ i18n.T(ctx,"В редакторе страницы и записи доступны свои заголовок, описание, canonical, noindex, nofollow и карточка соцсетей.") }</p></section>
-				<section><h2>{ i18n.T(ctx,"Файлы сайта") }</h2><nav class="seo-resource-links"><a href="/sitemap.xml" target="_blank" rel="noopener">Sitemap @icon.ArrowUpRight(icon.Props{Class: "size-3"})</a><a href="/robots.txt" target="_blank" rel="noopener">Robots.txt @icon.ArrowUpRight(icon.Props{Class: "size-3"})</a><a href="/rss.xml" target="_blank" rel="noopener">RSS @icon.ArrowUpRight(icon.Props{Class: "size-3"})</a></nav></section>
+				<section><h2>{ i18n.T(ctx,"Home page preview") }</h2><div class="seo-search-preview" data-seo-preview data-site={ details.Title } data-fallback-description={ value.HomeDescription }><span>{ details.BaseURL }</span><strong data-seo-preview-title>{ seoPreviewTitle(details,value) }</strong><p data-seo-preview-description>{ seoPreviewDescription(value) }</p></div><p>{ i18n.T(ctx,"Example metadata. Search engines may choose a different title and description.") }</p></section>
+				<section><h2>{ i18n.T(ctx,"Individual settings") }</h2><p>{ i18n.T(ctx,"Page and post editors offer custom titles, descriptions, canonical URLs, noindex, nofollow and social cards.") }</p></section>
+				<section><h2>{ i18n.T(ctx,"Site files") }</h2><nav class="seo-resource-links"><a href="/sitemap.xml" target="_blank" rel="noopener">Sitemap @icon.ArrowUpRight(icon.Props{Class: "size-3"})</a><a href="/robots.txt" target="_blank" rel="noopener">Robots.txt @icon.ArrowUpRight(icon.Props{Class: "size-3"})</a><a href="/rss.xml" target="_blank" rel="noopener">RSS @icon.ArrowUpRight(icon.Props{Class: "size-3"})</a></nav></section>
 				if tab=="files" {
-					<section><h2>{ i18n.T(ctx,"Текущий robots.txt") }</h2><pre class="seo-robots-preview">{ robotsContent(details,value) }</pre></section>
+					<section><h2>{ i18n.T(ctx,"Current robots.txt") }</h2><pre class="seo-robots-preview">{ robotsContent(details,value) }</pre></section>
 				}
 			</aside>
 		</div>

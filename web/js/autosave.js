@@ -16,7 +16,7 @@ export function createAutosave(form,state,signal,status) {
     const data=new URLSearchParams(new FormData(form));
     data.set('intent','autosave');
     const sent=generation;
-    status(t('Сохранение черновика…'));
+    status(t('Saving draft…'));
     flight=(async()=>{
       let success=false;
       try {
@@ -28,8 +28,8 @@ export function createAutosave(form,state,signal,status) {
         if(!response.ok){
           if([401,403,409].includes(response.status))blocked=true;
           const error=await response.json().catch(()=>null);
-          throw new Error(response.status===409?t('Конфликт версий. Автосохранение остановлено; ваши правки остались здесь. Откройте актуальную версию в другой вкладке.'):
-            error?.message||t('Не удалось сохранить. Проверьте соединение или войдите заново в другой вкладке.'));
+          throw new Error(response.status===409?t('Version conflict. Autosave stopped; your edits are still here. Open the current version in another tab.'):
+            error?.message||t('Could not save. Check your connection or sign in again in another tab.'));
         }
         const saved=await response.json();
         if(signal.aborted)return false;
@@ -53,7 +53,7 @@ export function createAutosave(form,state,signal,status) {
         state.dirty=generation!==sent;
         form.dispatchEvent(new Event('editor:autosaved'));
         success=true;
-        status(state.dirty?t('Есть новые несохранённые изменения.'):t('Черновик автоматически сохранён.'));
+        status(state.dirty?t('There are new unsaved changes.'):t('Draft saved automatically.'));
         return true;
       }catch(error){
         if(!signal.aborted){failed=true;status(error.message);}

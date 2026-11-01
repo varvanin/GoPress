@@ -18,7 +18,7 @@ export function moveMenuBranch(items,index,direction) {
 }
 function rowDepth(row){return Number(row.querySelector('[name="depth"]').value);}
 function updateSummary(row){
- row.querySelector('[data-menu-label]').textContent=row.querySelector('[name="label"]').value.trim()||t('Новая ссылка');
+ row.querySelector('[data-menu-label]').textContent=row.querySelector('[name="label"]').value.trim()||t('New link');
  row.dataset.depth=String(rowDepth(row));
 }
 export function updateMenuRow(event){const row=event.target.closest?.('[data-menu-row]');if(row)updateSummary(row);}
@@ -28,7 +28,7 @@ export async function editMenu(event) {
  const items=form.querySelector('[data-menu-items]');
  const row=button.closest('[data-menu-row]');
  if(button.hasAttribute('data-menu-add')||button.hasAttribute('data-menu-add-page')){
-  if(items.children.length>=50){form.querySelector('[data-menu-status]').textContent=t('Не больше 50 ссылок в одном меню.');return;}
+  if(items.children.length>=50){form.querySelector('[data-menu-status]').textContent=t('A menu can contain up to 50 links.');return;}
   const fragment=form.querySelector('template[data-menu-template]').content.cloneNode(true);
   rekeySelects(fragment);items.append(fragment);
   const added=items.lastElementChild;
@@ -40,8 +40,8 @@ export async function editMenu(event) {
    updateSummary(added);added.querySelector('summary').focus();
   }else added.querySelector('input').focus();
  }else if(button.hasAttribute('data-menu-remove')){
-  const label=row.querySelector('[name="label"]').value.trim()||t('Без названия');
-  if(!await confirmAction(t('Удалить ссылку «')+label+t('» из меню? Изменение применится после сохранения.'),button)||!row.isConnected)return;
+  const label=row.querySelector('[name="label"]').value.trim()||t('Untitled');
+  if(!await confirmAction(t('Remove link “')+label+t('” from the menu? The change takes effect after saving.'),button)||!row.isConnected)return;
   let child=row.nextElementSibling;
   const depth=rowDepth(row);
   while(child&&rowDepth(child)>depth){const field=child.querySelector('[name="depth"]');const value=String(Number(field.value)-1);
@@ -55,5 +55,5 @@ export async function editMenu(event) {
   items.replaceChildren(...moved.map(item=>item.row));button.focus();
  }
  form.querySelector('[data-menu-empty]').hidden=items.children.length>0;
- form.dataset.formDirty='true';form.querySelector('[data-menu-status]').textContent=t('Есть несохранённые изменения.');
+ form.dataset.formDirty='true';form.querySelector('[data-menu-status]').textContent=t('You have unsaved changes.');
 }

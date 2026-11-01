@@ -173,9 +173,9 @@ func AdminLayout(site, title, csrf string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "К содержимому"))
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Skip to content"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 47, Col: 79}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 47, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -305,7 +305,7 @@ func AdminLayout(site, title, csrf string) templ.Component {
 										}()
 									}
 									ctx = templ.InitializeContext(ctx)
-									templ_7745c5c3_Err = AdminNavLink("/admin", i18n.T(ctx, "Обзор"), title, icon.LayoutDashboard).Render(ctx, templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = AdminNavLink("/admin", i18n.T(ctx, "Overview"), title, icon.LayoutDashboard).Render(ctx, templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
@@ -352,9 +352,9 @@ func AdminLayout(site, title, csrf string) templ.Component {
 								}
 								ctx = templ.InitializeContext(ctx)
 								var templ_7745c5c3_Var21 string
-								templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Контент "))
+								templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Content "))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 65, Col: 40}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 65, Col: 33}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 								if templ_7745c5c3_Err != nil {
@@ -390,7 +390,7 @@ func AdminLayout(site, title, csrf string) templ.Component {
 										}()
 									}
 									ctx = templ.InitializeContext(ctx)
-									templ_7745c5c3_Err = AdminNavLink("/admin/pages", i18n.T(ctx, "Страницы"), title, icon.FileText).Render(ctx, templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = AdminNavLink("/admin/pages", i18n.T(ctx, "Pages"), title, icon.FileText).Render(ctx, templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
@@ -427,9 +427,9 @@ func AdminLayout(site, title, csrf string) templ.Component {
 												return templ_7745c5c3_Err
 											}
 											var templ_7745c5c3_Var26 string
-											templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Записи"))
+											templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Posts"))
 											if templ_7745c5c3_Err != nil {
-												return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 72, Col: 84}
+												return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 72, Col: 77}
 											}
 											_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 											if templ_7745c5c3_Err != nil {
@@ -441,7 +441,7 @@ func AdminLayout(site, title, csrf string) templ.Component {
 											}
 											return nil
 										})
-										templ_7745c5c3_Err = sidebar.MenuButton(sidebar.MenuButtonProps{Href: "/admin/posts", IsActive: adminSection(title) == "/admin/posts", Attributes: navAttributes(adminSection(title) == "/admin/posts", i18n.T(ctx, "Записи"))}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var25), templ_7745c5c3_Buffer)
+										templ_7745c5c3_Err = sidebar.MenuButton(sidebar.MenuButtonProps{Href: "/admin/posts", IsActive: adminSection(title) == "/admin/posts", Attributes: navAttributes(adminSection(title) == "/admin/posts", i18n.T(ctx, "Posts"))}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var25), templ_7745c5c3_Buffer)
 										if templ_7745c5c3_Err != nil {
 											return templ_7745c5c3_Err
 										}
@@ -457,17 +457,17 @@ func AdminLayout(site, title, csrf string) templ.Component {
 												}()
 											}
 											ctx = templ.InitializeContext(ctx)
-											templ_7745c5c3_Err = AdminNavLink("/admin/posts/review", i18n.T(ctx, "Проверка публикаций"), title, icon.Icon("clipboard-list")).Render(ctx, templ_7745c5c3_Buffer)
+											templ_7745c5c3_Err = AdminNavLink("/admin/posts/review", i18n.T(ctx, "Publication review"), title, icon.Icon("clipboard-list")).Render(ctx, templ_7745c5c3_Buffer)
 											if templ_7745c5c3_Err != nil {
 												return templ_7745c5c3_Err
 											}
-											templ_7745c5c3_Err = AdminNavLink("/admin/posts/terms", i18n.T(ctx, "Категории и теги"), title, icon.Icon("tags")).Render(ctx, templ_7745c5c3_Buffer)
+											templ_7745c5c3_Err = AdminNavLink("/admin/posts/terms", i18n.T(ctx, "Categories and tags"), title, icon.Icon("tags")).Render(ctx, templ_7745c5c3_Buffer)
 											if templ_7745c5c3_Err != nil {
 												return templ_7745c5c3_Err
 											}
 											return nil
 										})
-										templ_7745c5c3_Err = sidebar.Menu(sidebar.MenuProps{Class: "gp-nav-submenu", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Разделы записей")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var27), templ_7745c5c3_Buffer)
+										templ_7745c5c3_Err = sidebar.Menu(sidebar.MenuProps{Class: "gp-nav-submenu", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Post sections")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var27), templ_7745c5c3_Buffer)
 										if templ_7745c5c3_Err != nil {
 											return templ_7745c5c3_Err
 										}
@@ -477,11 +477,11 @@ func AdminLayout(site, title, csrf string) templ.Component {
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
-									templ_7745c5c3_Err = AdminNavLink("/admin/media", i18n.T(ctx, "Медиатека"), title, icon.Image).Render(ctx, templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = AdminNavLink("/admin/media", i18n.T(ctx, "Media library"), title, icon.Image).Render(ctx, templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
-									templ_7745c5c3_Err = AdminNavLink("/admin/forms", i18n.T(ctx, "Формы"), title, icon.Icon("clipboard-list")).Render(ctx, templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = AdminNavLink("/admin/forms", i18n.T(ctx, "Forms"), title, icon.Icon("clipboard-list")).Render(ctx, templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
@@ -528,9 +528,9 @@ func AdminLayout(site, title, csrf string) templ.Component {
 								}
 								ctx = templ.InitializeContext(ctx)
 								var templ_7745c5c3_Var30 string
-								templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Сайт "))
+								templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Site "))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 86, Col: 34}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 86, Col: 30}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 								if templ_7745c5c3_Err != nil {
@@ -566,7 +566,7 @@ func AdminLayout(site, title, csrf string) templ.Component {
 										}()
 									}
 									ctx = templ.InitializeContext(ctx)
-									templ_7745c5c3_Err = AdminNavLink("/admin/themes", i18n.T(ctx, "Шаблоны"), title, icon.Icon("paintbrush")).Render(ctx, templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = AdminNavLink("/admin/themes", i18n.T(ctx, "Templates"), title, icon.Icon("paintbrush")).Render(ctx, templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
@@ -578,7 +578,7 @@ func AdminLayout(site, title, csrf string) templ.Component {
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
-									templ_7745c5c3_Err = AdminNavLink("/admin/menus", i18n.T(ctx, "Меню"), title, icon.Icon("list-tree")).Render(ctx, templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = AdminNavLink("/admin/menus", i18n.T(ctx, "Menus"), title, icon.Icon("list-tree")).Render(ctx, templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
@@ -625,9 +625,9 @@ func AdminLayout(site, title, csrf string) templ.Component {
 								}
 								ctx = templ.InitializeContext(ctx)
 								var templ_7745c5c3_Var35 string
-								templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Управление "))
+								templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Administration "))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 99, Col: 46}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 99, Col: 40}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 								if templ_7745c5c3_Err != nil {
@@ -663,12 +663,12 @@ func AdminLayout(site, title, csrf string) templ.Component {
 										}()
 									}
 									ctx = templ.InitializeContext(ctx)
-									templ_7745c5c3_Err = AdminNavLink("/admin/users", i18n.T(ctx, "Пользователи"), title, icon.Icon("users")).Render(ctx, templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = AdminNavLink("/admin/users", i18n.T(ctx, "Users"), title, icon.Icon("users")).Render(ctx, templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
 									if adminRole(ctx) != "admin" {
-										templ_7745c5c3_Err = AdminNavLink("/admin/account", i18n.T(ctx, "Мой профиль"), title, icon.Icon("users")).Render(ctx, templ_7745c5c3_Buffer)
+										templ_7745c5c3_Err = AdminNavLink("/admin/account", i18n.T(ctx, "My profile"), title, icon.Icon("users")).Render(ctx, templ_7745c5c3_Buffer)
 										if templ_7745c5c3_Err != nil {
 											return templ_7745c5c3_Err
 										}
@@ -677,11 +677,11 @@ func AdminLayout(site, title, csrf string) templ.Component {
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
-									templ_7745c5c3_Err = AdminNavLink("/admin/settings", i18n.T(ctx, "Настройки"), title, icon.Icon("settings-2")).Render(ctx, templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = AdminNavLink("/admin/settings", i18n.T(ctx, "Settings"), title, icon.Icon("settings-2")).Render(ctx, templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
-									templ_7745c5c3_Err = AdminNavLink("/admin/tools", i18n.T(ctx, "Инструменты"), title, icon.Icon("wrench")).Render(ctx, templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = AdminNavLink("/admin/tools", i18n.T(ctx, "Tools"), title, icon.Icon("wrench")).Render(ctx, templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
@@ -743,7 +743,7 @@ func AdminLayout(site, title, csrf string) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = button.Button(button.Props{Href: "/", Variant: button.VariantGhost, Class: "gp-nav-signout", Attributes: templ.Attributes{"target": "_blank", "rel": "noopener", "title": i18n.T(ctx, "Открыть сайт"), "aria-label": i18n.T(ctx, "Открыть сайт")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var39), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = button.Button(button.Props{Href: "/", Variant: button.VariantGhost, Class: "gp-nav-signout", Attributes: templ.Attributes{"target": "_blank", "rel": "noopener", "title": i18n.T(ctx, "View site"), "aria-label": i18n.T(ctx, "View site")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var39), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -782,7 +782,7 @@ func AdminLayout(site, title, csrf string) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Class: "gp-nav-signout", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Выйти"), "title": i18n.T(ctx, "Выйти")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var41), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Class: "gp-nav-signout", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Sign out"), "title": i18n.T(ctx, "Sign out")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var41), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -798,7 +798,7 @@ func AdminLayout(site, title, csrf string) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = sidebar.Sidebar(sidebar.Props{Variant: sidebar.VariantInset, Collapsible: sidebar.CollapsibleIcon, Attributes: templ.Attributes{"role": "complementary", "aria-label": i18n.T(ctx, "Навигация сайта")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var11), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = sidebar.Sidebar(sidebar.Props{Variant: sidebar.VariantInset, Collapsible: sidebar.CollapsibleIcon, Attributes: templ.Attributes{"role": "complementary", "aria-label": i18n.T(ctx, "Site navigation")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var11), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -877,7 +877,7 @@ func AdminMain(site, title, csrf string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = sidebar.Trigger(sidebar.TriggerProps{Target: "gopress-sidebar", Class: "gp-sidebar-trigger", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Переключить навигацию")}}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = sidebar.Trigger(sidebar.TriggerProps{Target: "gopress-sidebar", Class: "gp-sidebar-trigger", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Toggle navigation")}}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1095,7 +1095,7 @@ func PlannedNavItem(label string, symbol func(...icon.Props) templ.Component) te
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = sidebar.MenuButton(sidebar.MenuButtonProps{Attributes: templ.Attributes{"disabled": true, "data-planned": true, "title": label + i18n.T(ctx, " — запланировано"), "aria-label": label + i18n.T(ctx, " — запланировано")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var53), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = sidebar.MenuButton(sidebar.MenuButtonProps{Attributes: templ.Attributes{"disabled": true, "data-planned": true, "title": label + i18n.T(ctx, " — scheduled"), "aria-label": label + i18n.T(ctx, " — scheduled")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var53), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1176,9 +1176,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var59 string
-					templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinStringErrs(contentLabel(view.Kind, i18n.T(ctx, "Новая страница"), i18n.T(ctx, "Новая запись")))
+					templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinStringErrs(contentLabel(view.Kind, i18n.T(ctx, "New page"), i18n.T(ctx, "New post")))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 182, Col: 115}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 182, Col: 81}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var59))
 					if templ_7745c5c3_Err != nil {
@@ -1196,7 +1196,7 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = AdminPageHeader(contentLabel(view.Kind, i18n.T(ctx, "Страницы"), i18n.T(ctx, "Записи")), view.Total).Render(templ.WithChildren(ctx, templ_7745c5c3_Var57), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AdminPageHeader(contentLabel(view.Kind, i18n.T(ctx, "Pages"), i18n.T(ctx, "Posts")), view.Total).Render(templ.WithChildren(ctx, templ_7745c5c3_Var57), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1205,9 +1205,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var60 string
-			templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Статус материалов"))
+			templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Content status"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 186, Col: 95}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 186, Col: 76}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var60)
 			if templ_7745c5c3_Err != nil {
@@ -1252,9 +1252,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var63 string
-			templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Все"))
+			templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "All"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 187, Col: 231}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 187, Col: 228}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var63))
 			if templ_7745c5c3_Err != nil {
@@ -1299,9 +1299,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var66 string
-			templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Корзина"))
+			templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Trash"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 188, Col: 255}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 188, Col: 246}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var66))
 			if templ_7745c5c3_Err != nil {
@@ -1336,9 +1336,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var68 string
-				templ_7745c5c3_Var68, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Категория или тег"))
+				templ_7745c5c3_Var68, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Category or tag"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 196, Col: 94}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 196, Col: 77}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var68))
 				if templ_7745c5c3_Err != nil {
@@ -1348,12 +1348,12 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = AdminSelect("term-filter", "term", selectedTermValue(view.Term), i18n.T(ctx, "Категория или тег"), termSelectItems(ctx, view.Terms), nil).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = AdminSelect("term-filter", "term", selectedTermValue(view.Term), i18n.T(ctx, "Category or tag"), termSelectItems(ctx, view.Terms), nil).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = AdminSearch("content-search", view.Query, contentLabel(view.Kind, i18n.T(ctx, "Поиск страниц…"), i18n.T(ctx, "Поиск записей…"))).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = AdminSearch("content-search", view.Query, contentLabel(view.Kind, i18n.T(ctx, "Search pages…"), i18n.T(ctx, "Search posts…"))).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1398,9 +1398,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var71 string
-			templ_7745c5c3_Var71, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Выбрано: 0"))
+			templ_7745c5c3_Var71, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Selected: 0"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 208, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 208, Col: 77}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var71))
 			if templ_7745c5c3_Err != nil {
@@ -1432,9 +1432,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var73 string
-					templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Экспорт"))
+					templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Export"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 210, Col: 286}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 210, Col: 278}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var73))
 					if templ_7745c5c3_Err != nil {
@@ -1473,9 +1473,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var75 string
-					templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Импорт"))
+					templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Import"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 214, Col: 354}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 214, Col: 342}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var75))
 					if templ_7745c5c3_Err != nil {
@@ -1487,7 +1487,7 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = button.Button(button.Props{Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"data-base-ui-click-trigger": true, "data-templ-controls": "content-import-dialog", "aria-haspopup": "dialog", "aria-expanded": "false", "title": i18n.T(ctx, "Импорт")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var74), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = button.Button(button.Props{Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"data-base-ui-click-trigger": true, "data-templ-controls": "content-import-dialog", "aria-haspopup": "dialog", "aria-expanded": "false", "title": i18n.T(ctx, "Import")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var74), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1514,9 +1514,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var77 string
-					templ_7745c5c3_Var77, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Восстановить"))
+					templ_7745c5c3_Var77, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Restore"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 219, Col: 104}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 219, Col: 87}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var77))
 					if templ_7745c5c3_Err != nil {
@@ -1553,9 +1553,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var79 string
-					templ_7745c5c3_Var79, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Удалить навсегда"))
+					templ_7745c5c3_Var79, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Delete permanently"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 222, Col: 108}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 222, Col: 95}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var79))
 					if templ_7745c5c3_Err != nil {
@@ -1593,9 +1593,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var81 string
-					templ_7745c5c3_Var81, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "В корзину"))
+					templ_7745c5c3_Var81, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Move to trash"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 226, Col: 94}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 226, Col: 90}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var81))
 					if templ_7745c5c3_Err != nil {
@@ -1623,9 +1623,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var82 string
-					templ_7745c5c3_Var82, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Материалы не найдены"))
+					templ_7745c5c3_Var82, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "No content found"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 232, Col: 91}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 232, Col: 69}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var82))
 					if templ_7745c5c3_Err != nil {
@@ -1636,9 +1636,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var83 string
-					templ_7745c5c3_Var83, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Попробуйте другой запрос или вернитесь к общему списку."))
+					templ_7745c5c3_Var83, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Try another search or return to the full list."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 232, Col: 219}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 232, Col: 141}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var83))
 					if templ_7745c5c3_Err != nil {
@@ -1678,9 +1678,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var84 string
-				templ_7745c5c3_Var84, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Страницы списка"))
+				templ_7745c5c3_Var84, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "List pages"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 241, Col: 92}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 241, Col: 73}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var84)
 				if templ_7745c5c3_Err != nil {
@@ -1692,9 +1692,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 				}
 				if len(pages) > 0 {
 					var templ_7745c5c3_Var85 string
-					templ_7745c5c3_Var85, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa((view.Page-1)*store.ContentPageSize+1) + "–" + strconv.Itoa(min(view.Page*store.ContentPageSize, view.Total)) + i18n.T(ctx, " из ") + strconv.Itoa(view.Total))
+					templ_7745c5c3_Var85, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa((view.Page-1)*store.ContentPageSize+1) + "–" + strconv.Itoa(min(view.Page*store.ContentPageSize, view.Total)) + i18n.T(ctx, " of ") + strconv.Itoa(view.Total))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 244, Col: 173}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 244, Col: 171}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var85))
 					if templ_7745c5c3_Err != nil {
@@ -1702,9 +1702,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 					}
 				} else {
 					var templ_7745c5c3_Var86 string
-					templ_7745c5c3_Var86, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Нет результатов"))
+					templ_7745c5c3_Var86, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "No results"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 246, Col: 51}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 246, Col: 32}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var86))
 					if templ_7745c5c3_Err != nil {
@@ -1737,9 +1737,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var88 string
-						templ_7745c5c3_Var88, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Назад "))
+						templ_7745c5c3_Var88, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Back "))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 252, Col: 57}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 252, Col: 51}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var88))
 						if templ_7745c5c3_Err != nil {
@@ -1770,9 +1770,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 						}
 						ctx = templ.InitializeContext(ctx)
 						var templ_7745c5c3_Var90 string
-						templ_7745c5c3_Var90, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Далее"))
+						templ_7745c5c3_Var90, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Next"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 257, Col: 33}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 257, Col: 27}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var90))
 						if templ_7745c5c3_Err != nil {
@@ -1800,7 +1800,7 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = AdminLayout(site, contentLabel(view.Kind, i18n.T(ctx, "Страницы"), i18n.T(ctx, "Записи")), csrf).Render(templ.WithChildren(ctx, templ_7745c5c3_Var56), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = AdminLayout(site, contentLabel(view.Kind, i18n.T(ctx, "Pages"), i18n.T(ctx, "Posts")), csrf).Render(templ.WithChildren(ctx, templ_7745c5c3_Var56), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1842,9 +1842,9 @@ func EmptyPages(kind string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var92 string
-		templ_7745c5c3_Var92, templ_7745c5c3_Err = templ.JoinStringErrs(contentLabel(kind, i18n.T(ctx, "Начните с первой страницы"), i18n.T(ctx, "Напишите первую запись")))
+		templ_7745c5c3_Var92, templ_7745c5c3_Err = templ.JoinStringErrs(contentLabel(kind, i18n.T(ctx, "Start with your first page"), i18n.T(ctx, "Write your first post")))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 269, Col: 147}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 269, Col: 105}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var92))
 		if templ_7745c5c3_Err != nil {
@@ -1855,9 +1855,9 @@ func EmptyPages(kind string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var93 string
-		templ_7745c5c3_Var93, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Расскажите о себе, своей компании или проекте."))
+		templ_7745c5c3_Var93, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Tell visitors about yourself, your company or project."))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 270, Col: 105}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 270, Col: 75}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var93))
 		if templ_7745c5c3_Err != nil {
@@ -1868,9 +1868,9 @@ func EmptyPages(kind string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var94 string
-		templ_7745c5c3_Var94, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Черновик будет виден только вам."))
+		templ_7745c5c3_Var94, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Only you can see the draft."))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 270, Col: 187}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 270, Col: 125}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var94))
 		if templ_7745c5c3_Err != nil {
@@ -1930,9 +1930,9 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 				}
 				ctx = templ.InitializeContext(ctx)
 				var templ_7745c5c3_Var98 string
-				templ_7745c5c3_Var98, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Материалы сайта "))
+				templ_7745c5c3_Var98, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Site content "))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 277, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 277, Col: 32}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var98))
 				if templ_7745c5c3_Err != nil {
@@ -1986,9 +1986,9 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var102 string
-							templ_7745c5c3_Var102, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Выбрать все материалы на этой странице"))
+							templ_7745c5c3_Var102, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Select all items on this page"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 283, Col: 144}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 283, Col: 102}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var102)
 							if templ_7745c5c3_Err != nil {
@@ -2022,9 +2022,9 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 						}
 						ctx = templ.InitializeContext(ctx)
 						var templ_7745c5c3_Var104 string
-						templ_7745c5c3_Var104, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Название "))
+						templ_7745c5c3_Var104, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Name "))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 287, Col: 38}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 287, Col: 26}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var104))
 						if templ_7745c5c3_Err != nil {
@@ -2050,9 +2050,9 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 							}
 							ctx = templ.InitializeContext(ctx)
 							var templ_7745c5c3_Var106 string
-							templ_7745c5c3_Var106, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Тип"))
+							templ_7745c5c3_Var106, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Type"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 291, Col: 28}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 291, Col: 26}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var106))
 							if templ_7745c5c3_Err != nil {
@@ -2082,9 +2082,9 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 						}
 						ctx = templ.InitializeContext(ctx)
 						var templ_7745c5c3_Var108 string
-						templ_7745c5c3_Var108, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Статус "))
+						templ_7745c5c3_Var108, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Status "))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 295, Col: 34}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 295, Col: 28}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var108))
 						if templ_7745c5c3_Err != nil {
@@ -2109,9 +2109,9 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 						}
 						ctx = templ.InitializeContext(ctx)
 						var templ_7745c5c3_Var110 string
-						templ_7745c5c3_Var110, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Изменено "))
+						templ_7745c5c3_Var110, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Modified "))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 297, Col: 34}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 297, Col: 26}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var110))
 						if templ_7745c5c3_Err != nil {
@@ -2140,9 +2140,9 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var112 string
-						templ_7745c5c3_Var112, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Действия"))
+						templ_7745c5c3_Var112, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Actions"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 299, Col: 55}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 299, Col: 46}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var112))
 						if templ_7745c5c3_Err != nil {
@@ -2236,9 +2236,9 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 									return templ_7745c5c3_Err
 								}
 								var templ_7745c5c3_Var117 string
-								templ_7745c5c3_Var117, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Выбрать: ") + p.Title)
+								templ_7745c5c3_Var117, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Select: ") + p.Title)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 308, Col: 252}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 308, Col: 244}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var117)
 								if templ_7745c5c3_Err != nil {
@@ -2362,9 +2362,9 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 								}
 								ctx = templ.InitializeContext(ctx)
 								var templ_7745c5c3_Var124 string
-								templ_7745c5c3_Var124, templ_7745c5c3_Err = templ.JoinStringErrs(contentLabel(p.Kind, i18n.T(ctx, "Страница"), i18n.T(ctx, "Запись")))
+								templ_7745c5c3_Var124, templ_7745c5c3_Err = templ.JoinStringErrs(contentLabel(p.Kind, i18n.T(ctx, "Page"), i18n.T(ctx, "Post")))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 325, Col: 87}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 325, Col: 67}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var124))
 								if templ_7745c5c3_Err != nil {
@@ -2408,9 +2408,9 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 									ctx = templ.InitializeContext(ctx)
 									if len(timezone) > 0 {
 										var templ_7745c5c3_Var127 string
-										templ_7745c5c3_Var127, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Запланировано"))
+										templ_7745c5c3_Var127, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Scheduled"))
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 332, Col: 51}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 332, Col: 34}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var127))
 										if templ_7745c5c3_Err != nil {
@@ -2418,9 +2418,9 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 										}
 									} else {
 										var templ_7745c5c3_Var128 string
-										templ_7745c5c3_Var128, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Запланировано · ") + contentDate(p.ScheduledAt))
+										templ_7745c5c3_Var128, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Scheduled · ") + contentDate(p.ScheduledAt))
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 334, Col: 82}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 334, Col: 65}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var128))
 										if templ_7745c5c3_Err != nil {
@@ -2455,9 +2455,9 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 										return templ_7745c5c3_Err
 									}
 									var templ_7745c5c3_Var130 string
-									templ_7745c5c3_Var130, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Опубликовано "))
+									templ_7745c5c3_Var130, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Published "))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 339, Col: 95}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 339, Col: 80}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var130))
 									if templ_7745c5c3_Err != nil {
@@ -2491,9 +2491,9 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 										return templ_7745c5c3_Err
 									}
 									var templ_7745c5c3_Var132 string
-									templ_7745c5c3_Var132, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Черновик "))
+									templ_7745c5c3_Var132, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Draft "))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 343, Col: 106}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 343, Col: 95}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var132))
 									if templ_7745c5c3_Err != nil {
@@ -2573,16 +2573,16 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 								}
 								return nil
 							})
-							templ_7745c5c3_Err = button.Button(button.Props{Href: "/admin/pages/" + strconv.FormatInt(p.ID, 10) + "/edit", Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Редактировать: ") + p.Title, "title": i18n.T(ctx, "Редактировать")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var136), templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = button.Button(button.Props{Href: "/admin/pages/" + strconv.FormatInt(p.ID, 10) + "/edit", Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Edit: ") + p.Title, "title": i18n.T(ctx, "Edit")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var136), templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							if p.TrashedAt > 0 {
-								templ_7745c5c3_Err = ContentAction(p, csrf, "restore", i18n.T(ctx, "Восстановить")).Render(ctx, templ_7745c5c3_Buffer)
+								templ_7745c5c3_Err = ContentAction(p, csrf, "restore", i18n.T(ctx, "Restore")).Render(ctx, templ_7745c5c3_Buffer)
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = ContentAction(p, csrf, "delete", i18n.T(ctx, "Удалить навсегда")).Render(ctx, templ_7745c5c3_Buffer)
+								templ_7745c5c3_Err = ContentAction(p, csrf, "delete", i18n.T(ctx, "Delete permanently")).Render(ctx, templ_7745c5c3_Buffer)
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -2648,7 +2648,7 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 									}
 									return nil
 								})
-								templ_7745c5c3_Err = button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Дублировать"), "title": i18n.T(ctx, "Дублировать")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var140), templ_7745c5c3_Buffer)
+								templ_7745c5c3_Err = button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Duplicate"), "title": i18n.T(ctx, "Duplicate")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var140), templ_7745c5c3_Buffer)
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -2657,7 +2657,7 @@ func PageTable(pages []store.Page, csrf string, timezone ...string) templ.Compon
 									return templ_7745c5c3_Err
 								}
 								if service.CanPublish(ctx) || !p.Published {
-									templ_7745c5c3_Err = ContentAction(p, csrf, "trash", i18n.T(ctx, "В корзину")).Render(ctx, templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = ContentAction(p, csrf, "trash", i18n.T(ctx, "Move to trash")).Render(ctx, templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
@@ -2734,7 +2734,7 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = ContentAction(p, csrf, "restore", i18n.T(ctx, "Восстановить из корзины")).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = ContentAction(p, csrf, "restore", i18n.T(ctx, "Restore from trash")).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2753,9 +2753,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var143 string
-				templ_7745c5c3_Var143, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Публикация по расписанию не выполнена. Проверьте родительскую страницу и адрес, затем назначьте время заново. Черновик сохранён."))
+				templ_7745c5c3_Var143, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Scheduled publication failed. Check the parent page and URL, then schedule it again. Your draft is preserved."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 381, Col: 302}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 381, Col: 174}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var143))
 				if templ_7745c5c3_Err != nil {
@@ -2825,9 +2825,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var148 string
-					templ_7745c5c3_Var148, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Открыть актуальную версию"))
+					templ_7745c5c3_Var148, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Open current version"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 388, Col: 207}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 388, Col: 179}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var148))
 					if templ_7745c5c3_Err != nil {
@@ -2856,9 +2856,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var149 string
-			templ_7745c5c3_Var149, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Для редактирования текста включите JavaScript."))
+			templ_7745c5c3_Var149, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Enable JavaScript to edit text."))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 392, Col: 138}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 392, Col: 92}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var149))
 			if templ_7745c5c3_Err != nil {
@@ -3019,7 +3019,7 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = sidebar.Trigger(sidebar.TriggerProps{Target: "gopress-sidebar", Class: "gp-sidebar-trigger", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Переключить навигацию")}}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = sidebar.Trigger(sidebar.TriggerProps{Target: "gopress-sidebar", Class: "gp-sidebar-trigger", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Toggle navigation")}}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3041,9 +3041,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var162 string
-			templ_7745c5c3_Var162, templ_7745c5c3_Err = templ.JoinStringErrs(contentLabel(p.Kind, i18n.T(ctx, "Страницы"), i18n.T(ctx, "Записи")))
+			templ_7745c5c3_Var162, templ_7745c5c3_Err = templ.JoinStringErrs(contentLabel(p.Kind, i18n.T(ctx, "Pages"), i18n.T(ctx, "Posts")))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 405, Col: 160}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 405, Col: 142}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var162))
 			if templ_7745c5c3_Err != nil {
@@ -3063,9 +3063,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 			}
 			if p.ID == 0 {
 				var templ_7745c5c3_Var163 string
-				templ_7745c5c3_Var163, templ_7745c5c3_Err = templ.JoinStringErrs(contentLabel(p.Kind, i18n.T(ctx, "Новая страница"), i18n.T(ctx, "Новая запись")))
+				templ_7745c5c3_Var163, templ_7745c5c3_Err = templ.JoinStringErrs(contentLabel(p.Kind, i18n.T(ctx, "New page"), i18n.T(ctx, "New post")))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 409, Col: 109}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 409, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var163))
 				if templ_7745c5c3_Err != nil {
@@ -3073,9 +3073,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				}
 			} else {
 				var templ_7745c5c3_Var164 string
-				templ_7745c5c3_Var164, templ_7745c5c3_Err = templ.JoinStringErrs(contentLabel(p.Kind, i18n.T(ctx, "Страница"), i18n.T(ctx, "Запись")))
+				templ_7745c5c3_Var164, templ_7745c5c3_Err = templ.JoinStringErrs(contentLabel(p.Kind, i18n.T(ctx, "Page"), i18n.T(ctx, "Post")))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 411, Col: 87}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 411, Col: 67}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var164))
 				if templ_7745c5c3_Err != nil {
@@ -3087,9 +3087,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var165 string
-			templ_7745c5c3_Var165, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Редактор загружается…"))
+			templ_7745c5c3_Var165, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Loading editor…"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 414, Col: 129}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 414, Col: 104}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var165))
 			if templ_7745c5c3_Err != nil {
@@ -3120,9 +3120,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var167 string
-				templ_7745c5c3_Var167, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Отменить"))
+				templ_7745c5c3_Var167, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Cancel"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 419, Col: 53}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 419, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var167))
 				if templ_7745c5c3_Err != nil {
@@ -3159,9 +3159,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var169 string
-				templ_7745c5c3_Var169, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Предпросмотр"))
+				templ_7745c5c3_Var169, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Preview"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 422, Col: 63}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 422, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var169))
 				if templ_7745c5c3_Err != nil {
@@ -3203,9 +3203,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var171 string
-					templ_7745c5c3_Var171, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Сохранить"))
+					templ_7745c5c3_Var171, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Save"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 427, Col: 60}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 427, Col: 46}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var171))
 					if templ_7745c5c3_Err != nil {
@@ -3240,9 +3240,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						}
 						if p.Published {
 							var templ_7745c5c3_Var173 string
-							templ_7745c5c3_Var173, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Обновить"))
+							templ_7745c5c3_Var173, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Update"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 434, Col: 41}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 434, Col: 31}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var173))
 							if templ_7745c5c3_Err != nil {
@@ -3250,9 +3250,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 							}
 						} else {
 							var templ_7745c5c3_Var174 string
-							templ_7745c5c3_Var174, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Опубликовать"))
+							templ_7745c5c3_Var174, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Publish"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 436, Col: 49}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 436, Col: 32}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var174))
 							if templ_7745c5c3_Err != nil {
@@ -3286,9 +3286,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var175 string
-			templ_7745c5c3_Var175, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Редактирование материала"))
+			templ_7745c5c3_Var175, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Edit content"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 446, Col: 91}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 446, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var175))
 			if templ_7745c5c3_Err != nil {
@@ -3299,9 +3299,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var176 string
-			templ_7745c5c3_Var176, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Заголовок и текст"))
+			templ_7745c5c3_Var176, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Title and text"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 447, Col: 93}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 447, Col: 75}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var176)
 			if templ_7745c5c3_Err != nil {
@@ -3312,9 +3312,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var177 string
-			templ_7745c5c3_Var177, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Заголовок"))
+			templ_7745c5c3_Var177, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Title"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 448, Col: 79}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 448, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var177))
 			if templ_7745c5c3_Err != nil {
@@ -3324,7 +3324,7 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = input.Input(input.Props{ID: "page-title", Name: "title", Value: p.Title, Required: true, Placeholder: contentLabel(p.Kind, i18n.T(ctx, "Заголовок страницы"), i18n.T(ctx, "Заголовок записи")), Class: "editor-title", Attributes: templ.Attributes{"maxlength": "200", "autocomplete": "off"}}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = input.Input(input.Props{ID: "page-title", Name: "title", Value: p.Title, Required: true, Placeholder: contentLabel(p.Kind, i18n.T(ctx, "Page title"), i18n.T(ctx, "Post title")), Class: "editor-title", Attributes: templ.Attributes{"maxlength": "200", "autocomplete": "off"}}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3333,9 +3333,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var178 string
-			templ_7745c5c3_Var178, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Адрес:"))
+			templ_7745c5c3_Var178, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "URL:"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 451, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 451, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var178))
 			if templ_7745c5c3_Err != nil {
@@ -3354,9 +3354,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var179 string
-			templ_7745c5c3_Var179, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Латинские буквы в нижнем регистре, цифры и дефисы."))
+			templ_7745c5c3_Var179, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Lowercase Latin letters, numbers and hyphens."))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 453, Col: 150}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 453, Col: 104}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var179))
 			if templ_7745c5c3_Err != nil {
@@ -3391,9 +3391,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var181 string
-				templ_7745c5c3_Var181, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Ссылка"))
+				templ_7745c5c3_Var181, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Link"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 459, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 459, Col: 35}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var181))
 				if templ_7745c5c3_Err != nil {
@@ -3404,9 +3404,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var182 string
-				templ_7745c5c3_Var182, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Адрес ссылки"))
+				templ_7745c5c3_Var182, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Link URL"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 460, Col: 84}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 460, Col: 69}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var182))
 				if templ_7745c5c3_Err != nil {
@@ -3416,7 +3416,7 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = input.Input(input.Props{ID: "link-url", Placeholder: i18n.T(ctx, "https://example.com, /contacts или #section-contacts"), Attributes: templ.Attributes{"data-link-url": true, "maxlength": "2048"}}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = input.Input(input.Props{ID: "link-url", Placeholder: i18n.T(ctx, "https://example.com, /contacts or #section-contacts"), Attributes: templ.Attributes{"data-link-url": true, "maxlength": "2048"}}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3433,9 +3433,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					}
 					ctx = templ.InitializeContext(ctx)
 					var templ_7745c5c3_Var184 string
-					templ_7745c5c3_Var184, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Применить "))
+					templ_7745c5c3_Var184, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Apply "))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 463, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 463, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var184))
 					if templ_7745c5c3_Err != nil {
@@ -3460,9 +3460,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					}
 					ctx = templ.InitializeContext(ctx)
 					var templ_7745c5c3_Var186 string
-					templ_7745c5c3_Var186, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Убрать ссылку "))
+					templ_7745c5c3_Var186, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Remove link "))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 466, Col: 50}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 466, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var186))
 					if templ_7745c5c3_Err != nil {
@@ -3479,9 +3479,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var187 string
-				templ_7745c5c3_Var187, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Якорь раздела"))
+				templ_7745c5c3_Var187, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Section anchor"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 470, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 470, Col: 39}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var187))
 				if templ_7745c5c3_Err != nil {
@@ -3492,9 +3492,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var188 string
-				templ_7745c5c3_Var188, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Имя якоря"))
+				templ_7745c5c3_Var188, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Anchor name"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 471, Col: 59}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 471, Col: 53}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var188))
 				if templ_7745c5c3_Err != nil {
@@ -3525,9 +3525,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var190 string
-					templ_7745c5c3_Var190, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Применить"))
+					templ_7745c5c3_Var190, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Apply"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 473, Col: 175}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 473, Col: 162}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var190))
 					if templ_7745c5c3_Err != nil {
@@ -3560,9 +3560,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var192 string
-					templ_7745c5c3_Var192, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Убрать якорь"))
+					templ_7745c5c3_Var192, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Remove anchor"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 474, Col: 179}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 474, Col: 169}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var192))
 					if templ_7745c5c3_Err != nil {
@@ -3583,9 +3583,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var193 string
-				templ_7745c5c3_Var193, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Латинские буквы, цифры и дефисы. Начните с буквы. Ссылку ниже можно использовать в тексте или меню сайта."))
+				templ_7745c5c3_Var193, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Use lowercase Latin letters, numbers and hyphens. Start with a letter. Use the link below in text or the site menu."))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 475, Col: 246}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 475, Col: 171}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var193))
 				if templ_7745c5c3_Err != nil {
@@ -3596,9 +3596,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var194 string
-				templ_7745c5c3_Var194, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Ссылка на раздел"))
+				templ_7745c5c3_Var194, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Section link"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 476, Col: 72}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 476, Col: 54}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var194))
 				if templ_7745c5c3_Err != nil {
@@ -3617,9 +3617,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var195 string
-				templ_7745c5c3_Var195, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Поиск в тексте"))
+				templ_7745c5c3_Var195, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Find in text"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 480, Col: 57}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 480, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var195))
 				if templ_7745c5c3_Err != nil {
@@ -3630,9 +3630,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var196 string
-				templ_7745c5c3_Var196, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Найти в тексте"))
+				templ_7745c5c3_Var196, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Find in text"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 481, Col: 92}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 481, Col: 78}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var196))
 				if templ_7745c5c3_Err != nil {
@@ -3642,7 +3642,7 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = input.Input(input.Props{ID: "editor-search", Type: "search", Placeholder: i18n.T(ctx, "Найти…"), Attributes: templ.Attributes{"data-editor-search": true, "maxlength": "256"}}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = input.Input(input.Props{ID: "editor-search", Type: "search", Placeholder: i18n.T(ctx, "Find…"), Attributes: templ.Attributes{"data-editor-search": true, "maxlength": "256"}}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3659,9 +3659,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					}
 					ctx = templ.InitializeContext(ctx)
 					var templ_7745c5c3_Var198 string
-					templ_7745c5c3_Var198, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Найти далее "))
+					templ_7745c5c3_Var198, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Find next "))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 484, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 484, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var198))
 					if templ_7745c5c3_Err != nil {
@@ -3678,9 +3678,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var199 string
-				templ_7745c5c3_Var199, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Редактор текста"))
+				templ_7745c5c3_Var199, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Text editor"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 487, Col: 108}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 487, Col: 90}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var199)
 				if templ_7745c5c3_Err != nil {
@@ -3701,9 +3701,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var200 string
-			templ_7745c5c3_Var200, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Настройки материала"))
+			templ_7745c5c3_Var200, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Content settings"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 490, Col: 100}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 490, Col: 79}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var200)
 			if templ_7745c5c3_Err != nil {
@@ -3734,7 +3734,7 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = EditorPanelSummary(i18n.T(ctx, "Настройки материала"), icon.FileText).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = EditorPanelSummary(i18n.T(ctx, "Content settings"), icon.FileText).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -3774,7 +3774,7 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = EditorPanelSummary(i18n.T(ctx, "Настройки страницы"), icon.FileText).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = EditorPanelSummary(i18n.T(ctx, "Page settings"), icon.FileText).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -3791,15 +3791,15 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var203 string
-					templ_7745c5c3_Var203, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Родительская страница"))
+					templ_7745c5c3_Var203, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Parent page"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 507, Col: 69}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 507, Col: 39}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var203))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = AdminSelect("page-parent", "parent_id", strconv.FormatInt(p.ParentID, 10), i18n.T(ctx, "Родительская страница"), parents, nil).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = AdminSelect("page-parent", "parent_id", strconv.FormatInt(p.ParentID, 10), i18n.T(ctx, "Parent page"), parents, nil).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -3808,9 +3808,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var204 string
-					templ_7745c5c3_Var204, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Порядок"))
+					templ_7745c5c3_Var204, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Order"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 510, Col: 42}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 510, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var204))
 					if templ_7745c5c3_Err != nil {
@@ -3825,15 +3825,15 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var205 string
-					templ_7745c5c3_Var205, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Шаблон страницы"))
+					templ_7745c5c3_Var205, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Page template"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 513, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 513, Col: 41}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var205))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = AdminSelect("page-template", "template", p.Template, i18n.T(ctx, "Шаблон страницы"), templates, nil).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = AdminSelect("page-template", "template", p.Template, i18n.T(ctx, "Page template"), templates, nil).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -3842,9 +3842,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var206 string
-					templ_7745c5c3_Var206, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Изменения пути и порядка применяются после публикации. Старые опубликованные адреса перенаправляются на новые вместе с дочерними страницами."))
+					templ_7745c5c3_Var206, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Path and order changes take effect after publishing. Old published URLs redirect to the new ones, including child pages."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 516, Col: 305}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 516, Col: 163}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var206))
 					if templ_7745c5c3_Err != nil {
@@ -3877,7 +3877,7 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = EditorPanelSummary(i18n.T(ctx, "Публикация"), icon.FileText).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = EditorPanelSummary(i18n.T(ctx, "Publication"), icon.FileText).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3902,9 +3902,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var209 string
-					templ_7745c5c3_Var209, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "На проверку"))
+					templ_7745c5c3_Var209, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Submit for review"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 526, Col: 273}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 526, Col: 269}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var209))
 					if templ_7745c5c3_Err != nil {
@@ -3925,9 +3925,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var210 string
-				templ_7745c5c3_Var210, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Статус"))
+				templ_7745c5c3_Var210, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Status"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 529, Col: 41}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 529, Col: 35}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var210))
 				if templ_7745c5c3_Err != nil {
@@ -3939,9 +3939,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				}
 				if p.TrashedAt > 0 {
 					var templ_7745c5c3_Var211 string
-					templ_7745c5c3_Var211, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "В корзине"))
+					templ_7745c5c3_Var211, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "In trash"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 532, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 532, Col: 35}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var211))
 					if templ_7745c5c3_Err != nil {
@@ -3949,9 +3949,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					}
 				} else if p.Published {
 					var templ_7745c5c3_Var212 string
-					templ_7745c5c3_Var212, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Опубликовано"))
+					templ_7745c5c3_Var212, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Published"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 534, Col: 51}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 534, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var212))
 					if templ_7745c5c3_Err != nil {
@@ -3959,9 +3959,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					}
 				} else {
 					var templ_7745c5c3_Var213 string
-					templ_7745c5c3_Var213, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Черновик"))
+					templ_7745c5c3_Var213, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Draft"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 536, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 536, Col: 32}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var213))
 					if templ_7745c5c3_Err != nil {
@@ -3978,9 +3978,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var214 string
-					templ_7745c5c3_Var214, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Опубликовано"))
+					templ_7745c5c3_Var214, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Published"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 541, Col: 58}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 541, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var214))
 					if templ_7745c5c3_Err != nil {
@@ -3993,7 +3993,7 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					var templ_7745c5c3_Var215 string
 					templ_7745c5c3_Var215, templ_7745c5c3_Err = templ.JoinStringErrs(contentDate(p.PublishedAt))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 541, Col: 97}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 541, Col: 82}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var215))
 					if templ_7745c5c3_Err != nil {
@@ -4030,9 +4030,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var216 string
-					templ_7745c5c3_Var216, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Публикация по расписанию"))
+					templ_7745c5c3_Var216, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Scheduled publication"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 546, Col: 79}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 546, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var216))
 					if templ_7745c5c3_Err != nil {
@@ -4072,9 +4072,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						}
 						ctx = templ.InitializeContext(ctx)
 						var templ_7745c5c3_Var219 string
-						templ_7745c5c3_Var219, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Запланировать "))
+						templ_7745c5c3_Var219, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Schedule "))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 551, Col: 53}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 551, Col: 35}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var219))
 						if templ_7745c5c3_Err != nil {
@@ -4092,9 +4092,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var220 string
-						templ_7745c5c3_Var220, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Версия v") + strconv.FormatInt(p.ScheduledVersion, 10) + " · " + contentDate(p.ScheduledAt))
+						templ_7745c5c3_Var220, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Version v") + strconv.FormatInt(p.ScheduledVersion, 10) + " · " + contentDate(p.ScheduledAt))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 554, Col: 137}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 554, Col: 132}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var220))
 						if templ_7745c5c3_Err != nil {
@@ -4105,9 +4105,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var221 string
-						templ_7745c5c3_Var221, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Последующие правки останутся в черновике."))
+						templ_7745c5c3_Var221, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Later edits will remain in the draft."))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 555, Col: 125}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 555, Col: 85}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var221))
 						if templ_7745c5c3_Err != nil {
@@ -4130,9 +4130,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 							}
 							ctx = templ.InitializeContext(ctx)
 							var templ_7745c5c3_Var223 string
-							templ_7745c5c3_Var223, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Отменить расписание "))
+							templ_7745c5c3_Var223, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Cancel schedule "))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 557, Col: 65}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 557, Col: 43}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var223))
 							if templ_7745c5c3_Err != nil {
@@ -4169,9 +4169,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var225 string
-					templ_7745c5c3_Var225, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Открыть на сайте"))
+					templ_7745c5c3_Var225, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "View on site"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 565, Col: 155}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 565, Col: 137}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var225))
 					if templ_7745c5c3_Err != nil {
@@ -4221,9 +4221,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 								}
 								ctx = templ.InitializeContext(ctx)
 								var templ_7745c5c3_Var228 string
-								templ_7745c5c3_Var228, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Снять с публикации "))
+								templ_7745c5c3_Var228, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Unpublish "))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 572, Col: 61}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 572, Col: 36}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var228))
 								if templ_7745c5c3_Err != nil {
@@ -4253,9 +4253,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 							}
 							ctx = templ.InitializeContext(ctx)
 							var templ_7745c5c3_Var230 string
-							templ_7745c5c3_Var230, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "В корзину "))
+							templ_7745c5c3_Var230, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Move to trash "))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 576, Col: 43}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 576, Col: 39}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var230))
 							if templ_7745c5c3_Err != nil {
@@ -4311,7 +4311,7 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = EditorPanelSummary(i18n.T(ctx, "Категории и теги"), icon.Icon("tags")).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = EditorPanelSummary(i18n.T(ctx, "Categories and tags"), icon.Icon("tags")).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -4391,9 +4391,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var235 string
-					templ_7745c5c3_Var235, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Управлять категориями и тегами"))
+					templ_7745c5c3_Var235, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Manage categories and tags"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 597, Col: 132}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 597, Col: 101}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var235))
 					if templ_7745c5c3_Err != nil {
@@ -4434,7 +4434,7 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = EditorPanelSummary(i18n.T(ctx, "Обложка"), icon.Image).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = EditorPanelSummary(i18n.T(ctx, "Cover"), icon.Image).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -4451,9 +4451,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var237 string
-				templ_7745c5c3_Var237, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Загрузить изображение"))
+				templ_7745c5c3_Var237, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Upload image"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 606, Col: 159}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 606, Col: 130}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var237))
 				if templ_7745c5c3_Err != nil {
@@ -4472,9 +4472,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var238 string
-				templ_7745c5c3_Var238, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "PNG/JPEG · до 8 MiB / 16 Мп"))
+				templ_7745c5c3_Var238, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "PNG/JPEG · up to 8 MiB / 16 MP"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 608, Col: 95}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 608, Col: 94}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var238))
 				if templ_7745c5c3_Err != nil {
@@ -4506,9 +4506,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var240 string
-				templ_7745c5c3_Var240, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Описание и вставка в текст"))
+				templ_7745c5c3_Var240, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Description and insertion"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 612, Col: 82}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 612, Col: 59}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var240))
 				if templ_7745c5c3_Err != nil {
@@ -4519,9 +4519,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var241 string
-				templ_7745c5c3_Var241, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Описание (alt)"))
+				templ_7745c5c3_Var241, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Description (alt)"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 614, Col: 90}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 614, Col: 85}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var241))
 				if templ_7745c5c3_Err != nil {
@@ -4540,9 +4540,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var242 string
-				templ_7745c5c3_Var242, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Подпись"))
+				templ_7745c5c3_Var242, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Caption"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 615, Col: 86}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 615, Col: 79}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var242))
 				if templ_7745c5c3_Err != nil {
@@ -4573,9 +4573,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					}
 					ctx = templ.InitializeContext(ctx)
 					var templ_7745c5c3_Var244 string
-					templ_7745c5c3_Var244, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Вставить выбранное в текст "))
+					templ_7745c5c3_Var244, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Insert selected image "))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 617, Col: 77}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 617, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var244))
 					if templ_7745c5c3_Err != nil {
@@ -4689,9 +4689,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var251 string
-				templ_7745c5c3_Var251, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "История изменений · последние 50 версий"))
+				templ_7745c5c3_Var251, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Revision history · last 50 versions"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 637, Col: 101}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 637, Col: 66}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var251))
 				if templ_7745c5c3_Err != nil {
@@ -4702,9 +4702,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var252 string
-				templ_7745c5c3_Var252, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Создан: ") + contentDate(p.CreatedAt))
+				templ_7745c5c3_Var252, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Created: ") + contentDate(p.CreatedAt))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 638, Col: 93}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 638, Col: 88}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var252))
 				if templ_7745c5c3_Err != nil {
@@ -4715,9 +4715,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var253 string
-				templ_7745c5c3_Var253, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Изменён: ") + contentDate(p.UpdatedAt))
+				templ_7745c5c3_Var253, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Modified: ") + contentDate(p.UpdatedAt))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 638, Col: 165}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 638, Col: 154}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var253))
 				if templ_7745c5c3_Err != nil {
@@ -4772,9 +4772,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var257 string
-					templ_7745c5c3_Var257, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Просмотр"))
+					templ_7745c5c3_Var257, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "View"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 642, Col: 201}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 642, Col: 189}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var257))
 					if templ_7745c5c3_Err != nil {
@@ -4849,9 +4849,9 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 							}
 							ctx = templ.InitializeContext(ctx)
 							var templ_7745c5c3_Var262 string
-							templ_7745c5c3_Var262, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "В черновик "))
+							templ_7745c5c3_Var262, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Save as draft "))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 647, Col: 46}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 647, Col: 40}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var262))
 							if templ_7745c5c3_Err != nil {
@@ -4880,7 +4880,7 @@ func EditPage(site, csrf string, p store.Page, files []store.MediaFile, total in
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = AdminLayout(site, contentLabel(p.Kind, i18n.T(ctx, "Редактирование страницы"), i18n.T(ctx, "Редактирование записи")), csrf).Render(templ.WithChildren(ctx, templ_7745c5c3_Var142), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = AdminLayout(site, contentLabel(p.Kind, i18n.T(ctx, "Edit page"), i18n.T(ctx, "Edit post")), csrf).Render(templ.WithChildren(ctx, templ_7745c5c3_Var142), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -5045,9 +5045,9 @@ func MediaFileChoices(files []store.MediaFile, selected string) templ.Component 
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var271 string
-		templ_7745c5c3_Var271, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Выбор обложки"))
+		templ_7745c5c3_Var271, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Choose cover"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 677, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 677, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var271))
 		if templ_7745c5c3_Err != nil {
@@ -5068,9 +5068,9 @@ func MediaFileChoices(files []store.MediaFile, selected string) templ.Component 
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var272 string
-		templ_7745c5c3_Var272, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Без обложки"))
+		templ_7745c5c3_Var272, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "No cover"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 678, Col: 152}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 678, Col: 139}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var272))
 		if templ_7745c5c3_Err != nil {
@@ -5135,9 +5135,9 @@ func MediaFileChoices(files []store.MediaFile, selected string) templ.Component 
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var276 string
-			templ_7745c5c3_Var276, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Выбрать ") + mediaTitle(file))
+			templ_7745c5c3_Var276, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(ctx, "Select ") + mediaTitle(file))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 287}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 279}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var276)
 			if templ_7745c5c3_Err != nil {
@@ -5150,7 +5150,7 @@ func MediaFileChoices(files []store.MediaFile, selected string) templ.Component 
 			var templ_7745c5c3_Var277 string
 			templ_7745c5c3_Var277, templ_7745c5c3_Err = templ.ResolveAttributeValue("/uploads/" + file.Name + "?w=320")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 334}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 326}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var277)
 			if templ_7745c5c3_Err != nil {
@@ -5163,7 +5163,7 @@ func MediaFileChoices(files []store.MediaFile, selected string) templ.Component 
 			var templ_7745c5c3_Var278 string
 			templ_7745c5c3_Var278, templ_7745c5c3_Err = templ.ResolveAttributeValue(file.Alt)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 351}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 343}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var278)
 			if templ_7745c5c3_Err != nil {
@@ -5176,7 +5176,7 @@ func MediaFileChoices(files []store.MediaFile, selected string) templ.Component 
 			var templ_7745c5c3_Var279 string
 			templ_7745c5c3_Var279, templ_7745c5c3_Err = templ.ResolveAttributeValue(mediaTitle(file))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 378}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 370}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var279)
 			if templ_7745c5c3_Err != nil {
@@ -5189,7 +5189,7 @@ func MediaFileChoices(files []store.MediaFile, selected string) templ.Component 
 			var templ_7745c5c3_Var280 string
 			templ_7745c5c3_Var280, templ_7745c5c3_Err = templ.JoinStringErrs(mediaTitle(file))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 437}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 429}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var280))
 			if templ_7745c5c3_Err != nil {
@@ -5202,7 +5202,7 @@ func MediaFileChoices(files []store.MediaFile, selected string) templ.Component 
 			var templ_7745c5c3_Var281 string
 			templ_7745c5c3_Var281, templ_7745c5c3_Err = templ.ResolveAttributeValue(file.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 535}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 527}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var281)
 			if templ_7745c5c3_Err != nil {
@@ -5215,7 +5215,7 @@ func MediaFileChoices(files []store.MediaFile, selected string) templ.Component 
 			var templ_7745c5c3_Var282 string
 			templ_7745c5c3_Var282, templ_7745c5c3_Err = templ.ResolveAttributeValue(file.Alt)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 563}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 555}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var282)
 			if templ_7745c5c3_Err != nil {
@@ -5228,7 +5228,7 @@ func MediaFileChoices(files []store.MediaFile, selected string) templ.Component 
 			var templ_7745c5c3_Var283 string
 			templ_7745c5c3_Var283, templ_7745c5c3_Err = templ.ResolveAttributeValue(file.Caption)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 599}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 591}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var283)
 			if templ_7745c5c3_Err != nil {
@@ -5239,9 +5239,9 @@ func MediaFileChoices(files []store.MediaFile, selected string) templ.Component 
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var284 string
-			templ_7745c5c3_Var284, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "В текст"))
+			templ_7745c5c3_Var284, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Insert"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 631}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 681, Col: 616}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var284))
 			if templ_7745c5c3_Err != nil {
@@ -5319,9 +5319,9 @@ func AdminModulesNavigation(title string, oob bool) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var288 string
-					templ_7745c5c3_Var288, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Модули"))
+					templ_7745c5c3_Var288, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Modules"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 692, Col: 72}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 692, Col: 67}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var288))
 					if templ_7745c5c3_Err != nil {
@@ -5333,7 +5333,7 @@ func AdminModulesNavigation(title string, oob bool) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = sidebar.MenuButton(sidebar.MenuButtonProps{Href: "/admin/modules", IsActive: adminCurrentSection(ctx, title) == "/admin/modules", Attributes: navAttributes(adminCurrentSection(ctx, title) == "/admin/modules", i18n.T(ctx, "Модули"))}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var287), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = sidebar.MenuButton(sidebar.MenuButtonProps{Href: "/admin/modules", IsActive: adminCurrentSection(ctx, title) == "/admin/modules", Attributes: navAttributes(adminCurrentSection(ctx, title) == "/admin/modules", i18n.T(ctx, "Modules"))}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var287), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -5358,7 +5358,7 @@ func AdminModulesNavigation(title string, oob bool) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = sidebar.Menu(sidebar.MenuProps{Class: "gp-nav-submenu", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Модули")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var289), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = sidebar.Menu(sidebar.MenuProps{Class: "gp-nav-submenu", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Modules")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var289), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

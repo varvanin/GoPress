@@ -8,11 +8,11 @@ import "gopress/internal/ui/components/button"
 import "gopress/internal/ui/components/card"
 
 templ UpdatesPage(site,csrf string,release update.Release,state service.UpdateState,configured bool,message string,failed bool){
- @AdminLayout(site,i18n.T(ctx,"Обновления"),csrf){
-  @AdminPageHeader(i18n.T(ctx,"Обновления"),-1){
+ @AdminLayout(site,i18n.T(ctx,"Updates"),csrf){
+  @AdminPageHeader(i18n.T(ctx,"Updates"),-1){
    <form method="post" action="/admin/updates/check">
     <input type="hidden" name="csrf" value={csrf}/>
-    @button.Button(button.Props{Type:button.TypeSubmit,Size:button.SizeSm,Disabled:state.Pending()}){<span>{ i18n.T(ctx,"Проверить обновления") }</span>}
+    @button.Button(button.Props{Type:button.TypeSubmit,Size:button.SizeSm,Disabled:state.Pending()}){<span>{ i18n.T(ctx,"Check for updates") }</span>}
    </form>
   }
   @SettingsTabs("updates")
@@ -22,18 +22,18 @@ templ UpdatesPage(site,csrf string,release update.Release,state service.UpdateSt
   <div class="management-workspace settings-workspace">
    <div class="site-settings">
     @card.Card(card.Props{Class:"settings-panel"}){
-     <h2>{ i18n.T(ctx,"Версия GoPress") }</h2>
-     <p>{ i18n.T(ctx,"Текущая версия")+": "+version.Current }</p>
+     <h2>{ i18n.T(ctx,"GoPress version") }</h2>
+     <p>{ i18n.T(ctx,"Current version")+": "+version.Current }</p>
      if release.Version!="" {
-      <p>{ i18n.T(ctx,"Последний проверенный релиз")+": "+release.Version }</p>
-      <p>{ i18n.T(ctx,"Минимальная исходная версия")+": "+release.MinimumVersion }</p>
+      <p>{ i18n.T(ctx,"Last verified release")+": "+release.Version }</p>
+      <p>{ i18n.T(ctx,"Minimum source version")+": "+release.MinimumVersion }</p>
       if release.Notes!="" {
 <p class="whitespace-pre-wrap break-all">{release.Notes}</p>
 }
       if updateAvailable(release)&&!state.Pending() {
-       <form method="post" action="/admin/updates/install" hx-confirm={i18n.T(ctx,"Установить обновление? GoPress создаст резервную копию и временно включит обслуживание сайта.")}>
+       <form method="post" action="/admin/updates/install" hx-confirm={i18n.T(ctx,"Install the update? GoPress will create a backup and temporarily enable site maintenance.")}>
         <input type="hidden" name="csrf" value={csrf}/><input type="hidden" name="version" value={release.Version}/>
-        @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline,Size:button.SizeSm}){<span>{ i18n.T(ctx,"Обновить") }</span>}
+        @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline,Size:button.SizeSm}){<span>{ i18n.T(ctx,"Update") }</span>}
        </form>
       }
      }
@@ -43,12 +43,12 @@ templ UpdatesPage(site,csrf string,release update.Release,state service.UpdateSt
    <aside class="management-context">
     <h2>Docker / Dokploy</h2>
     if !configured {
-     <p>{ i18n.T(ctx,"Для установки подключите Dokploy и настройте доверенный ключ релизов на сервере.") }</p>
+     <p>{ i18n.T(ctx,"To install updates, connect Dokploy and configure the trusted release key on the server.") }</p>
     }
-    <p>{ i18n.T(ctx,"В Dokploy нужны Docker-источник, постоянный /data, одна реплика и закреплённый узел.") }</p>
-    <p>{ i18n.T(ctx,"Обновление выполняется только по кнопке. Перед заменой контейнера создаётся проверенная резервная копия.") }</p>
-    <p>{ i18n.T(ctx,"После запуска новой версии проверяются база данных и версия приложения. Если проверка не пройдёт, обслуживание сохранится для безопасного восстановления.") }</p>
-    <a href="/admin/tools?tab=backups">{ i18n.T(ctx,"Резервные копии") }</a>
+    <p>{ i18n.T(ctx,"Dokploy requires a Docker source, persistent /data, one replica and a pinned node.") }</p>
+    <p>{ i18n.T(ctx,"Updates run only on request. A verified backup is created before replacing the container.") }</p>
+    <p>{ i18n.T(ctx,"After startup, the new version and database are checked. If verification fails, maintenance remains enabled for safe recovery.") }</p>
+    <a href="/admin/tools?tab=backups">{ i18n.T(ctx,"Backups") }</a>
    </aside>
   </div>
  }
@@ -60,16 +60,16 @@ templ UpdateStatus(state service.UpdateState){
  >
   if state.Phase!="" {
    @card.Card(card.Props{Class:"settings-panel"}){
-    <h2>{ i18n.T(ctx,"Состояние обновления") }</h2>
+    <h2>{ i18n.T(ctx,"Update status") }</h2>
     <p>{ i18n.T(ctx,updatePhase(state.Phase)) }</p>
     if state.Backup!="" {
-<p>{ i18n.T(ctx,"Резервная копия")+": "+state.Backup }</p>
+<p>{ i18n.T(ctx,"Backup")+": "+state.Backup }</p>
 }
     if state.PreviousImage!="" {
-<p class="field-help break-all">{ i18n.T(ctx,"Предыдущий образ")+": "+state.PreviousImage }</p>
+<p class="field-help break-all">{ i18n.T(ctx,"Previous image")+": "+state.PreviousImage }</p>
 }
     if state.Pending()&&!updatePolling(state) {
-<p>{ i18n.T(ctx,"Проверьте состояние установки в Dokploy и обновите эту страницу.") }</p>
+<p>{ i18n.T(ctx,"Check the deployment in Dokploy and reload this page.") }</p>
 }
    }
   }

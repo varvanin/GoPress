@@ -9,36 +9,36 @@ import "gopress/internal/ui/components/input"
 templ System(title, csrf string, install bool) {
 	@AuthLayout(title) {
 		if install {
-			<p class="auth-form-description">{ i18n.T(ctx,"Укажите данные сайта и создайте администратора.") }</p>
+			<p class="auth-form-description">{ i18n.T(ctx,"Enter site details and create an administrator.") }</p>
 		}
 		<form method="post" class="auth-form">
 			<input type="hidden" name="csrf" value={ csrf }/>
 			if install {
-				<div class="field"><label for="token">{ i18n.T(ctx,"Токен установки") }</label>@input.Input(input.Props{ID: "token", Name: "token", Type: "password", Required: true, Placeholder: i18n.T(ctx, "Токен из консоли сервера"), Attributes: templ.Attributes{"autocomplete": "off", "aria-describedby": "token-help"}})<p class="field-help" id="token-help">{ i18n.T(ctx,"Одноразовый токен напечатан при запуске GoPress.") }</p></div>
-				<div class="field"><label for="title">{ i18n.T(ctx,"Название сайта") }</label>@input.Input(input.Props{ID: "title", Name: "title", Required: true, Placeholder: i18n.T(ctx, "Мой сайт")})</div>
-				<div class="grid gap-4 sm:grid-cols-2"><div class="field"><label for="base_url">{ i18n.T(ctx,"Основной URL") }</label>@input.Input(input.Props{ID: "base_url", Name: "base_url", Type: "url", Required: true, Placeholder: "https://example.com"})</div><div class="field"><label for="timezone">{ i18n.T(ctx,"Часовой пояс") }</label>@input.Input(input.Props{ID: "timezone", Name: "timezone", Value: "Europe/Warsaw", Required: true})</div></div>
+				<div class="field"><label for="token">{ i18n.T(ctx,"Installation token") }</label>@input.Input(input.Props{ID: "token", Name: "token", Type: "password", Required: true, Placeholder: i18n.T(ctx, "Token from the server console"), Attributes: templ.Attributes{"autocomplete": "off", "aria-describedby": "token-help"}})<p class="field-help" id="token-help">{ i18n.T(ctx,"The one-time token is printed when GoPress starts.") }</p></div>
+				<div class="field"><label for="title">{ i18n.T(ctx,"Site name") }</label>@input.Input(input.Props{ID: "title", Name: "title", Required: true, Placeholder: i18n.T(ctx, "My site")})</div>
+				<div class="grid gap-4 sm:grid-cols-2"><div class="field"><label for="base_url">{ i18n.T(ctx,"Primary URL") }</label>@input.Input(input.Props{ID: "base_url", Name: "base_url", Type: "url", Required: true, Placeholder: "https://example.com"})</div><div class="field"><label for="timezone">{ i18n.T(ctx,"Time zone") }</label>@input.Input(input.Props{ID: "timezone", Name: "timezone", Value: "Europe/Warsaw", Required: true})</div></div>
 				<div class="border-t border-border pt-1"></div>
 			}
 			<div class="field"><label for="email">{ authEmailLabel(ctx, install) }</label>@input.Input(input.Props{ID: "email", Name: "email", Type: "email", Required: true, Placeholder: "name@example.com", Attributes: templ.Attributes{"autocomplete": "username"}})</div>
 			<div class="field">
-				<label for="password">{ i18n.T(ctx,"Пароль") }</label>@input.Input(input.Props{ID: "password", Name: "password", Type: "password", Required: true, Placeholder: i18n.T(ctx, "Введите пароль"), Attributes: templ.Attributes{"autocomplete": passwordAutocomplete(install)}})
+				<label for="password">{ i18n.T(ctx,"Password") }</label>@input.Input(input.Props{ID: "password", Name: "password", Type: "password", Required: true, Placeholder: i18n.T(ctx, "Enter password"), Attributes: templ.Attributes{"autocomplete": passwordAutocomplete(install)}})
 				if install {
-					<p class="field-help">{ i18n.T(ctx,"От 12 до 72 байт.") }</p>
+					<p class="field-help">{ i18n.T(ctx,"From 12 to 72 bytes.") }</p>
 				}
 			</div>
             if !install {
-            <div class="field"><label for="second-factor-code">{ i18n.T(ctx,"Код 2FA или резервный код") }</label>@input.Input(input.Props{ID:"second-factor-code",Name:"code",Attributes:templ.Attributes{"autocomplete":"one-time-code","maxlength":"64"}})</div>
+            <div class="field"><label for="second-factor-code">{ i18n.T(ctx,"2FA code or recovery code") }</label>@input.Input(input.Props{ID:"second-factor-code",Name:"code",Attributes:templ.Attributes{"autocomplete":"one-time-code","maxlength":"64"}})</div>
             }
 			@button.Button(button.Props{Type: button.TypeSubmit, Size: button.SizeSm, Class: "w-full"}) {
 				if install {
-					{ i18n.T(ctx,"Создать сайт") }
+					{ i18n.T(ctx,"Create site") }
 				} else {
-					{ i18n.T(ctx,"Войти") }
+					{ i18n.T(ctx,"Sign in") }
 				}
 			}
 		</form>
 		if !install {
-			<a href="/forgot-password" class="auth-recovery-link">{ i18n.T(ctx,"Забыли пароль?") }</a>
+			<a href="/forgot-password" class="auth-recovery-link">{ i18n.T(ctx,"Forgot password?") }</a>
 		}
 	}
 }
@@ -52,7 +52,7 @@ func passwordAutocomplete(install bool) string {
 
 func authEmailLabel(ctx context.Context, install bool) string {
 	if install {
-		return i18n.T(ctx, "Email администратора")
+		return i18n.T(ctx, "Administrator email")
 	}
 	return "Email"
 }

@@ -86,7 +86,7 @@ func (a *App) templateFiles(id, selected string, forSave bool) (fstest.MapFS, st
 		var raw []byte
 		if selected == "" || rel == selected || forSave && strings.HasSuffix(rel, ".html") {
 			if rel == selected && stat.Size() > 512<<10 {
-				return echo.NewHTTPError(400, "Файл превышает 512 KiB")
+				return echo.NewHTTPError(400, "File exceeds 512 KiB")
 			}
 			raw, err = fs.ReadFile(source, name)
 			if err != nil {
@@ -180,10 +180,10 @@ func (a *App) templateEditor(c *echo.Context, status int, message, submitted str
 	sort.Strings(names)
 	file, ok := files[selected]
 	if !ok || !editableTemplateFile(selected) {
-		return echo.NewHTTPError(404, "Файл не найден")
+		return echo.NewHTTPError(404, "File not found")
 	}
 	if len(file.Data) > 512<<10 {
-		return echo.NewHTTPError(400, "Файл превышает 512 KiB")
+		return echo.NewHTTPError(400, "File exceeds 512 KiB")
 	}
 	content := string(file.Data)
 	revision := templateFileHash(file.Data)
@@ -403,7 +403,7 @@ func (a *App) copyBuiltinTemplate(id string) (string, error) {
 		}
 		name = fmt.Sprintf("%s-copy-%d", id, i)
 	}
-	info := ThemeInfo{ID: name, Name: id + " · копия", Version: "1.0", Author: "GoPress", Description: "Редактируемая копия встроенного шаблона."}
+	info := ThemeInfo{ID: name, Name: id + " · copy", Version: "1.0", Author: "GoPress", Description: "Editable copy of a built-in template."}
 	raw, _ := json.Marshal(info)
 	files["theme.json"] = &fstest.MapFile{Data: raw}
 	preview, err := resources.ReadFile("assets/template-" + id + ".svg")
@@ -429,7 +429,7 @@ func (a *App) templateEditorRoutes(g *echo.Group) {
 	g.POST("/themes/editor/reset", func(c *echo.Context) error {
 		err := a.resetTemplate(c.FormValue("theme"), c.FormValue("revision"))
 		if errors.Is(err, store.ErrConflict) {
-			return a.resetTemplateReview(c, 409, "Файлы изменились. Проверьте актуальную версию перед сбросом.")
+			return a.resetTemplateReview(c, 409, "Files have changed. Check the current version before resetting.")
 		}
 		if err != nil {
 			return err
@@ -439,13 +439,13 @@ func (a *App) templateEditorRoutes(g *echo.Group) {
 	g.GET("/themes/editor", func(c *echo.Context) error {
 		message := ""
 		if c.QueryParam("reset") == "1" {
-			message = "Шаблон возвращён к встроенной версии."
+			message = "Template restored to built-in version."
 		}
 		if c.QueryParam("saved") == "1" {
-			message = "Файл сохранён."
+			message = "File saved."
 		}
 		if c.QueryParam("copied") == "1" {
-			message = "Копия создана. Изменения появятся на сайте после её активации."
+			message = "Copy created. Changes will appear on the site after it is activated."
 		}
 		return a.templateEditor(c, 200, message, "", false)
 	})
@@ -464,7 +464,7 @@ func (a *App) templateEditorRoutes(g *echo.Group) {
 			message := err.Error()
 			if errors.Is(err, store.ErrConflict) {
 				status = 409
-				message = "Файл изменён в другой вкладке. Скопируйте свои правки и откройте актуальную версию."
+				message = "File changed in another tab. Copy your edits and open the current version."
 			}
 			return a.templateEditor(c, status, message, content, true)
 		}

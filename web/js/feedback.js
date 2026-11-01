@@ -9,7 +9,7 @@ export function toast(message, kind = 'success', content) {
  const mark=document.createElement('span');mark.className='gp-toast-mark';mark.setAttribute('aria-hidden','true');mark.textContent=kind==='error'?'!':'✓';
  const text=document.createElement('div');text.className='gp-toast-content';
  if(content)text.append(...Array.from(content.childNodes).map(node=>node.cloneNode(true)));else text.textContent=message;
- const close=document.createElement('button');close.type='button';close.className='gp-toast-close';close.setAttribute('aria-label',t('Закрыть уведомление'));close.textContent='×';
+ const close=document.createElement('button');close.type='button';close.className='gp-toast-close';close.setAttribute('aria-label',t('Dismiss notification'));close.textContent='×';
  item.append(mark,text,close);region.append(item);
  while(region.children.length>3)region.firstElementChild.remove();
  let timer;const pause=()=>clearTimeout(timer);const dismiss=()=>{pause();item.remove();};
@@ -28,13 +28,13 @@ export function showNotices(root=document.querySelector('#main')) {
  return count;
 }
 
-export async function confirmAction(message, trigger, label=t('Удалить')) {
+export async function confirmAction(message, trigger, label=t('Delete')) {
  const popup=document.getElementById('system-confirm');
  if(pendingConfirmation)return false;
- if(!popup||!window.templ?.dialog){toast(t('Не удалось открыть подтверждение. Обновите страницу и повторите попытку.'),'error');return false;}
+ if(!popup||!window.templ?.dialog){toast(t('Could not open the confirmation dialog. Reload the page and try again.'),'error');return false;}
  pendingConfirmation=true;
  popup.querySelector('#system-confirm-description').textContent=message;
- popup.querySelector('#system-confirm-title').textContent=label===t('В корзину')?t('Переместить в корзину?'):[t('Удалить'),t('Удалить навсегда')].includes(label)?t('Подтвердите удаление'):t('Подтвердите действие');
+ popup.querySelector('#system-confirm-title').textContent=label===t('Move to trash')?t('Move to trash?'):[t('Delete'),t('Delete permanently')].includes(label)?t('Confirm deletion'):t('Confirm action');
  popup.querySelector('[data-confirm-result="accept"]').textContent=label;
  return new Promise(resolve=>{
   let accepted=false;
@@ -53,19 +53,19 @@ export function deletionPrompt(element, parameters={}) {
  // Other submit buttons are not submitted controls; they must never choose the action.
  const value=name=>parameters[name]??(element?.name===name?element.value:form?.querySelector(`input[name="${name}"]:not([type="submit"]):not([type="button"]):not([type="reset"]),select[name="${name}"],textarea[name="${name}"]`)?.value);
  const action=value('action');
- if(action==='trash')return {message:t('Переместить выбранные материалы в корзину? Их можно будет восстановить.'),label:t('В корзину')};
- if(action==='delete'&&/\/(content\/bulk|pages\/\d+\/state)$/.test(form?.getAttribute('action')||''))return {message:t('Удалить выбранные материалы навсегда вместе с историей изменений? Восстановление будет невозможно.'),label:t('Удалить навсегда')};
- if(action==='delete')return {message:t('Удалить выбранную категорию или тег? Связи с материалами будут удалены.'),label:t('Удалить')};
- if(form?.getAttribute('action')==='/admin/updates/install')return {message:t('Установить обновление? GoPress создаст резервную копию и временно включит обслуживание сайта.'),label:t('Обновить')};
+ if(action==='trash')return {message:t('Move the selected content to trash? You can restore it later.'),label:t('Move to trash')};
+ if(action==='delete'&&/\/(content\/bulk|pages\/\d+\/state)$/.test(form?.getAttribute('action')||''))return {message:t('Permanently delete the selected content and its revision history? This cannot be undone.'),label:t('Delete permanently')};
+ if(action==='delete')return {message:t('Delete the selected category or tag? Its content associations will be removed.'),label:t('Delete')};
+ if(form?.getAttribute('action')==='/admin/updates/install')return {message:t('Install the update? GoPress will create a backup and temporarily enable site maintenance.'),label:t('Update')};
  const question=element?.closest?.('[hx-confirm]')?.getAttribute('hx-confirm');
- if(question&&form?.getAttribute('action')==='/admin/themes/editor/save'&&value('intent')==='restore')return {message:question,label:t('Восстановить')};
- return question?{message:question,label:form?.getAttribute('action')?.endsWith('/backups/restore')?t('Восстановить'):t('Удалить')}:null;
+ if(question&&form?.getAttribute('action')==='/admin/themes/editor/save'&&value('intent')==='restore')return {message:question,label:t('Restore')};
+ return question?{message:question,label:form?.getAttribute('action')?.endsWith('/backups/restore')?t('Restore'):t('Delete')}:null;
 }
 export function actionMessage(element, parameters={}) {
- if(element?.closest?.('form')?.getAttribute('action')==='/admin/updates/install')return t('Проверка перед обновлением начата.');
+ if(element?.closest?.('form')?.getAttribute('action')==='/admin/updates/install')return t('Pre-update verification started.');
  const action=parameters.action;
- if(action==='trash')return t('Материал перемещён в корзину.');
- if(action==='restore')return t('Материал восстановлен.');
- if(action==='delete'||element?.closest?.('form')?.getAttribute('action')?.endsWith('/delete'))return t('Удалено.');
- return t('Изменения сохранены.');
+ if(action==='trash')return t('Content moved to trash.');
+ if(action==='restore')return t('Content restored.');
+ if(action==='delete'||element?.closest?.('form')?.getAttribute('action')?.endsWith('/delete'))return t('Deleted.');
+ return t('Changes saved.');
 }

@@ -40,7 +40,7 @@ export function mountPage(form) {
   const updateButtons = () => buttons.forEach((button) => { button.disabled = !state.editor || state.uploading || state.pending || form.dataset.readonly === 'true'; });
   saver=createAutosave(form,state,signal,message=>{status.textContent=message;});
  state.autosave=saver;
-  const markDirty = () => { state.dirty = true; status.textContent = t('Есть несохранённые изменения.'); saver.schedule();drafts?.schedule(); };
+  const markDirty = () => { state.dirty = true; status.textContent = t('You have unsaved changes.'); saver.schedule();drafts?.schedule(); };
   const fieldChange=event=>{if(['title','slug','cover','term_ids','seo_title','seo_description','seo_canonical','seo_social_title','seo_social_description','seo_social_image','seo_nofollow','noindex','parent_id','order','template'].includes(event.target?.name)&&(!event.target.form||event.target.form===form))markDirty();};
   form.addEventListener('input', fieldChange, { signal });
   form.addEventListener('change', fieldChange, { signal });
@@ -55,7 +55,7 @@ export function mountPage(form) {
     if (!state.editor || state.uploading) {
       event.preventDefault();
       event.stopImmediatePropagation();
-      status.textContent = state.uploading ? t('Дождитесь загрузки изображения.') : t('Редактор недоступен. Сохранение отключено, чтобы не потерять текст.');
+      status.textContent = state.uploading ? t('Wait for the image upload to finish.') : t('The editor is unavailable. Saving is disabled to protect your text.');
       return;
     }
     form.elements.document.value = JSON.stringify(state.editor.getJSON());
@@ -69,34 +69,34 @@ export function mountPage(form) {
     drafts=mountDraftRecovery(form,state,signal);state.drafts=drafts;
     mountEditorAI(form,state.editor,state,signal);
     form.addEventListener('editor:language-added',markDirty,{signal});
-    if (!state.dirty) status.textContent = '';else if(form.dataset.recovered==='true')status.textContent=t('Есть несохранённые изменения.');
+    if (!state.dirty) status.textContent = '';else if(form.dataset.recovered==='true')status.textContent=t('You have unsaved changes.');
     state.setPending(state.pending);
   }).catch(() => {
     if (signal.aborted) return;
-    status.textContent = t('Не удалось загрузить редактор. Сохранение отключено, чтобы не потерять текст.');
+    status.textContent = t('Could not load the editor. Saving is disabled to protect your text.');
   });
   form.addEventListener('editor:upload-image',()=>{insertAfterUpload=true;upload.click();},{signal});
   upload.addEventListener('cancel',()=>{insertAfterUpload=false;},{signal});
   upload.addEventListener('change', async () => {
     const file = upload.files[0];
     if (!file) return;
-    if (file.size > 8 * 1024 * 1024) { insertAfterUpload=false;upload.value='';uploadStatus.textContent = t('Изображение должно быть не больше 8 MiB.');toast(uploadStatus.textContent,'error'); return; }
+    if (file.size > 8 * 1024 * 1024) { insertAfterUpload=false;upload.value='';uploadStatus.textContent = t('The image must not exceed 8 MiB.');toast(uploadStatus.textContent,'error'); return; }
     state.uploading = true; upload.disabled = true; updateButtons();
-    uploadStatus.textContent = t('Изображение загружается…');
+    uploadStatus.textContent = t('Uploading image…');
     try {
       const response = await fetch('/admin/media', {
         method: 'POST', credentials: 'same-origin', signal,
         headers: { 'X-CSRF-Token': csrf(), 'Content-Type': file.type || 'application/octet-stream' }, body: file,
       });
-      if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? t('Войдите в админку заново в другой вкладке.') : t('Не удалось загрузить PNG/JPEG: до 8 MiB и 16 млн пикселей.'));
+      if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? t('Sign in again in another tab.') : t('Could not upload the PNG/JPEG. Maximum size: 8 MiB and 16 million pixels.'));
       const { name } = await response.json();
       if (signal.aborted) return;
       const selected=insertAfterUpload?(form.querySelector('input[name="cover"]:checked')?.value||''):name;
       await window.htmx.ajax('GET', '/admin/media/choices?selected=' + encodeURIComponent(selected), { target: '#media-picker', swap: 'innerHTML' });
       if(insertAfterUpload)form.dispatchEvent(new CustomEvent('editor:insert-image',{detail:{name}}));
       markDirty();
-      toast(t('Изображение загружено.'));
-      uploadStatus.textContent = insertAfterUpload?t('Изображение вставлено в текст.'):t('Изображение выбрано. Можно назначить обложкой или вставить в текст.');
+      toast(t('Image uploaded.'));
+      uploadStatus.textContent = insertAfterUpload?t('Image inserted into the text.'):t('Image selected. Use it as a cover or insert it into the text.');
     } catch (error) {
       if (!signal.aborted) {uploadStatus.textContent = error.message;toast(error.message,'error');}
     } finally {
@@ -159,13 +159,13 @@ function start() {
   });
   document.addEventListener('htmx:beforeRequest', (event) => {
     if (!['main','template-file-editor','seo-panel','media-inspector'].includes(event.detail.target?.id)) return;
-    if(dirtyForms(event.detail.elt)&&!window.confirm(t('Уйти без сохранения изменений?'))){event.preventDefault();return;}
-    if (unsaved() && (!page.form.contains(event.detail.elt)||event.detail.elt?.hasAttribute?.('data-editor-cancel')) && !window.confirm(t('Уйти без сохранения изменений?'))) { event.preventDefault(); return; }
+    if(dirtyForms(event.detail.elt)&&!window.confirm(t('Leave without saving changes?'))){event.preventDefault();return;}
+    if (unsaved() && (!page.form.contains(event.detail.elt)||event.detail.elt?.hasAttribute?.('data-editor-cancel')) && !window.confirm(t('Leave without saving changes?'))) { event.preventDefault(); return; }
     setTemplatePending(true);
     // Freeze the sent revision so a delayed response cannot overwrite newly typed text.
     if (page) { page.submitting = false; page.setPending(true); }
     pendingForms.set(event.detail.xhr,freezeForms(event.detail.target));
-    notice(t('Загрузка…'));
+    notice(t('Loading…'));
   });
   document.addEventListener('htmx:beforeSwap', (event) => {
     if(event.detail.xhr.status===200&&event.detail.requestConfig?.path==='/admin/pages/save')page?.drafts?.clear();
@@ -203,13 +203,13 @@ function start() {
     const detail=event.detail;
     const hasNotice=/class="[^"]*\bnotice\b/.test(detail.xhr.responseText||'');
     if(!hasNotice&&!detail.xhr.getResponseHeader('HX-Redirect')){
-      if(detail.failed)toast(t('Не удалось выполнить действие. Правки сохранены на экране; проверьте соединение или обновите версию материала.'),'error');
+      if(detail.failed)toast(t('Could not complete the action. Your edits are still on screen; check your connection or reload the current content version.'),'error');
       else if(detail.successful&&detail.requestConfig?.verb?.toLowerCase()==='post')toast(actionMessage(detail.elt,detail.requestConfig.parameters));
     }
     if (['seo-panel','template-file-editor','media-inspector'].includes(event.detail.target?.id)){notice('');return;}
     if (event.detail.target?.id !== 'main') return;
     if (page) { page.submitting = false; page.setPending(false); }
-    notice(event.detail.failed ? t('Не удалось выполнить действие. Правки сохранены на экране; проверьте соединение или обновите версию материала.') : '');
+    notice(event.detail.failed ? t('Could not complete the action. Your edits are still on screen; check your connection or reload the current content version.') : '');
   });
   window.addEventListener('beforeunload', (event) => { if ((unsaved() && !page.submitting)||dirtyForms()) event.preventDefault(); });
   window.addEventListener('pagehide', (event) => { if (!event.persisted) { page?.dispose(); page = null; } });
@@ -226,7 +226,7 @@ function start() {
   window.addEventListener('popstate', (event) => {
     if (reversing) { reversing = false; event.stopImmediatePropagation(); return; }
     const target = event.state?.gpIndex;
-    if (target !== undefined && target !== index && (unsaved()||dirtyForms()) && !window.confirm(t('Уйти без сохранения изменений?'))) {
+    if (target !== undefined && target !== index && (unsaved()||dirtyForms()) && !window.confirm(t('Leave without saving changes?'))) {
       event.stopImmediatePropagation(); reversing = true; window.history.go(index - target); return;
     }
     if (target !== undefined) index = target;

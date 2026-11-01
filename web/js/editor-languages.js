@@ -79,7 +79,7 @@ export function mountEditorLanguages(form, editor, signal) {
       for(const code of codes)data.append('languages',code);
       controls.forEach(control=>{control.disabled=true;});
       const response=await fetch('/admin/pages/languages',{method:'POST',credentials:'same-origin',signal,headers:{'X-CSRF-Token':form.elements.csrf.value},body:data});
-      if(!response.ok)throw new Error(t('Не удалось добавить язык. Попробуйте ещё раз.'));
+      if(!response.ok)throw new Error(t('Could not add the language. Try again.'));
       const html=await response.text();
       if(!form.isConnected)return;
       sync();
@@ -104,7 +104,7 @@ export function mountEditorLanguages(form, editor, signal) {
   form.addEventListener('click',async event=>{
     const remove=event.target.closest?.('[data-remove-content-language]');
     if(remove&&!remove.disabled){
-      if(await confirmAction(t('Удалить этот перевод из черновика?'),remove,t('Удалить перевод')))void changeLanguages('original',null,true);
+      if(await confirmAction(t('Delete this translation from the draft?'),remove,t('Delete translation')))void changeLanguages('original',null,true);
       return;
     }
     const source=event.target.closest?.('[data-set-original-language]');

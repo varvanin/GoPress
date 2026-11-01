@@ -20,14 +20,14 @@ func settingsTab(value string) string {
 	return "general"
 }
 func homePageItems(ctx context.Context, pages []store.Page, selected int64) []selectcomp.ItemData {
-	items := []selectcomp.ItemData{{Value: "0", Label: i18n.T(ctx, "Выберите опубликованную страницу")}}
+	items := []selectcomp.ItemData{{Value: "0", Label: i18n.T(ctx, "Select a published page")}}
 	found := selected == 0
 	for _, p := range pages {
 		items = append(items, selectcomp.ItemData{Value: strconv.FormatInt(p.ID, 10), Label: p.Title})
 		found = found || p.ID == selected
 	}
 	if !found {
-		items = append(items, selectcomp.ItemData{Value: strconv.FormatInt(selected, 10), Label: i18n.T(ctx, "Выбранная страница недоступна")})
+		items = append(items, selectcomp.ItemData{Value: strconv.FormatInt(selected, 10), Label: i18n.T(ctx, "The selected page is unavailable")})
 	}
 	return items
 }

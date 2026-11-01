@@ -49,7 +49,7 @@ export function mountEditor(form, onChange) {
       trailingNode: false,
       gapcursor: false, dropcursor: false,
     }), blockParagraph(form),Image,textAlignment,sectionAnchors,...inlineMarks,...tableNodes],
-    editorProps: { attributes: { class: 'prose-editor', role: 'textbox', 'aria-label': t('Текст материала'), 'aria-multiline': 'true' } },
+    editorProps: { attributes: { class: 'prose-editor', role: 'textbox', 'aria-label': t('Content text'), 'aria-multiline': 'true' } },
     onUpdate({ editor }) {
       form.elements.document.value = JSON.stringify(editor.getJSON());
       onChange();
@@ -110,7 +110,7 @@ export function mountEditor(form, onChange) {
   const search=form.querySelector('[data-editor-search]');
   const next=()=>{
     const match=findText(editor.state.doc,search.value,editor.state.selection.to);
-    if(!match){report(t('Совпадений не найдено.'));return;}
+    if(!match){report(t('No matches found.'));return;}
     editor.chain().focus().setTextSelection(match).scrollIntoView().run();
   };
   form.querySelector('[data-search-next]')?.addEventListener('click',next);
@@ -126,7 +126,7 @@ export function mountEditor(form, onChange) {
   });
   form.querySelector('[data-link-apply]')?.addEventListener('click', () => {
     const href = linkURL.value.trim();
-    if (!safeLink(href)) { report(t('Укажите http/https, mailto, /путь или #якорь.')); return; }
+    if (!safeLink(href)) { report(t('Use http/https, mailto, /path or #anchor.')); return; }
     editor.chain().focus().extendMarkRange('link').setLink({ href }).run();
     linkPanel.hidden = true;
   });
@@ -142,7 +142,7 @@ export function mountEditor(form, onChange) {
   });
   const insertImage=(selected,metadata)=>{
     const src='/uploads/'+(selected||'');
-    if(!uploadImagePath.test(src)){report(t('Загрузите или выберите изображение в панели справа.'));return;}
+    if(!uploadImagePath.test(src)){report(t('Upload or select an image in the panel on the right.'));return;}
     editor.chain().focus().insertContent({type:'image',attrs:{
       src,alt:metadata?.alt??form.querySelector('[data-image-alt]').value,
       caption:metadata?.caption??form.querySelector('[data-image-caption]').value,

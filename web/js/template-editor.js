@@ -51,7 +51,7 @@ export function mountSourceEditor(form){
   ]}),
  });
  updateOperations=()=>{const dirty=view.state.doc.toString()!==original;form.querySelectorAll('[data-file-operation]').forEach(button=>button.disabled=pending||source.readOnly||dirty);const warning=form.querySelector('[data-file-operation-warning]');if(warning)warning.hidden=!dirty;};
- renderDiff=()=>{if(!diff)return;try{const hunk=sourceDiff(original,view.state.doc.toString());diff.querySelector('[data-diff-status]').textContent=hunk.changed?t('Изменения начинаются со строки ')+hunk.start:t('Нет изменений.');diff.querySelector('[data-diff-before]').textContent=hunk.before;diff.querySelector('[data-diff-after]').textContent=hunk.after;}catch{diff.querySelector('[data-diff-status]').textContent=t('Файл слишком большой для сравнения.');}};
+ renderDiff=()=>{if(!diff)return;try{const hunk=sourceDiff(original,view.state.doc.toString());diff.querySelector('[data-diff-status]').textContent=hunk.changed?t('Изменения начинаются со строки ')+hunk.start:t('No changes.');diff.querySelector('[data-diff-before]').textContent=hunk.before;diff.querySelector('[data-diff-after]').textContent=hunk.after;}catch{diff.querySelector('[data-diff-status]').textContent=t('The file is too large to compare.');}};
  const toggleDiff=()=>{diff.hidden=!diff.hidden;diffButton.setAttribute('aria-expanded',String(!diff.hidden));if(!diff.hidden)renderDiff();};
  diffButton?.addEventListener('click',toggleDiff);updateOperations();
  const updateAppearance=()=>view.dispatch({effects:appearance.reconfigure(skin())});
@@ -68,7 +68,7 @@ export function mountSourceEditor(form){
    if(formatted!==before.toString())view.dispatch({changes:{from:0,to:before.length,insert:formatted},selection:{anchor:Math.min(view.state.selection.main.head,formatted.length)},annotations:isolateHistory.of('full')});
    view.focus();
   }catch(error){
-   if(!disposed&&formatError){formatError.textContent=t('Не удалось отформатировать код. Исходный текст сохранён.');formatError.hidden=false;}
+   if(!disposed&&formatError){formatError.textContent=t('Could not format the code. The original text was preserved.');formatError.hidden=false;}
   }finally{formatting=false;if(!disposed)formatButton.disabled=!view.state.facet(EditorView.editable);}
  };
  if(formatButton){formatButton.disabled=source.readOnly;formatButton.addEventListener('click',format);}

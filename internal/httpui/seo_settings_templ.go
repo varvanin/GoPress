@@ -82,9 +82,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var5 string
-					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Сохранить"))
+					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Save"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 15, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 15, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -111,9 +111,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Перенаправления и 404"))
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Redirects and 404s"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 18, Col: 107}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 18, Col: 88}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -145,9 +145,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Поиск"))
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Search"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 20, Col: 179}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 20, Col: 175}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -179,9 +179,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Индексация"))
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Indexing"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 21, Col: 186}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 21, Col: 174}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -213,9 +213,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var12 string
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Соцсети"))
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Social media"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 22, Col: 184}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 22, Col: 182}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -247,9 +247,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var14 string
-			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Данные сайта"))
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Site identity"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 23, Col: 194}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 23, Col: 184}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -281,9 +281,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var16 string
-			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Файлы"))
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Files"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 24, Col: 180}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 24, Col: 175}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -467,9 +467,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var26 string
-					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Переменные: {title}, {site}, {separator}, {page}, {category}, {query}. Индивидуальный SEO-заголовок материала имеет приоритет."))
+					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Variables: {title}, {site}, {separator}, {page}, {category}, {query}. An individual SEO title takes priority."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 46, Col: 227}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 46, Col: 154}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 					if templ_7745c5c3_Err != nil {
@@ -488,9 +488,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var27 string
-					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Пустое поле использует описание материала или начало опубликованного текста."))
+					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "An empty field uses the content description or the beginning of the published text."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 48, Col: 188}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 48, Col: 128}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 					if templ_7745c5c3_Err != nil {
@@ -548,9 +548,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var29 string
-					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Закрытые от индексации материалы исключаются из sitemap. Поиск, предпросмотры и 404 всегда получают noindex."))
+					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Content excluded from indexing is omitted from the sitemap. Search, previews and 404 pages always use noindex."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 58, Col: 228}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 58, Col: 155}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 					if templ_7745c5c3_Err != nil {
@@ -607,15 +607,15 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var31 string
-					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Размер превью изображений"))
+					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Image preview size"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 65, Col: 78}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 65, Col: 48}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = AdminSelect("seo-image-preview", "max_image_preview", value.SEOOptions.MaxImagePreview, i18n.T(ctx, "Размер превью изображений"), []selectcomp.ItemData{{Value: "", Label: i18n.T(ctx, "По умолчанию")}, {Value: "none", Label: i18n.T(ctx, "Не показывать")}, {Value: "standard", Label: i18n.T(ctx, "Стандартное")}, {Value: "large", Label: i18n.T(ctx, "Большое")}}, nil).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = AdminSelect("seo-image-preview", "max_image_preview", value.SEOOptions.MaxImagePreview, i18n.T(ctx, "Image preview size"), []selectcomp.ItemData{{Value: "", Label: i18n.T(ctx, "Default")}, {Value: "none", Label: i18n.T(ctx, "Hide")}, {Value: "standard", Label: i18n.T(ctx, "Standard")}, {Value: "large", Label: i18n.T(ctx, "Large")}}, nil).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -624,9 +624,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var32 string
-					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Пусто — не добавлять директиву; -1 — без ограничения; 0 — запретить превью."))
+					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Empty omits the directive; -1 means unlimited; 0 disables previews."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 66, Col: 180}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 66, Col: 112}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 					if templ_7745c5c3_Err != nil {
@@ -645,9 +645,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var33 string
-					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Обычно canonical включён. Отдельный адрес можно задать в SEO-настройках материала."))
+					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Canonical URLs are normally enabled. Set an individual URL in the content SEO settings."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 68, Col: 185}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 68, Col: 132}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 					if templ_7745c5c3_Err != nil {
@@ -693,9 +693,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var35 string
-					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Абсолютный HTTP/HTTPS URL или путь /uploads/… Индивидуальное изображение материала важнее обложки; затем используется запасное изображение."))
+					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "An absolute HTTP/HTTPS URL or /uploads/… path. A custom social image overrides the cover, followed by the fallback image."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 75, Col: 286}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 75, Col: 168}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 					if templ_7745c5c3_Err != nil {
@@ -730,15 +730,15 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var36 string
-					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Формат карточки X / Twitter"))
+					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "X / Twitter card format"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 79, Col: 71}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 79, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = AdminSelect("seo-twitter-card", "twitter_card", value.SEOOptions.TwitterCard, i18n.T(ctx, "Формат карточки X / Twitter"), []selectcomp.ItemData{{Value: "", Label: i18n.T(ctx, "Автоматически")}, {Value: "summary", Label: "Summary"}, {Value: "summary_large_image", Label: "Summary large image"}}, nil).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = AdminSelect("seo-twitter-card", "twitter_card", value.SEOOptions.TwitterCard, i18n.T(ctx, "X / Twitter card format"), []selectcomp.ItemData{{Value: "", Label: i18n.T(ctx, "Automatic")}, {Value: "summary", Label: "Summary"}, {Value: "summary_large_image", Label: "Summary large image"}}, nil).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -774,9 +774,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var38 string
-					templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "WebSite и издатель на главной; BlogPosting для записей; BreadcrumbList для материалов. Данные берутся из опубликованной версии."))
+					templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "WebSite and publisher on the home page; BlogPosting for posts; BreadcrumbList for content. Data comes from the published version."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 84, Col: 248}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 84, Col: 174}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 					if templ_7745c5c3_Err != nil {
@@ -787,15 +787,15 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var39 string
-					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Тип издателя"))
+					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Publisher type"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 85, Col: 53}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 85, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = AdminSelect("seo-organization-type", "organization_type", value.SEOOptions.OrganizationType, i18n.T(ctx, "Тип издателя"), []selectcomp.ItemData{{Value: "", Label: i18n.T(ctx, "Не указывать")}, {Value: "Organization", Label: i18n.T(ctx, "Организация")}, {Value: "Person", Label: i18n.T(ctx, "Человек")}}, nil).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = AdminSelect("seo-organization-type", "organization_type", value.SEOOptions.OrganizationType, i18n.T(ctx, "Publisher type"), []selectcomp.ItemData{{Value: "", Label: i18n.T(ctx, "Unspecified")}, {Value: "Organization", Label: i18n.T(ctx, "Organization")}, {Value: "Person", Label: i18n.T(ctx, "Person")}}, nil).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -850,9 +850,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var41 string
-					templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Вставьте только значение content из метатега подтверждения, без HTML."))
+					templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Paste only the verification meta tag content value, without HTML."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 94, Col: 162}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 94, Col: 110}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 					if templ_7745c5c3_Err != nil {
@@ -906,9 +906,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var43 string
-					templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Точные пути: /about, /contacts. До 100 строк. Это исключение из sitemap, а не запрет индексации."))
+					templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Exact paths: /about, /contacts. Up to 100 lines. This excludes URLs from the sitemap, not from indexing."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 103, Col: 192}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 103, Col: 149}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 					if templ_7745c5c3_Err != nil {
@@ -945,9 +945,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var45 string
-					templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Пусто — стандартный robots.txt. Свой текст заменяет файл целиком; {site_url} подставляет адрес сайта. Disallow запрещает обход, но не гарантирует удаление из поиска."))
+					templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Empty uses the default robots.txt. Custom text replaces the entire file; {site_url} inserts the site URL. Disallow blocks crawling but does not guarantee removal from search."))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 107, Col: 322}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 107, Col: 219}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 					if templ_7745c5c3_Err != nil {
@@ -973,9 +973,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var46 string
-			templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Предпросмотр главной"))
+			templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Home page preview"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 113, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 113, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
 			if templ_7745c5c3_Err != nil {
@@ -988,7 +988,7 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 			var templ_7745c5c3_Var47 string
 			templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.ResolveAttributeValue(details.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 113, Col: 153}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 113, Col: 131}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var47)
 			if templ_7745c5c3_Err != nil {
@@ -1001,7 +1001,7 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 			var templ_7745c5c3_Var48 string
 			templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.ResolveAttributeValue(value.HomeDescription)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 113, Col: 205}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 113, Col: 183}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var48)
 			if templ_7745c5c3_Err != nil {
@@ -1014,7 +1014,7 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 			var templ_7745c5c3_Var49 string
 			templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(details.BaseURL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 113, Col: 231}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 113, Col: 209}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 			if templ_7745c5c3_Err != nil {
@@ -1027,7 +1027,7 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 			var templ_7745c5c3_Var50 string
 			templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(seoPreviewTitle(details, value))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 113, Col: 303}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 113, Col: 281}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 			if templ_7745c5c3_Err != nil {
@@ -1040,7 +1040,7 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 			var templ_7745c5c3_Var51 string
 			templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(seoPreviewDescription(value))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 113, Col: 376}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 113, Col: 354}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 			if templ_7745c5c3_Err != nil {
@@ -1051,9 +1051,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var52 string
-			templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Пример метаданных. Поисковик может выбрать другой заголовок и описание."))
+			templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Example metadata. Search engines may choose a different title and description."))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 113, Col: 539}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 113, Col: 463}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 			if templ_7745c5c3_Err != nil {
@@ -1064,9 +1064,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var53 string
-			templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Индивидуальные настройки"))
+			templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Individual settings"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 114, Col: 80}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 114, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 			if templ_7745c5c3_Err != nil {
@@ -1077,9 +1077,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var54 string
-			templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "В редакторе страницы и записи доступны свои заголовок, описание, canonical, noindex, nofollow и карточка соцсетей."))
+			templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Page and post editors offer custom titles, descriptions, canonical URLs, noindex, nofollow and social cards."))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 114, Col: 291}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 114, Col: 186}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
 			if templ_7745c5c3_Err != nil {
@@ -1090,9 +1090,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var55 string
-			templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Файлы сайта"))
+			templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Site files"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 115, Col: 54}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 115, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 			if templ_7745c5c3_Err != nil {
@@ -1132,9 +1132,9 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var56 string
-				templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Текущий robots.txt"))
+				templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Current robots.txt"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 117, Col: 59}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 117, Col: 52}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 				if templ_7745c5c3_Err != nil {
@@ -1147,7 +1147,7 @@ func SEOPage(site, csrf string, value store.Appearance, details store.Site, tab,
 				var templ_7745c5c3_Var57 string
 				templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(robotsContent(details, value))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 117, Col: 128}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/seo_settings.templ`, Line: 117, Col: 121}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
 				if templ_7745c5c3_Err != nil {

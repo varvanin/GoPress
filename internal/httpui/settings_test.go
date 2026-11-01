@@ -137,7 +137,7 @@ func TestTranslatedButtonLabelsRemainVisible(t *testing.T) {
 		if err := Pages("Site", "token", []store.Page{{ID: 1, Title: "User content", Slug: "user", Kind: "page"}}, ContentList{Kind: "page", Total: 1}).Render(ctx, &out); err != nil {
 			t.Fatal(err)
 		}
-		newPage := i18n.T(ctx, "Новая страница")
+		newPage := i18n.T(ctx, "New page")
 		if !strings.Contains(out.String(), "<span>"+newPage+"</span>") {
 			t.Fatal("new page label swallowed by icon", language)
 		}
@@ -145,7 +145,7 @@ func TestTranslatedButtonLabelsRemainVisible(t *testing.T) {
 		if err := Forms("Site", "token", nil, false, store.Settings{FormRetentionDays: 90}).Render(ctx, &out); err != nil {
 			t.Fatal(err)
 		}
-		create := i18n.T(ctx, "Создать форму")
+		create := i18n.T(ctx, "Create form")
 		if !strings.Contains(out.String(), "<span>"+create+"</span>") {
 			t.Fatal("create form label swallowed by icon", language)
 		}

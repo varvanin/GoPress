@@ -71,13 +71,13 @@ func (a *App) usersRoutes(g *echo.Group) {
 		u := store.User{ID: id, Version: version, Email: c.FormValue("email"), Name: c.FormValue("name"), Role: c.FormValue("role"), Blocked: c.FormValue("blocked") == "true"}
 		_, err = a.Service.SaveUser(c.Request().Context(), u, c.FormValue("password"))
 		if err != nil {
-			message := "Проверьте email, имя, роль и пароль (12–72 байта)."
+			message := "Check email, name, role and password (12–72 bytes)."
 			code := 400
 			if errors.Is(err, store.ErrLastAdmin) {
-				message = "Нельзя заблокировать или понизить последнего администратора."
+				message = "Cannot block or demote the last administrator."
 				code = 409
 			} else if errors.Is(err, store.ErrConflict) || strings.Contains(err.Error(), "constraint failed") {
-				message = "Пользователь изменён в другой вкладке или email уже занят."
+				message = "User was changed in another tab or email is already taken."
 				code = 409
 			} else if !errors.Is(err, service.ErrInvalid) {
 				return err
@@ -117,7 +117,7 @@ func (a *App) usersRoutes(g *echo.Group) {
 				return e
 			}
 			u, _ := store.Actor(c.Request().Context())
-			return htmlComponent(c, 400, Account(site.Title, a.csrfToken(c), u, "Проверьте текущий пароль. Новый пароль — от 12 до 72 байт.", true))
+			return htmlComponent(c, 400, Account(site.Title, a.csrfToken(c), u, "Check your current password. New password must be 12–72 bytes.", true))
 		}
 		a.cookie(c, "session", "", -1)
 		c.Response().Header().Set("HX-Trigger", "settingsSaved")
@@ -130,16 +130,16 @@ func (a *App) usersRoutes(g *echo.Group) {
 		if err != nil {
 			return err
 		}
-		return a.recoveryPage(c, false, "Если активный аккаунт существует, письмо со ссылкой отправлено. Проверьте почту или обратитесь к администратору.", 200)
+		return a.recoveryPage(c, false, "If an active account exists, a link has been sent. Check your inbox or contact an administrator.", 200)
 	}, a.csrf)
 	a.Echo.GET("/reset-password", func(c *echo.Context) error { return a.recoveryPage(c, true, "", 200) })
 	a.Echo.POST("/reset-password", func(c *echo.Context) error {
 		if c.FormValue("password") != c.FormValue("password_confirm") {
-			return a.recoveryPage(c, true, "Пароли не совпадают.", 400)
+			return a.recoveryPage(c, true, "Passwords do not match.", 400)
 		}
 		err := a.Service.ResetPassword(c.Request().Context(), c.RealIP(), c.FormValue("token"), c.FormValue("password"))
 		if errors.Is(err, service.ErrInvalid) || errors.Is(err, sql.ErrNoRows) {
-			return a.recoveryPage(c, true, "Ссылка недействительна или истекла. Запросите новую ссылку; пароль — от 12 до 72 байт.", 400)
+			return a.recoveryPage(c, true, "The link is invalid or expired. Request a new link; password must be 12–72 bytes.", 400)
 		}
 		if err != nil {
 			return err

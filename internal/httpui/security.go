@@ -49,7 +49,7 @@ func (a *App) securityRoutes(g *echo.Group) {
 		if err != nil {
 			return a.securityError(c, err)
 		}
-		text := i18n.T(c.Request().Context(), "Ключ настройки 2FA GoPress") + "\n\n" + value.Secret + "\n\n" + value.URI + "\n"
+		text := i18n.T(c.Request().Context(), "GoPress 2FA setup key") + "\n\n" + value.Secret + "\n\n" + value.URI + "\n"
 		return a.credentialDownload(c, "gopress-authenticator-key.txt", text, false)
 	}, a.csrf)
 	g.POST("/account/2fa/enable", func(c *echo.Context) error {
@@ -101,7 +101,7 @@ func (a *App) securityRoutes(g *echo.Group) {
 	}, a.csrf)
 }
 func (a *App) recoveryDownload(c *echo.Context, codes []string) error {
-	text := i18n.T(c.Request().Context(), "Резервные коды GoPress") + "\n\n" + strings.Join(codes, "\n") + "\n\n" + i18n.T(c.Request().Context(), "Каждый код используется один раз. Сохраните файл отдельно от сайта. Войдите заново с новым кодом.") + "\n"
+	text := i18n.T(c.Request().Context(), "GoPress recovery codes") + "\n\n" + strings.Join(codes, "\n") + "\n\n" + i18n.T(c.Request().Context(), "Each code is single use. Keep this file separate from the site. Sign in again with a fresh code.") + "\n"
 	return a.credentialDownload(c, "gopress-recovery-codes.txt", text, true)
 }
 func (a *App) securityError(c *echo.Context, err error) error {

@@ -9,18 +9,18 @@ import "gopress/internal/ui/components/icon"
 import selectcomp "gopress/internal/ui/components/select"
 
 templ Collections(site, csrf, kind string, items []store.Collection, enabled bool) {
-	@AdminLayout(site, i18n.T(ctx, "Модули"), csrf) {
+	@AdminLayout(site, i18n.T(ctx, "Modules"), csrf) {
 		@AdminPageHeader(i18n.T(ctx, collectionTitle(kind)), len(items)) {
 			@button.Button(button.Props{Href: "/admin/modules/" + kind + "/new", Size: button.SizeSm}) {
 				@icon.Plus()
 				<span>
-					{ i18n.T(ctx,"Создать группу") }
+					{ i18n.T(ctx,"Create group") }
 				</span>
 			}
 		}
 		if !enabled {
 			<p class="field-help">
-				{ i18n.T(ctx,"Модуль отключён. Данные сохраняются и доступны для редактирования.") }
+				{ i18n.T(ctx,"The module is disabled. Its data is retained and can be edited.") }
 			</p>
 		}
 		<div class="forms-list">
@@ -31,7 +31,7 @@ templ Collections(site, csrf, kind string, items []store.Collection, enabled boo
 							{ item.Name }
 						</a>
 						<p class="field-help">
-							{ i18n.T(ctx,"Элементов: ")+strconv.Itoa(item.ItemCount) }
+							{ i18n.T(ctx,"Items: ")+strconv.Itoa(item.ItemCount) }
 						</p>
 					</div>
 					<code>
@@ -40,7 +40,7 @@ templ Collections(site, csrf, kind string, items []store.Collection, enabled boo
 					@button.Button(button.Props{Href: collectionPath(kind, item.ID), Variant: button.VariantOutline, Size: button.SizeSm}) {
 						@icon.PenLine()
 						<span>
-							{ i18n.T(ctx,"Редактировать") }
+							{ i18n.T(ctx,"Edit") }
 						</span>
 					}
 				</article>
@@ -48,10 +48,10 @@ templ Collections(site, csrf, kind string, items []store.Collection, enabled boo
 			if len(items)==0 {
 				<section class="tool-empty">
 					<h2>
-						{ i18n.T(ctx,"Начните с первой группы") }
+						{ i18n.T(ctx,"Create your first group") }
 					</h2>
 					<p>
-						{ i18n.T(ctx,"Создайте группу и вставьте её короткий код в страницу или запись.") }
+						{ i18n.T(ctx,"Create a group and insert its shortcode into a page or post.") }
 					</p>
 				</section>
 			}
@@ -60,17 +60,17 @@ templ Collections(site, csrf, kind string, items []store.Collection, enabled boo
 }
 
 templ CollectionEditor(site, csrf string, c store.Collection, message string) {
-	@AdminLayout(site, i18n.T(ctx, "Модули"), csrf) {
+	@AdminLayout(site, i18n.T(ctx, "Modules"), csrf) {
 		@AdminPageHeader(i18n.T(ctx, collectionTitle(c.Kind)), -1) {
 			@button.Button(button.Props{Href: "/admin/modules/" + c.Kind, Variant: button.VariantOutline, Size: button.SizeSm}) {
 				<span>
-					{ i18n.T(ctx,"Все группы") }
+					{ i18n.T(ctx,"All groups") }
 				</span>
 			}
 			@button.Button(button.Props{Type: button.TypeSubmit, Form: "collection-editor", Size: button.SizeSm}) {
 				@icon.Save()
 				<span>
-					{ i18n.T(ctx,"Сохранить") }
+					{ i18n.T(ctx,"Save") }
 				</span>
 			}
 		}
@@ -84,14 +84,14 @@ templ CollectionEditor(site, csrf string, c store.Collection, message string) {
 				<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="id" value={ strconv.FormatInt(c.ID, 10) }/><input type="hidden" name="version" value={ strconv.FormatInt(c.Version, 10) }/>
 				@card.Card(card.Props{Class: "settings-panel px-4"}) {
 					<label>
-						{ i18n.T(ctx,"Название группы") }
+						{ i18n.T(ctx,"Group name") }
 						<input name="name" class="site-input" value={ c.Name } maxlength="120" required/>
 					</label>
 					if c.Kind=="testimonials" {
 						<label for="collection-layout">
-							{ i18n.T(ctx,"Отображение") }
+							{ i18n.T(ctx,"Display") }
 						</label>
-						@AdminSelect("collection-layout", "layout", c.Layout, i18n.T(ctx, "Отображение"), []selectcomp.ItemData{{Value: "grid", Label: i18n.T(ctx, "Сетка")}, {Value: "list", Label: i18n.T(ctx, "Список")}}, nil)
+						@AdminSelect("collection-layout", "layout", c.Layout, i18n.T(ctx, "Display"), []selectcomp.ItemData{{Value: "grid", Label: i18n.T(ctx, "Grid")}, {Value: "list", Label: i18n.T(ctx, "List")}}, nil)
 					} else {
 						<input type="hidden" name="layout" value="grid"/>
 					}
@@ -104,38 +104,38 @@ templ CollectionEditor(site, csrf string, c store.Collection, message string) {
 				@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"data-faq-add": true}}) {
 					@icon.Plus()
 					<span>
-						{ i18n.T(ctx,"Добавить элемент") }
+						{ i18n.T(ctx,"Add item") }
 					</span>
 				}
 				<template data-faq-template>@CollectionItemEditor(c.Kind, store.CollectionItem{})</template>
 			</form>
 			<aside class="management-context">
 				<h2>
-					{ i18n.T(ctx,"Код для вставки") }
+					{ i18n.T(ctx,"Embed code") }
 				</h2>
 				if c.ID>0 {
-					<input class="site-input" readonly data-faq-code value={ collectionCode(c) } aria-label={ i18n.T(ctx, "Код для вставки") }/>
+					<input class="site-input" readonly data-faq-code value={ collectionCode(c) } aria-label={ i18n.T(ctx, "Embed code") }/>
 				} else {
 					<p>
-						{ i18n.T(ctx,"Код появится после первого сохранения группы.") }
+						{ i18n.T(ctx,"The code appears after you save the group.") }
 					</p>
 				}
 				<p>
-					{ i18n.T(ctx,"До 50 элементов. Порядок в редакторе совпадает с порядком на сайте.") }
+					{ i18n.T(ctx,"Up to 50 items. The editor order matches the website order.") }
 				</p>
 				<p>
-					{ i18n.T(ctx,"Вставляйте код отдельным абзацем. Изменения группы сразу появятся на сайте.") }
+					{ i18n.T(ctx,"Insert the code as a separate paragraph. Group changes appear on the site immediately.") }
 				</p>
 				<a class="context-link" href="/admin/media">
-					{ i18n.T(ctx,"Медиатека") }
+					{ i18n.T(ctx,"Media library") }
 				</a>
 				if c.ID>0 {
-					<form method="post" action={ templ.SafeURL("/admin/modules/" + c.Kind + "/delete") } hx-confirm={ i18n.T(ctx, "Удалить группу навсегда? Она исчезнет из всех материалов.") }>
+					<form method="post" action={ templ.SafeURL("/admin/modules/" + c.Kind + "/delete") } hx-confirm={ i18n.T(ctx, "Permanently delete this group? It will disappear from all content.") }>
 						<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="id" value={ strconv.FormatInt(c.ID, 10) }/><input type="hidden" name="version" value={ strconv.FormatInt(c.Version, 10) }/>
 						@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm}) {
 							@icon.Icon("trash-2")()
 							<span>
-								{ i18n.T(ctx,"Удалить группу") }
+								{ i18n.T(ctx,"Delete group") }
 							</span>
 						}
 					</form>
@@ -152,13 +152,13 @@ templ CollectionItemEditor(kind string, item store.CollectionItem) {
 				{ i18n.T(ctx,collectionTitle(kind)) }
 			</span>
 			<div class="flex gap-2">
-				@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"data-faq-up": true, "aria-label": i18n.T(ctx, "Выше"), "title": i18n.T(ctx, "Выше")}}) {
+				@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"data-faq-up": true, "aria-label": i18n.T(ctx, "Move up"), "title": i18n.T(ctx, "Move up")}}) {
 					@icon.ArrowLeft(icon.Props{Class: "size-4 rotate-90"})
 				}
-				@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"data-faq-down": true, "aria-label": i18n.T(ctx, "Ниже"), "title": i18n.T(ctx, "Ниже")}}) {
+				@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"data-faq-down": true, "aria-label": i18n.T(ctx, "Move down"), "title": i18n.T(ctx, "Move down")}}) {
 					@icon.ArrowRight(icon.Props{Class: "size-4 rotate-90"})
 				}
-				@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"data-faq-remove": true, "aria-label": i18n.T(ctx, "Удалить"), "title": i18n.T(ctx, "Удалить")}}) {
+				@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"data-faq-remove": true, "aria-label": i18n.T(ctx, "Delete"), "title": i18n.T(ctx, "Delete")}}) {
 					@icon.Icon("trash-2")()
 				}
 			</div>
@@ -168,32 +168,32 @@ templ CollectionItemEditor(kind string, item store.CollectionItem) {
 			<img class="collection-image-preview" src={ "/uploads/" + item.Image } alt="" hidden?={ item.Image=="" }/>
 			<details class="collection-library">
 				<summary hx-get="/admin/modules/media/choices" hx-trigger="click once" hx-target="next .collection-picker" hx-select="unset" hx-swap="outerHTML">
-					{ i18n.T(ctx,"Выбрать изображение") }
+					{ i18n.T(ctx,"Choose image") }
 				</summary>
 				<div class="collection-picker"></div>
 			</details>
-			@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"data-collection-clear": true, "aria-label": i18n.T(ctx, "Убрать изображение"), "title": i18n.T(ctx, "Убрать изображение")}}) {
+			@button.Button(button.Props{Type: button.TypeButton, Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"data-collection-clear": true, "aria-label": i18n.T(ctx, "Remove image"), "title": i18n.T(ctx, "Remove image")}}) {
 				@icon.X()
 			}
 		</div>
 		if kind=="gallery" {
 			<label>
-				{ i18n.T(ctx,"Подпись") }
+				{ i18n.T(ctx,"Caption") }
 				<input class="site-input" name="caption" maxlength="500" value={ item.Caption }/>
 			</label>
 			<input type="hidden" name="person" value=""/><input type="hidden" name="company" value=""/><input type="hidden" name="text" value=""/>
 		} else {
 			<input type="hidden" name="caption" value=""/>
 			<label>
-				{ i18n.T(ctx,"Имя") }
+				{ i18n.T(ctx,"Name") }
 				<input class="site-input" name="person" value={ item.Name } maxlength="120" required/>
 			</label>
 			<label>
-				{ i18n.T(ctx,"Компания") }
+				{ i18n.T(ctx,"Company") }
 				<input class="site-input" name="company" value={ item.Company } maxlength="200"/>
 			</label>
 			<label>
-				{ i18n.T(ctx,"Текст отзыва") }
+				{ i18n.T(ctx,"Testimonial text") }
 				<textarea class="site-input" name="text" rows="4" maxlength="5000" required>
 					{ item.Text }
 				</textarea>
@@ -204,7 +204,7 @@ templ CollectionItemEditor(kind string, item store.CollectionItem) {
 
 templ CollectionMediaPicker(files []store.MediaFile, total, page int, query string) {
 	<div class="collection-picker" hx-select="unset">
-		<input type="search" name="q" class="site-input" value={ query } maxlength="200" aria-label={ i18n.T(ctx, "Поиск в медиатеке") } placeholder={ i18n.T(ctx, "Поиск изображений…") } hx-get="/admin/modules/media/choices" hx-trigger="search, input changed delay:400ms" hx-target="closest .collection-picker" hx-select="unset" hx-swap="outerHTML" hx-params="q"/>
+		<input type="search" name="q" class="site-input" value={ query } maxlength="200" aria-label={ i18n.T(ctx, "Search media library") } placeholder={ i18n.T(ctx, "Search images…") } hx-get="/admin/modules/media/choices" hx-trigger="search, input changed delay:400ms" hx-target="closest .collection-picker" hx-select="unset" hx-swap="outerHTML" hx-params="q"/>
 		<div class="collection-picker-grid">
 			for _,file:=range files {
 				<button type="button" data-collection-choice={ file.Name } title={ mediaTitle(file) }>
@@ -217,13 +217,13 @@ templ CollectionMediaPicker(files []store.MediaFile, total, page int, query stri
 		</div>
 		if len(files)==0 {
 			<p class="field-help">
-				{ i18n.T(ctx,"Совпадений не найдено.") }
+				{ i18n.T(ctx,"No matches found.") }
 			</p>
 		}
-		<nav class="picker-pagination" aria-label={ i18n.T(ctx, "Страницы изображений") }>
+		<nav class="picker-pagination" aria-label={ i18n.T(ctx, "Image pages") }>
 			if page>1 {
 				<button type="button" hx-get={ collectionPickerURL(query, page-1) } hx-target="closest .collection-picker" hx-swap="outerHTML">
-					{ i18n.T(ctx,"Назад") }
+					{ i18n.T(ctx,"Back") }
 				</button>
 			}
 			<span class="field-help">
@@ -231,7 +231,7 @@ templ CollectionMediaPicker(files []store.MediaFile, total, page int, query stri
 			</span>
 			if page*24<total {
 				<button type="button" hx-get={ collectionPickerURL(query, page+1) } hx-target="closest .collection-picker" hx-swap="outerHTML">
-					{ i18n.T(ctx,"Далее") }
+					{ i18n.T(ctx,"Next") }
 				</button>
 			}
 		</nav>

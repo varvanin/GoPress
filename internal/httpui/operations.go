@@ -259,6 +259,6 @@ func (a *App) toolsRoutes(g *echo.Group) {
 		if err != nil {
 			return err
 		}
-		return a.toolsPage(c, 200, i18n.T(c.Request().Context(), "Бэкап импортирован: ")+id)
+		return a.toolsPage(c, 200, i18n.T(c.Request().Context(), "Backup imported: ")+id)
 	}, a.csrf)
 }

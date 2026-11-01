@@ -20,7 +20,7 @@ export function blockParagraph(form){
   const attrs=n=>{if(n.attrs.anchor)dom.id='section-'+n.attrs.anchor;else dom.removeAttribute('id');if(!card)dom.className=n.attrs.textAlign?'align-'+n.attrs.textAlign:'';};
   attrs(node);
   if(card){
-   dom.querySelector('[data-block-name]').textContent=(labels.get(block.kind+':'+block.id)||t('Блок')+' '+block.id)+' · '+({faq:'FAQ',form:t('Форма'),gallery:t('Галерея'),testimonials:t('Отзывы'),module:t('Модуль')}[block.kind]);
+   dom.querySelector('[data-block-name]').textContent=(labels.get(block.kind+':'+block.id)||t('Block')+' '+block.id)+' · '+({faq:'FAQ',form:t('Form'),gallery:t('Gallery'),testimonials:t('Testimonials'),module:t('Module')}[block.kind]);
    const settings=dom.querySelector('[data-block-settings]');settings.href=blockSettingsURL(block);
    if(form.dataset.role!=='admin')settings.hidden=true;
    dom.querySelector('[data-block-remove]').addEventListener('click',()=>{
@@ -40,7 +40,7 @@ export function mountBlockPicker(form,editor,report){
  const panel=form.querySelector('[data-block-panel]');
  form.querySelector('[data-insert-block]')?.addEventListener('click',()=>{
   const code=form.elements.content_block?.value;
-  if(!editor.isEditable||!parseBlock(code||'')){report(t('Выберите блок.'));return;}
+  if(!editor.isEditable||!parseBlock(code||'')){report(t('Choose a block.'));return;}
   const end=editor.state.selection.$to;
   const position=end.depth?end.after(1):editor.state.doc.content.size;
   editor.chain().focus().insertContentAt(position,[{type:'paragraph',content:[{type:'text',text:code}]},{type:'paragraph'}]).run();
