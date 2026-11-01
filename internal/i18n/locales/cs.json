@@ -1093,6 +1093,8 @@
   "Комментарий автору": "Komentář autorovi",
   "Вернуть автору": "Vrátit autorovi",
   "Черновик сохранён, но версия для проверки изменилась. Отправьте повторно.": "Koncept uložen, ale verze ke kontrole se změnila. Odešlete znovu.",
+  "Экспорт": "Exportovat",
+  "Импорт": "Importovat",
   "Экспорт контента": "Export obsahu",
   "Импорт контента": "Import obsahu",
   "JSON GoPress до 16 MiB: выбранные материалы, переводы и изображения. Импорт создаёт новые черновики без публикации, категорий и иерархии. Формы, модули и шаблоны настраиваются отдельно.": "JSON GoPress do 16 MiB: vybraný obsah, překlady a obrázky. Vytvoří nové nepublikované koncepty bez kategorií a hierarchie. Formuláře, moduly a šablony nastavte zvlášť.",

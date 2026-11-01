@@ -284,6 +284,10 @@ func AdminSelect(id, name, value, label string, items []selectcomp.ItemData, att
 		if id == "" {
 			id = utils.RandomID()
 		}
+		form := ""
+		if f, ok := attributes["form"].(string); ok {
+			form = f
+		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"gp-select\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -358,7 +362,7 @@ func AdminSelect(id, name, value, label string, items []selectcomp.ItemData, att
 						var templ_7745c5c3_Var17 string
 						templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(item.Label))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin_parts.templ`, Line: 53, Col: 30}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin_parts.templ`, Line: 57, Col: 30}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 						if templ_7745c5c3_Err != nil {
@@ -379,7 +383,7 @@ func AdminSelect(id, name, value, label string, items []selectcomp.ItemData, att
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = selectcomp.Select(selectcomp.Props{ID: id + "-popup", Name: name, DefaultValue: value, Items: items}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = selectcomp.Select(selectcomp.Props{ID: id + "-popup", Name: name, DefaultValue: value, Items: items, Form: form}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

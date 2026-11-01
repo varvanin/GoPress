@@ -54,5 +54,7 @@ var internalSvgData = map[string]string{
   <path d="m22 10-7.5 7.5L13 16" />`,
 	"arrow-down": `<path d="M12 5v14" />
   <path d="m19 12-7 7-7-7" />`,
+	"arrow-up": `<path d="m5 12 7-7 7 7" />
+  <path d="M12 19V5" />`,
 	"circle": `<circle cx="12" cy="12" r="10" />`,
 }

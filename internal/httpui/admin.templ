@@ -206,13 +206,13 @@ templ Pages(site, csrf string, pages []store.Page, view ContentList) {
 				<input type="hidden" name="csrf" value={ csrf }/>
 				<input type="hidden" name="kind" value={ view.Kind }/>
 				<span data-selection-count aria-live="polite">{ i18n.T(ctx,"Выбрано: 0") }</span>
- if adminRole(ctx)=="admin"&&!view.Trash {
- @button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"name":"action","value":"export","data-bulk-action":true,"disabled":true}}){@icon.Icon("arrow-down")(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Экспорт контента") }</span>}
- }
+				if adminRole(ctx)=="admin"&&!view.Trash {
+					@button.Button(button.Props{Type:button.TypeSubmit,Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"name":"action","value":"export","data-bulk-action":true,"disabled":true}}){@icon.ArrowUp(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Экспорт") }</span>}
+				}
 
- if adminRole(ctx)=="admin" {
- @button.Button(button.Props{Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"data-base-ui-click-trigger":true,"data-templ-controls":"content-import-dialog","aria-haspopup":"dialog","aria-expanded":"false","title":i18n.T(ctx,"Импорт контента")}}){@icon.ArrowDown(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Импорт контента") }</span>}
- }
+				if adminRole(ctx)=="admin" {
+					@button.Button(button.Props{Variant:button.VariantOutline,Size:button.SizeSm,Attributes:templ.Attributes{"data-base-ui-click-trigger":true,"data-templ-controls":"content-import-dialog","aria-haspopup":"dialog","aria-expanded":"false","title":i18n.T(ctx,"Импорт")}}){@icon.ArrowDown(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Импорт") }</span>}
+				}
 
 				if view.Trash {
 					@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"name": "action", "value": "restore", "data-bulk-action": true, "disabled": true}}) {

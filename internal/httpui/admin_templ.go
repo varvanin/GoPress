@@ -1423,7 +1423,7 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					templ_7745c5c3_Err = icon.Icon("arrow-down")(icon.Props{Class: "size-4"}).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = icon.ArrowUp(icon.Props{Class: "size-4"}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1432,9 +1432,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var73 string
-					templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Экспорт контента"))
+					templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Экспорт"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 210, Col: 310}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 210, Col: 286}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var73))
 					if templ_7745c5c3_Err != nil {
@@ -1473,9 +1473,9 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var75 string
-					templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Импорт контента"))
+					templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, "Импорт"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 214, Col: 384}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/admin.templ`, Line: 214, Col: 354}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var75))
 					if templ_7745c5c3_Err != nil {
@@ -1487,7 +1487,7 @@ func Pages(site, csrf string, pages []store.Page, view ContentList) templ.Compon
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = button.Button(button.Props{Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"data-base-ui-click-trigger": true, "data-templ-controls": "content-import-dialog", "aria-haspopup": "dialog", "aria-expanded": "false", "title": i18n.T(ctx, "Импорт контента")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var74), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = button.Button(button.Props{Variant: button.VariantOutline, Size: button.SizeSm, Attributes: templ.Attributes{"data-base-ui-click-trigger": true, "data-templ-controls": "content-import-dialog", "aria-haspopup": "dialog", "aria-expanded": "false", "title": i18n.T(ctx, "Импорт")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var74), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

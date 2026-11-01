@@ -42,8 +42,12 @@ templ AdminSelect(id, name, value, label string, items []selectcomp.ItemData, at
 	if id=="" {
 		{{ id = utils.RandomID() }}
 	}
+	{{ form := "" }}
+	if f, ok := attributes["form"].(string); ok {
+		{{ form = f }}
+	}
 	<div class="gp-select" { attributes... }>
-		@selectcomp.Select(selectcomp.Props{ID: id + "-popup", Name: name, DefaultValue: value, Items: items}) {
+		@selectcomp.Select(selectcomp.Props{ID: id + "-popup", Name: name, DefaultValue: value, Items: items, Form: form}) {
 			@selectcomp.Trigger(selectcomp.TriggerProps{ID: id, Attributes: templ.Attributes{"aria-label": label}}) {
 				@selectcomp.Value()
 			}
