@@ -1115,5 +1115,9 @@
   "Версия изменилась или комментарий пуст. Проверьте материал и повторите действие.": "The version changed or the comment is empty. Check the content and try again.",
   "Список пуст": "List is empty",
   "Готово": "Done",
-  "Закрыть": "Close"
+  "Закрыть": "Close",
+  "Авторы отправляют черновики на проверку перед публикацией. Редакторы и администраторы могут одобрить материал или вернуть его на доработку.": "Authors submit drafts for review before publication. Editors and administrators can approve the content or return it for revision.",
+  "Материал сразу становится доступен на сайте.": "The content becomes available on the website immediately.",
+  "Материал возвращается в черновики вместе с комментарием.": "The content returns to drafts along with your comment.",
+  "Автор увидит комментарий при открытии материала в редакторе.": "The author will see the comment when opening the content in the editor."
 }

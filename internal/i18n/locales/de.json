@@ -1115,5 +1115,9 @@
   "Версия изменилась или комментарий пуст. Проверьте материал и повторите действие.": "Die Version hat sich geändert oder der Kommentar ist leer. Inhalt prüfen und erneut versuchen.",
   "Список пуст": "Liste ist leer",
   "Готово": "Fertig",
-  "Закрыть": "Schließen"
+  "Закрыть": "Schließen",
+  "Авторы отправляют черновики на проверку перед публикацией. Редакторы и администраторы могут одобрить материал или вернуть его на доработку.": "Autoren reichen Entwürfe vor der Veröffentlichung zur Prüfung ein. Redakteure und Administratoren können Inhalte freigeben oder zur Überarbeitung zurücksenden.",
+  "Материал сразу становится доступен на сайте.": "Der Inhalt wird sofort auf der Website verfügbar.",
+  "Материал возвращается в черновики вместе с комментарием.": "Der Inhalt wird zusammen mit Ihrem Kommentar auf Entwurf zurückgesetzt.",
+  "Автор увидит комментарий при открытии материала в редакторе.": "Der Autor sieht den Kommentar beim Öffnen des Inhalts im Editor."
 }

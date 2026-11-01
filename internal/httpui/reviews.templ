@@ -13,112 +13,99 @@ import (
 
 templ ReviewsPage(site, csrf, zone string, items []store.ContentReview, postedID int64, comment, message string) {
 	@AdminLayout(site, i18n.T(ctx, "Записи"), csrf) {
-		@AdminPageHeader(i18n.T(ctx, "Проверка публикаций"), len(items)) {
-			@button.Button(button.Props{Href: "/admin/posts", Variant: button.VariantOutline, Size: button.SizeSm}) {
-				@icon.ArrowLeft(icon.Props{Class: "size-3.5"})
-				<span>{ i18n.T(ctx, "Записи") }</span>
-			}
-		}
+		@AdminPageHeader(i18n.T(ctx, "Проверка публикаций"), len(items))
 		if message != "" {
 			<p class="notice notice-error" role="alert">{ i18n.T(ctx, message) }</p>
 		}
-		<div class="reviews-workspace">
-			if len(items) == 0 {
-				<section class="empty-state">
-					<span class="empty-icon">@icon.Icon("clipboard-list")(icon.Props{Class: "size-6"})</span>
-					<h2>{ i18n.T(ctx, "Нет материалов на проверке") }</h2>
-				</section>
-			}
-			for _, r := range items {
-				@card.Card(card.Props{Class: "review-card"}) {
-					<div class="review-card-header">
-						<div class="review-card-main">
-							<div class="review-card-tags">
-								if r.Kind == "post" {
-									<span class="review-kind-badge">{ i18n.T(ctx, "Запись") }</span>
-								} else if r.Kind == "page" {
-									<span class="review-kind-badge">{ i18n.T(ctx, "Страница") }</span>
-								}
-							</div>
-							<h2 class="review-card-title">
+		<div class="management-workspace">
+			<div class="site-settings">
+				if len(items) == 0 {
+					<section class="empty-state">
+						<span class="empty-icon">@icon.Icon("clipboard-list")(icon.Props{Class: "size-6"})</span>
+						<h2>{ i18n.T(ctx, "Нет материалов на проверке") }</h2>
+					</section>
+				}
+				for _, r := range items {
+					@card.Card(card.Props{Class: "settings-panel review-card"}) {
+						<div class="review-item-header">
+							<h2 class="review-item-title">
 								<a href={ templ.SafeURL("/admin/pages/" + strconv.FormatInt(r.PageID, 10) + "/edit") }>
 									{ r.Title }
 								</a>
 							</h2>
-							<div class="review-card-meta">
+							<p class="field-help">
 								if r.Author != "" {
-									<span class="review-meta-author">{ r.Author }</span>
-									<span class="review-meta-sep">·</span>
+									{ r.Author } · 
 								}
-								<span class="review-meta-version">{ "v" + strconv.FormatInt(r.Version, 10) }</span>
-								<span class="review-meta-sep">·</span>
-								<time class="review-meta-date">{ tableContentDate(r.RequestedAt, zone) }</time>
+								{ "v" + strconv.FormatInt(r.Version, 10) + " · " + tableContentDate(r.RequestedAt, zone) }
+							</p>
+							<div class="review-item-links">
+								<a class="context-link" href={ templ.SafeURL("/admin/pages/" + strconv.FormatInt(r.PageID, 10) + "/preview") } target="_blank" rel="noopener">{ i18n.T(ctx, "Предпросмотр") }</a>
+								<a class="context-link" href={ templ.SafeURL("/admin/pages/" + strconv.FormatInt(r.PageID, 10) + "/edit") }>{ i18n.T(ctx, "Редактировать") }</a>
 							</div>
 						</div>
-						<div class="review-card-actions">
-							@button.Button(button.Props{Href: "/admin/pages/" + strconv.FormatInt(r.PageID, 10) + "/preview", Variant: button.VariantOutline, Size: button.SizeSm, Target: "_blank", Attributes: templ.Attributes{"rel": "noopener"}}) {
-								@icon.Eye(icon.Props{Class: "size-3.5"})
-								<span>{ i18n.T(ctx, "Предпросмотр") }</span>
-							}
-							@button.Button(button.Props{Href: "/admin/pages/" + strconv.FormatInt(r.PageID, 10) + "/edit", Variant: button.VariantOutline, Size: button.SizeSm}) {
-								@icon.PenLine(icon.Props{Class: "size-3.5"})
-								<span>{ i18n.T(ctx, "Редактировать") }</span>
-							}
-						</div>
-					</div>
-					if !r.Current {
-						<p class="notice notice-warning" role="alert">
-							{ i18n.T(ctx, "Черновик изменён после отправки. Нужна повторная отправка на проверку.") }
-						</p>
-					}
-					if r.Comment != "" {
-						<div class="review-comment-note">
-							<span class="review-comment-note-title">{ i18n.T(ctx, "Комментарий автору") }:</span>
-							<p class="review-comment-note-text">{ r.Comment }</p>
-						</div>
-					}
-					if service.CanPublish(ctx) {
-						<form method="post" action="/admin/posts/review" data-change-form class="review-form">
-							<input type="hidden" name="csrf" value={ csrf }/>
-							<input type="hidden" name="page_id" value={ strconv.FormatInt(r.PageID, 10) }/>
-							<input type="hidden" name="version" value={ strconv.FormatInt(r.Version, 10) }/>
-							<div class="review-form-field">
-								<label for={ "review-comment-" + strconv.FormatInt(r.PageID, 10) } class="review-form-label">
+						if !r.Current {
+							<p class="notice notice-warning" role="alert">
+								{ i18n.T(ctx, "Черновик изменён после отправки. Нужна повторная отправка на проверку.") }
+							</p>
+						}
+						if r.Comment != "" {
+							<p class="field-help">{ r.Comment }</p>
+						}
+						if service.CanPublish(ctx) {
+							<form method="post" action="/admin/posts/review" data-change-form class="review-form">
+								<input type="hidden" name="csrf" value={ csrf }/>
+								<input type="hidden" name="page_id" value={ strconv.FormatInt(r.PageID, 10) }/>
+								<input type="hidden" name="version" value={ strconv.FormatInt(r.Version, 10) }/>
+								<label>
 									{ i18n.T(ctx, "Комментарий автору") }
+									@input.Input(input.Props{
+										Name: "comment",
+										Value: reviewComment(r, postedID, comment),
+										Attributes: templ.Attributes{"maxlength": "1000"},
+									})
 								</label>
-								@input.Input(input.Props{
-									ID: "review-comment-" + strconv.FormatInt(r.PageID, 10),
-									Name: "comment",
-									Value: reviewComment(r, postedID, comment),
-									Class: "review-comment-input",
-									Attributes: templ.Attributes{"maxlength": "1000"},
-								})
-							</div>
-							<div class="review-form-actions">
-								@button.Button(button.Props{
-									Type: button.TypeSubmit,
-									Variant: button.VariantDefault,
-									Size: button.SizeSm,
-									Disabled: !r.Current || r.Comment != "",
-									Attributes: templ.Attributes{"name": "action", "value": "publish"},
-								}) {
-									@icon.Send(icon.Props{Class: "size-3.5"})
-									<span>{ i18n.T(ctx, "Опубликовать") }</span>
-								}
-								@button.Button(button.Props{
-									Type: button.TypeSubmit,
-									Variant: button.VariantOutline,
-									Size: button.SizeSm,
-									Attributes: templ.Attributes{"name": "action", "value": "return"},
-								}) {
-									@icon.Icon("undo-2")(icon.Props{Class: "size-3.5"})
-									<span>{ i18n.T(ctx, "Вернуть автору") }</span>
-								}
-							</div>
-						</form>
+								<div class="review-form-actions">
+									@button.Button(button.Props{
+										Type: button.TypeSubmit,
+										Size: button.SizeSm,
+										Disabled: !r.Current || r.Comment != "",
+										Attributes: templ.Attributes{"name": "action", "value": "publish"},
+									}) {
+										<span>{ i18n.T(ctx, "Опубликовать") }</span>
+									}
+									@button.Button(button.Props{
+										Type: button.TypeSubmit,
+										Variant: button.VariantGhost,
+										Size: button.SizeSm,
+										Attributes: templ.Attributes{"name": "action", "value": "return"},
+									}) {
+										<span>{ i18n.T(ctx, "Вернуть автору") }</span>
+									}
+								</div>
+							</form>
+						}
 					}
 				}
-			}
+			</div>
+			<aside class="management-context">
+				<h2>{ i18n.T(ctx, "Проверка публикаций") }</h2>
+				<p>{ i18n.T(ctx, "Авторы отправляют черновики на проверку перед публикацией. Редакторы и администраторы могут одобрить материал или вернуть его на доработку.") }</p>
+				<dl class="context-definitions">
+					<div>
+						<dt>{ i18n.T(ctx, "Опубликовать") }</dt>
+						<dd>{ i18n.T(ctx, "Материал сразу становится доступен на сайте.") }</dd>
+					</div>
+					<div>
+						<dt>{ i18n.T(ctx, "Вернуть автору") }</dt>
+						<dd>{ i18n.T(ctx, "Материал возвращается в черновики вместе с комментарием.") }</dd>
+					</div>
+					<div>
+						<dt>{ i18n.T(ctx, "Комментарий автору") }</dt>
+						<dd>{ i18n.T(ctx, "Автор увидит комментарий при открытии материала в редакторе.") }</dd>
+					</div>
+				</dl>
+			</aside>
 		</div>
 	}
 }
