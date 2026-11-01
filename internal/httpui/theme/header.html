@@ -1,6 +1,9 @@
 {{template "language-switcher" .}}
 <header class="site-header">
-<a class="site-brand" href="{{siteURL "/"}}" aria-label="{{.Site.Title}} — главная"><span>{{.Site.Title}}</span></a>
+<div class="header-main">
+<a class="site-brand" href="{{siteURL "/"}}" aria-label="{{if .Site.Title}}{{.Site.Title}}{{else}}GoPress{{end}} — главная"><span class="sr-only">{{.Site.Title}}</span>{{template "logo-gopress"}}</a>
+{{if .Site.Description}}<p class="site-tagline">{{.Site.Description}}</p>{{end}}
+</div>
 <nav class="public-nav header-desktop" aria-label="{{tr "Основная навигация"}}">{{template "header-links" .}}</nav>
 <div class="header-utilities">
 <a class="header-search" href="{{siteURL "/search"}}" aria-label="{{tr "Поиск по журналу"}}">{{template "icon-search"}}<span>{{tr "Поиск"}}</span></a>

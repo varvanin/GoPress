@@ -36,7 +36,7 @@ func legacyTheme(dir string) bool {
 	return err == nil && info.Mode().IsRegular()
 }
 func (a *App) themes() ([]ThemeInfo, error) {
-	themes := []ThemeInfo{{ID: "journal", Name: "Журнал", Version: "1.0", Author: "GoPress", Description: "Редакционная лента, категории и удобное чтение."}, {ID: "minimal", Name: "Минимал", Version: "1.0", Author: "GoPress", Description: "Личный сайт с боковой навигацией, текстовой лентой и спокойным чтением."}, {ID: "studio", Name: "Студия", Version: "1.0", Author: "GoPress", Description: "Тёмное портфолио с крупными заголовками и сеткой проектов."}}
+	themes := []ThemeInfo{{ID: "journal", Name: "Блог", Version: "1.0", Author: "GoPress", Description: "Редакционный блог и журнал: категории, тренды и удобное чтение."}, {ID: "minimal", Name: "Документация", Version: "1.0", Author: "GoPress", Description: "Техническая документация и база знаний: навигация, поиск и статьи."}, {ID: "studio", Name: "Портфолио", Version: "1.0", Author: "GoPress", Description: "Тёмное портфолио для студий и проектов: витрина работ и фильтрация."}}
 	visible := themes[:0]
 	for _, theme := range themes {
 		if _, err := os.Stat(a.deletedBuiltinPath(theme.ID)); errors.Is(err, os.ErrNotExist) {
@@ -306,6 +306,7 @@ func (a *App) themeRoutes(g *echo.Group) {
 		if err != nil {
 			return err
 		}
+		c.Response().Header().Set("Cache-Control", "no-cache, must-revalidate")
 		c.Response().Header().Set("Content-Security-Policy", "default-src 'none'; script-src 'none'; style-src 'unsafe-inline'; img-src data:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'")
 		return c.Blob(200, mime, data)
 	})

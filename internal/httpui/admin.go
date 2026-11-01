@@ -537,13 +537,15 @@ func themeLabel(theme string) string {
 	}
 	switch theme {
 	case "minimal":
-		return "Минимал"
+		return "Документация"
+	case "studio":
+		return "Портфолио"
 	case "custom":
 		return "Локальный шаблон"
 	case "unavailable":
 		return "Недоступна"
 	default:
-		return "Журнал"
+		return "Блог"
 	}
 }
 func tableContentDate(at int64, zone ...string) string {

@@ -1,6 +1,7 @@
 {{define "header-links"}}
 {{if .HeaderMenuConfigured}}{{template "menu" .HeaderMenu}}{{else}}
-<a href="{{siteURL "/"}}" {{if .Home}}aria-current="page"{{end}}>{{if .HomeIsPage}}{{tr "Главная"}}{{else}}{{tr "Журнал"}}{{end}}</a>
+<a href="{{siteURL "/"}}" {{if .Home}}aria-current="page"{{end}}>{{tr "Главная"}}</a>
+<a href="{{siteURL "/#journal"}}">{{tr "Категории"}}</a>
 {{range .Pages}}<a href="{{contentURL .Slug .URL}}" {{if eq $.Slug .Slug}}aria-current="page"{{end}}>{{.Title}}</a>{{end}}
 {{end}}
 {{end}}

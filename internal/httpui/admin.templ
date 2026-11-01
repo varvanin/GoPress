@@ -291,11 +291,11 @@ templ PageTable(pages []store.Page, csrf string, timezone ...string) {
 						{ i18n.T(ctx,"Тип") }
 					}
 				}
-				@table.Head() {
+				@table.Head(table.HeadProps{Class: "content-status-head"}) {
 					{ i18n.T(ctx,"Статус ") }
-				} @table.Head(table.HeadProps{Class: "hidden sm:table-cell"}) {
+				} @table.Head(table.HeadProps{Class: "content-date-head hidden sm:table-cell"}) {
 	{ i18n.T(ctx,"Изменено ") }
-} @table.Head(table.HeadProps{Class: "text-right"}) {
+} @table.Head(table.HeadProps{Class: "content-actions-head text-right"}) {
 	<span class="sr-only">{ i18n.T(ctx,"Действия") }</span>
 }
 			}
@@ -325,7 +325,7 @@ templ PageTable(pages []store.Page, csrf string, timezone ...string) {
 							{ contentLabel(p.Kind,i18n.T(ctx,"Страница"),i18n.T(ctx,"Запись")) }
 						}
 					}
-					@table.Cell() {
+					@table.Cell(table.CellProps{Class: "content-status-cell"}) {
 						if p.ScheduledAt>0 {
 							@badge.Badge(badge.Props{Variant: badge.VariantOutline}) {
 								if len(timezone)>0 {
@@ -344,10 +344,10 @@ templ PageTable(pages []store.Page, csrf string, timezone ...string) {
 							}
 						}
 					}
-					@table.Cell(table.CellProps{Class: "hidden text-muted-foreground sm:table-cell"}) {
+					@table.Cell(table.CellProps{Class: "content-date-cell hidden text-muted-foreground sm:table-cell"}) {
 						{ tableContentDate(p.UpdatedAt,timezone...) }
 					}
-					@table.Cell(table.CellProps{Class: "text-right"}) {
+					@table.Cell(table.CellProps{Class: "content-actions-cell text-right"}) {
 						<div class="content-row-actions">
 							@button.Button(button.Props{Href: "/admin/pages/" + strconv.FormatInt(p.ID, 10) + "/edit", Variant: button.VariantGhost, Size: button.SizeIconSm, Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Редактировать: ") + p.Title, "title": i18n.T(ctx, "Редактировать")}}) {
 								@icon.PenLine()
