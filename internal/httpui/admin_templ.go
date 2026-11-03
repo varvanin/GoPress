@@ -872,7 +872,7 @@ func AdminMain(site, title, csrf string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			if i18n.Source(title) != "Редактирование страницы" && i18n.Source(title) != "Редактирование записи" {
+			if i18n.Source(title) != "Edit page" && i18n.Source(title) != "Edit post" {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<header class=\"gp-topbar\"><div class=\"gp-breadcrumb\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

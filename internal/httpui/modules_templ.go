@@ -1006,7 +1006,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 				return templ_7745c5c3_Err
 			}
 			if message != "" {
-				var templ_7745c5c3_Var58 = []any{"notice", templ.KV("notice-error", message != "Настройки модуля сохранены.")}
+				var templ_7745c5c3_Var58 = []any{"notice", templ.KV("notice-error", message != "Module settings saved.")}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var58...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -1031,7 +1031,7 @@ func ModuleEditor(site, csrf string, info ModuleInfo, p store.ModulePackage, set
 				var templ_7745c5c3_Var60 string
 				templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, message))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 132, Col: 146}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/modules.templ`, Line: 132, Col: 117}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var60))
 				if templ_7745c5c3_Err != nil {

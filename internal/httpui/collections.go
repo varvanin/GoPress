@@ -78,7 +78,7 @@ func (a *App) collectionRoutes(g *echo.Group) {
 			}
 			message := ""
 			if c.QueryParam("saved") == "1" {
-				message = "Изменения сохранены."
+				message = "Changes saved."
 			}
 			return a.collectionEditor(c, 200, item, message)
 		})
@@ -125,10 +125,10 @@ func (a *App) collectionRoutes(g *echo.Group) {
 			}
 			id, err := a.Service.SaveCollection(c.Request().Context(), item)
 			if errors.Is(err, service.ErrInvalid) {
-				return a.collectionEditor(c, 400, item, "Проверьте поля и изображения. Допустимо от 1 до 50 элементов.")
+				return a.collectionEditor(c, 400, item, "Check the fields and images. Use between 1 and 50 items.")
 			}
 			if errors.Is(err, store.ErrConflict) {
-				return a.collectionEditor(c, 409, item, "Раздел изменён в другой вкладке. Откройте актуальную версию.")
+				return a.collectionEditor(c, 409, item, "This group changed in another tab. Open the current version.")
 			}
 			if err != nil {
 				return err

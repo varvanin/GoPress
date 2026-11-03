@@ -176,10 +176,10 @@ func (a *App) toolsRoutes(g *echo.Group) {
 		value.Enabled = c.FormValue("enabled") == "true"
 		err = a.Service.SaveBackupSchedule(c.Request().Context(), value)
 		if errors.Is(err, store.ErrConflict) {
-			return a.toolsPage(c, 409, "Расписание изменено в другой вкладке. Проверьте актуальные настройки.", &value)
+			return a.toolsPage(c, 409, "The schedule changed in another tab. Review the current settings.", &value)
 		}
 		if errors.Is(err, service.ErrInvalid) {
-			return a.toolsPage(c, 400, "Выберите час от 0 до 23 и число копий от 1 до 30.", &value)
+			return a.toolsPage(c, 400, "Choose an hour from 0 to 23 and a copy count from 1 to 30.", &value)
 		}
 		if err != nil {
 			return err
@@ -190,7 +190,7 @@ func (a *App) toolsRoutes(g *echo.Group) {
 		if _, err := a.Service.CreateBackup(); err != nil {
 			return err
 		}
-		return a.toolsPage(c, 200, "Бэкап создан и проверен. Скачайте копию на отдельный носитель.")
+		return a.toolsPage(c, 200, "Backup created and verified. Download a copy to separate storage.")
 	}, a.csrf)
 	g.POST("/tools/backups/verify", func(c *echo.Context) error {
 		path, err := a.Service.BackupPath(c.FormValue("backup"))
@@ -198,9 +198,9 @@ func (a *App) toolsRoutes(g *echo.Group) {
 			return err
 		}
 		if err = backup.Verify(path); err != nil {
-			return a.toolsPage(c, 400, "Бэкап не прошёл проверку. Восстановление не выполнялось.")
+			return a.toolsPage(c, 400, "Backup verification failed. No restoration was performed.")
 		}
-		return a.toolsPage(c, 200, "Контрольные суммы и база бэкапа проверены.")
+		return a.toolsPage(c, 200, "Backup checksums and database verified.")
 	}, a.csrf)
 	g.POST("/tools/backups/restore", func(c *echo.Context) error {
 		if c.FormValue("confirm") != "RESTORE" {
@@ -211,7 +211,7 @@ func (a *App) toolsRoutes(g *echo.Group) {
 			return err
 		}
 		if !active {
-			return a.toolsPage(c, 400, "Для восстановления сначала включите режим обслуживания.")
+			return a.toolsPage(c, 400, "Enable maintenance mode before restoring.")
 		}
 		if err = a.Service.RestoreBackup(c.FormValue("backup")); err != nil {
 			return err
@@ -254,7 +254,7 @@ func (a *App) toolsRoutes(g *echo.Group) {
 		defer file.Close()
 		id, err := a.Service.ImportBackup(file, header.Size)
 		if errors.Is(err, service.ErrInvalid) {
-			return a.toolsPage(c, 400, "Некорректный архив бэкапа.")
+			return a.toolsPage(c, 400, "Invalid backup archive.")
 		}
 		if err != nil {
 			return err

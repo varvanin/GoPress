@@ -402,7 +402,7 @@ func CollectionEditor(site, csrf string, c store.Collection, message string) tem
 				return templ_7745c5c3_Err
 			}
 			if message != "" {
-				var templ_7745c5c3_Var22 = []any{"notice", templ.KV("notice-error", message != "Изменения сохранены.")}
+				var templ_7745c5c3_Var22 = []any{"notice", templ.KV("notice-error", message != "Changes saved.")}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var22...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

@@ -115,10 +115,10 @@ func (a *App) blogRoutes(g *echo.Group) {
 		err = a.Service.SaveTerm(c.Request().Context(), store.Term{ID: id, Version: version, Name: c.FormValue("name"), Kind: c.FormValue("kind")}, action == "delete")
 		if err != nil {
 			if errors.Is(err, service.ErrInvalid) {
-				return a.termsPage(c, 400, "Название должно содержать от 1 до 80 символов.")
+				return a.termsPage(c, 400, "The name must contain between 1 and 80 characters.")
 			}
 			if errors.Is(err, store.ErrConflict) || strings.Contains(err.Error(), "constraint failed") {
-				return a.termsPage(c, 409, "Название уже занято или раздел изменён в другом окне. Проверьте актуальный список.")
+				return a.termsPage(c, 409, "The name is already taken or the section changed in another tab. Check the current list.")
 			}
 			return err
 		}
@@ -139,7 +139,7 @@ func (a *App) blogRoutes(g *echo.Group) {
 				if e != nil {
 					return e
 				}
-				return a.editPage(c, p, 400, "Выберите однозначное будущее время в часовом поясе сайта. В часы перевода часов выберите время вне повторяющегося или пропущенного интервала.")
+				return a.editPage(c, p, 400, "Choose an unambiguous future time in the site time zone. Avoid repeated or skipped times during daylight saving changes.")
 			}
 			return err
 		}

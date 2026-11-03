@@ -142,7 +142,7 @@ SEO has five sections: search title rules and descriptions, indexing/canonical/r
 
 Administrators manage users and the site; editors manage content and media; authors work with their own posts/media without publishing. Server-side permissions do not rely on hidden buttons. Blocking, password changes and access recovery revoke sessions; the last active administrator is protected.
 
-General, home-page, mail and language settings are separate. The admin and sign-in support English, Russian, Polish, German, Ukrainian, Italian, Spanish and Czech; changing the interface language does not translate user content or public templates.
+General, home-page, mail and language settings are separate. The admin and sign-in support English, Russian, Polish, German, Ukrainian, Italian, Spanish, Czech, Simplified Chinese, Korean, Japanese, French, Portuguese and Turkish; changing the interface language does not translate user content or public templates. Interface catalogs use English source strings as keys; translate from English into each target language and preserve placeholders and technical identifiers.
 
 The admin has dark and gray/white light appearances, with blue active navigation in light mode. Switch at the bottom of the sidebar or on system pages. The browser remembers the choice; public templates remain independent. See [design rules](docs/ADMIN_STYLE.md) and [contributor instructions](AGENTS.md).
 

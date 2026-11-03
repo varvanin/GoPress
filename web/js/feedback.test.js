@@ -88,3 +88,23 @@ test('restoring a template file confirms restoration rather than deletion',()=>{
  const restore={name:'intent',value:'restore',form:f,closest:selector=>selector==='[hx-confirm]'?{getAttribute:()=>'Revert to previous version?'}:f};
  assert.deepEqual(deletionPrompt(restore,{intent:'restore'}),{message:'Revert to previous version?',label:'Restore'});
 });
+
+
+test('plain toasts and confirmation messages translate at the shared entry points',async t=>{
+ const original={document:globalThis.document,window:globalThis.window,GoPressTranslations:globalThis.GoPressTranslations,setTimeout:globalThis.setTimeout};
+ t.after(()=>Object.assign(globalThis,original));
+ globalThis.GoPressTranslations={'Changes saved.':'更改已保存。','Dismiss notification':'关闭通知','Delete file?':'删除文件？','Delete':'删除','Confirm deletion':'确认删除'};
+ const handlers=new Map(),fields={};
+ const popup={querySelector:key=>fields[key]??={},addEventListener:(type,fn)=>handlers.set(type,fn),removeEventListener:type=>handlers.delete(type)};
+ const region={children:[],append(item){this.children.push(item);}};
+ const node=()=>({dataset:{},children:[],setAttribute(){},addEventListener(){},append(...items){this.children.push(...items);}});
+ globalThis.setTimeout=()=>0;
+ globalThis.document={getElementById:id=>id==='system-confirm'?popup:region,createElement:node};
+ globalThis.window={templ:{dialog:{open(){}}}};
+ toast('Changes saved.');assert.equal(region.children[0].children[1].textContent,'更改已保存。');
+ const result=confirmAction('Delete file?',{});
+ assert.equal(fields['#system-confirm-description'].textContent,'删除文件？');
+ assert.equal(fields['#system-confirm-title'].textContent,'确认删除');
+ assert.equal(fields['[data-confirm-result="accept"]'].textContent,'删除');
+ handlers.get('dialog-close')();assert.equal(await result,false);
+});

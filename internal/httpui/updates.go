@@ -14,19 +14,19 @@ import (
 func updatePhase(phase string) string {
 	switch phase {
 	case "checking":
-		return "Проверяем релиз и подключение к Dokploy."
+		return "Verifying the release and Dokploy connection."
 	case "backing-up":
-		return "Создаём и проверяем резервную копию."
+		return "Creating and verifying a backup."
 	case "deploying":
-		return "Передаём новый образ в Dokploy."
+		return "Sending the new image to Dokploy."
 	case "requested":
-		return "Dokploy принял запрос. Ожидаем запуск новой версии."
+		return "Dokploy accepted the request. Waiting for the new version to start."
 	case "complete":
-		return "Обновление установлено и проверено."
+		return "Update installed and verified."
 	case "failed":
-		return "Обновление не началось. Проверьте подключение и резервные копии перед повтором."
+		return "The update did not start. Check the connection and backups before retrying."
 	case "uncertain":
-		return "Результат установки не подтверждён. Сайт остаётся в обслуживании. Проверьте развёртывание в Dokploy."
+		return "The deployment outcome is unconfirmed. Maintenance remains enabled. Check the deployment in Dokploy."
 	}
 	return ""
 }
@@ -43,7 +43,7 @@ func (a *App) updatesPage(c *echo.Context, status int, message string) error {
 	if errors.Is(err, os.ErrNotExist) {
 		err = nil
 	} else if err != nil {
-		message = "Не удалось проверить сведения о релизе. Повторите проверку обновлений."
+		message = "Could not verify release metadata. Check for updates again."
 	}
 	return htmlComponent(c, status, UpdatesPage(site.Title, a.csrfToken(c), release, state, service.UpdatesConfigured(), message, status >= 400))
 }
@@ -62,20 +62,20 @@ func (a *App) updateRoutes(g *echo.Group) {
 	g.POST("/updates/check", func(c *echo.Context) error {
 		err := a.Service.CheckUpdates(c.Request().Context())
 		if errors.Is(err, store.ErrConflict) {
-			return a.updatesPage(c, 409, "Обновление уже выполняется. Дождитесь завершения.")
+			return a.updatesPage(c, 409, "An update is already running. Wait for it to finish.")
 		}
 		if err != nil {
-			return a.updatesPage(c, 400, "Не удалось проверить обновления. Проверьте источник релизов и ключ подписи.")
+			return a.updatesPage(c, 400, "Could not check for updates. Check the release source and signing key.")
 		}
-		return a.updatesPage(c, 200, "Проверка обновлений завершена.")
+		return a.updatesPage(c, 200, "Update check completed.")
 	}, a.csrf)
 	g.POST("/updates/install", func(c *echo.Context) error {
 		err := a.Service.StartUpdate(c.Request().Context(), c.FormValue("version"))
 		if errors.Is(err, store.ErrConflict) {
-			return a.updatesPage(c, 409, "Обновление уже выполняется. Дождитесь завершения.")
+			return a.updatesPage(c, 409, "An update is already running. Wait for it to finish.")
 		}
 		if err != nil {
-			return a.updatesPage(c, 400, "Не удалось начать обновление. Проверьте подключение Dokploy и актуальность релиза.")
+			return a.updatesPage(c, 400, "Could not start the update. Check Dokploy connectivity and the release version.")
 		}
 		return c.Redirect(303, "/admin/updates")
 	}, a.csrf)

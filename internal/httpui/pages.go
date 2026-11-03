@@ -93,7 +93,7 @@ func sourceContentLanguage(p store.Page) string {
 	return "ru"
 }
 func materialLanguages() []selectcomp.ItemData {
-	return []selectcomp.ItemData{{Value: "en", Label: "English"}, {Value: "ru", Label: "Русский"}, {Value: "pl", Label: "Polski"}, {Value: "de", Label: "Deutsch"}, {Value: "uk", Label: "Українська"}, {Value: "it", Label: "Italiano"}, {Value: "es", Label: "Español"}, {Value: "cs", Label: "Čeština"}}
+	return []selectcomp.ItemData{{Value: "en", Label: "English"}, {Value: "ru", Label: "Русский"}, {Value: "pl", Label: "Polski"}, {Value: "de", Label: "Deutsch"}, {Value: "uk", Label: "Українська"}, {Value: "it", Label: "Italiano"}, {Value: "es", Label: "Español"}, {Value: "cs", Label: "Čeština"}, {Value: "zh", Label: "简体中文"}, {Value: "ko", Label: "한국어"}, {Value: "ja", Label: "日本語"}, {Value: "fr", Label: "Français"}, {Value: "pt", Label: "Português"}, {Value: "tr", Label: "Türkçe"}}
 }
 func materialLanguageLabel(code string) string {
 	for _, item := range materialLanguages() {

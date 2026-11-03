@@ -96,7 +96,7 @@ func (a *App) formRoutes(g *echo.Group) {
 		}
 		message := ""
 		if c.QueryParam("saved") == "1" {
-			message = "Форма сохранена."
+			message = "Form saved."
 		}
 		return a.formEditor(c, 200, f, message)
 	})
@@ -107,10 +107,10 @@ func (a *App) formRoutes(g *echo.Group) {
 		}
 		id, err := a.Service.SaveForm(c.Request().Context(), f)
 		if errors.Is(err, service.ErrInvalid) {
-			return a.formEditor(c, 400, f, "Проверьте название, email получателя и поля. Нужно от 1 до 20 полей; для списка укажите непустые варианты без повторов.")
+			return a.formEditor(c, 400, f, "Check the name, recipient email and fields. Use 1–20 fields; dropdown options must be nonempty and unique.")
 		}
 		if errors.Is(err, store.ErrConflict) {
-			return a.formEditor(c, 409, f, "Форма изменена в другой вкладке. Откройте актуальную версию перед сохранением.")
+			return a.formEditor(c, 409, f, "The form changed in another tab. Open the current version before saving.")
 		}
 		if err != nil {
 			return err
@@ -210,11 +210,11 @@ func (a *App) submitForm(c *echo.Context) error {
 	}
 	version, err := strconv.ParseInt(c.FormValue("version"), 10, 64)
 	if err != nil || version != f.Version {
-		return a.publicFormPage(c, 409, "Форма обновилась. Проверьте поля и отправьте её ещё раз.")
+		return a.publicFormPage(c, 409, "The form has changed. Review the fields and submit it again.")
 	}
 	values, err := service.FormValues(f, c.Request().PostForm)
 	if err != nil {
-		return a.publicFormPage(c, 400, "Проверьте обязательные поля, email и выбранные варианты.")
+		return a.publicFormPage(c, 400, "Check required fields, email and selected options.")
 	}
 	nonce := c.FormValue("submission_key")
 	if len(nonce) != 64 {

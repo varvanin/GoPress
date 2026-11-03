@@ -20,7 +20,7 @@ func (a *App) reviewRoutes(g *echo.Group) {
 		}
 		err := a.Service.ResolveReview(c.Request().Context(), id, version, action == "publish", strings.TrimSpace(c.FormValue("comment")))
 		if errors.Is(err, store.ErrConflict) || errors.Is(err, service.ErrInvalid) {
-			return a.reviewsPage(c, 409, id, c.FormValue("comment"), "Версия изменилась или комментарий пуст. Проверьте материал и повторите действие.")
+			return a.reviewsPage(c, 409, id, c.FormValue("comment"), "The version changed or the comment is empty. Check the content and try again.")
 		}
 		if err != nil {
 			return err

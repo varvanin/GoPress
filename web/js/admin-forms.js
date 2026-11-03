@@ -26,7 +26,7 @@ export function selectContent(event) {
  if(event.target===all)boxes.forEach(box=>{box.checked=all.checked;});
  const count=boxes.filter(box=>box.checked).length;
  all.checked=boxes.length>0&&count===boxes.length;all.indeterminate=count>0&&count<boxes.length;
- document.querySelector('[data-selection-count]').textContent=t('Выбрано: ')+count;
+ document.querySelector('[data-selection-count]').textContent=t('Selected: ')+count;
  document.querySelectorAll('[data-bulk-action]').forEach(button=>{button.disabled=count===0;});
 }
 

@@ -118,13 +118,13 @@ func (a *App) appearanceRoutes(g *echo.Group) {
 	showThemes := func(c *echo.Context) error {
 		message := ""
 		if c.QueryParam("saved") == "1" {
-			message = "Шаблон активирован."
+			message = "Template activated."
 		}
 		if c.QueryParam("installed") == "1" {
-			message = "Шаблон установлен. Его можно посмотреть и активировать."
+			message = "Template installed. You can preview and activate it."
 		}
 		if c.QueryParam("deleted") == "1" {
-			message = "Шаблон удалён."
+			message = "Template deleted."
 		}
 		return a.appearancePage(c, 200, message, nil)
 	}
@@ -135,13 +135,13 @@ func (a *App) appearanceRoutes(g *echo.Group) {
 		defer a.themeMu.Unlock()
 		value, err := a.postedAppearance(c)
 		if err != nil {
-			return a.appearancePage(c, 400, "Проверьте шаблон, заголовок (до 200 символов) и описание главной (до 1000).", &value)
+			return a.appearancePage(c, 400, "Check the template, title (up to 200 characters) and homepage description (up to 1000).", &value)
 		}
 		if err = a.validateTheme(value); err != nil {
-			return a.appearancePage(c, 400, "Ошибка шаблона: "+err.Error(), &value)
+			return a.appearancePage(c, 400, i18n.T(c.Request().Context(), "Template validation failed")+": "+err.Error(), &value)
 		}
 		if err = a.Service.SaveAppearance(c.Request().Context(), value); errors.Is(err, store.ErrConflict) {
-			return a.appearancePage(c, 409, "Настройки изменены в другом окне. Обновите страницу перед сохранением.", &value)
+			return a.appearancePage(c, 409, "Settings changed in another tab. Reload the page before saving.", &value)
 		} else if err != nil {
 			return err
 		}
@@ -156,7 +156,7 @@ func (a *App) appearanceRoutes(g *echo.Group) {
 	g.GET("/seo", func(c *echo.Context) error {
 		message := ""
 		if c.QueryParam("saved") == "1" {
-			message = "SEO-настройки сохранены."
+			message = "SEO settings saved."
 		}
 		return a.seoPage(c, 200, message, nil)
 	})
@@ -167,10 +167,10 @@ func (a *App) appearanceRoutes(g *echo.Group) {
 		}
 		e = a.Service.SaveSEOSettings(c.Request().Context(), value.Version, value.SEO, value.SEOOptions)
 		if errors.Is(e, store.ErrConflict) {
-			return a.seoPage(c, 409, "Настройки изменены в другом окне. Обновите страницу перед сохранением.", &value)
+			return a.seoPage(c, 409, "Settings changed in another tab. Reload the page before saving.", &value)
 		}
 		if errors.Is(e, service.ErrInvalid) {
-			return a.seoPage(c, 400, "Проверьте длину текстов, переменные заголовков, URL и значения директив.", &value)
+			return a.seoPage(c, 400, "Check text lengths, title variables, URLs and directive values.", &value)
 		}
 		if e != nil {
 			return e
@@ -184,7 +184,7 @@ func (a *App) appearanceRoutes(g *echo.Group) {
 			return err
 		}
 		if err = a.validateTheme(value); err != nil {
-			return echo.NewHTTPError(400, "Ошибка шаблона: "+err.Error())
+			return echo.NewHTTPError(400, i18n.T(c.Request().Context(), "Template validation failed")+": "+err.Error())
 		}
 		return a.render(c, store.Page{Document: `{"type":"doc","content":[{"type":"paragraph"}]}`}, false, value)
 	}

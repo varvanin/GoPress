@@ -53,7 +53,7 @@ templ FAQEditor(site, csrf string, f store.FAQGroup, message string) {
 			}
 		}
 		if message!="" {
-			<p class={ templ.KV("notice",true),templ.KV("notice-error",message!="Группа FAQ сохранена.") } role="status">{ i18n.T(ctx,message) }</p>
+			<p class={ templ.KV("notice",true),templ.KV("notice-error",message!="FAQ group saved.") } role="status">{ i18n.T(ctx,message) }</p>
 		}
 		<div class="management-workspace">
 			<form id="faq-editor" method="post" action="/admin/modules/faq/save" data-change-form data-faq-editor class="faq-editor">

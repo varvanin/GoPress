@@ -79,6 +79,11 @@ func TestEditorTranslationsSaveAsOneMaterialAndKeepDraftsPrivate(t *testing.T) {
 }
 
 func TestMaterialLanguagesAreIndependentOfTheAdminAndAddedExplicitly(t *testing.T) {
+	for code, label := range map[string]string{"zh": "简体中文", "ko": "한국어", "ja": "日本語", "fr": "Français", "pt": "Português", "tr": "Türkçe"} {
+		if materialLanguageLabel(code) != label {
+			t.Fatal("missing material language", code)
+		}
+	}
 	p := store.Page{SEO: store.SEO{Language: "de"}}
 	items := contentLanguageOptions(p)
 	if len(items) != 1 || items[0].Value != "original" || items[0].Label != "Deutsch" {

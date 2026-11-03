@@ -69,7 +69,7 @@ func (a *App) settingsRoutes(g *echo.Group) {
 	g.GET("/settings", func(c *echo.Context) error {
 		message := ""
 		if c.QueryParam("saved") == "1" {
-			message = "Настройки сохранены."
+			message = "Settings saved."
 		}
 		return a.settingsPage(c, settingsTab(c.QueryParam("tab")), 200, message, nil)
 	})
@@ -78,21 +78,21 @@ func (a *App) settingsRoutes(g *echo.Group) {
 		if section == "mail-test" {
 			err := a.Service.SendTestMail(c.Request().Context(), c.FormValue("test_recipient"))
 			if errors.Is(err, service.ErrInvalid) {
-				return a.settingsPage(c, "mail", 400, "Укажите корректный email для тестового письма.", nil)
+				return a.settingsPage(c, "mail", 400, "Enter a valid recipient email for the test.", nil)
 			}
 			if err != nil {
-				return a.settingsPage(c, "mail", 400, "Не удалось отправить письмо. Проверьте SMTP, адрес отправителя и доступ к почтовому серверу.", nil)
+				return a.settingsPage(c, "mail", 400, "Could not send email. Check SMTP settings, the sender address and access to the mail server.", nil)
 			}
-			return a.settingsPage(c, "mail", 200, "Тестовое письмо отправлено.", nil)
+			return a.settingsPage(c, "mail", 200, "Test email sent.", nil)
 		}
 		if section == "mail" {
 			value := service.MailSettings{Version: c.FormValue("mail_version"), Enabled: c.FormValue("enabled") == "true", Host: c.FormValue("host"), Port: c.FormValue("port"), From: c.FormValue("from"), Username: c.FormValue("username"), Password: c.FormValue("password")}
 			err := a.Service.SaveMailSettings(value, c.FormValue("clear_password") == "1")
 			if errors.Is(err, store.ErrConflict) {
-				return a.settingsPage(c, "mail", 409, "Настройки почты изменены в другой вкладке. Откройте актуальную версию.", nil, &value)
+				return a.settingsPage(c, "mail", 409, "Email settings changed in another tab. Open the current version.", nil, &value)
 			}
 			if errors.Is(err, service.ErrInvalid) {
-				return a.settingsPage(c, "mail", 400, "Проверьте SMTP-сервер, порт и адрес отправителя. Настройки из окружения меняются на сервере.", nil, &value)
+				return a.settingsPage(c, "mail", 400, "Check the SMTP server, port and sender address. Environment settings must be changed on the server.", nil, &value)
 			}
 			if err != nil {
 				return err
@@ -132,10 +132,10 @@ func (a *App) settingsRoutes(g *echo.Group) {
 		}
 		err = a.Service.SaveSettings(c.Request().Context(), value)
 		if errors.Is(err, store.ErrConflict) {
-			return a.settingsPage(c, section, 409, "Настройки изменены в другой вкладке или выбранная страница больше не опубликована. Проверьте актуальные данные.", &value)
+			return a.settingsPage(c, section, 409, "Settings changed in another tab or the selected page is no longer published. Check the current values.", &value)
 		}
 		if errors.Is(err, service.ErrInvalid) {
-			return a.settingsPage(c, section, 400, "Проверьте заполненные поля: название, адрес сайта, часовой пояс и допустимые значения настроек.", &value)
+			return a.settingsPage(c, section, 400, "Check the site name, URL, time zone and allowed setting values.", &value)
 		}
 		if err != nil {
 			return err

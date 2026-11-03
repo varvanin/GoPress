@@ -8,7 +8,7 @@ export function toast(message, kind = 'success', content) {
  if(kind==='error')item.setAttribute('role','alert');
  const mark=document.createElement('span');mark.className='gp-toast-mark';mark.setAttribute('aria-hidden','true');mark.textContent=kind==='error'?'!':'✓';
  const text=document.createElement('div');text.className='gp-toast-content';
- if(content)text.append(...Array.from(content.childNodes).map(node=>node.cloneNode(true)));else text.textContent=message;
+ if(content)text.append(...Array.from(content.childNodes).map(node=>node.cloneNode(true)));else text.textContent=t(message);
  const close=document.createElement('button');close.type='button';close.className='gp-toast-close';close.setAttribute('aria-label',t('Dismiss notification'));close.textContent='×';
  item.append(mark,text,close);region.append(item);
  while(region.children.length>3)region.firstElementChild.remove();
@@ -28,7 +28,8 @@ export function showNotices(root=document.querySelector('#main')) {
  return count;
 }
 
-export async function confirmAction(message, trigger, label=t('Delete')) {
+export async function confirmAction(message, trigger, label='Delete') {
+ message=t(message);label=t(label);
  const popup=document.getElementById('system-confirm');
  if(pendingConfirmation)return false;
  if(!popup||!window.templ?.dialog){toast(t('Could not open the confirmation dialog. Reload the page and try again.'),'error');return false;}

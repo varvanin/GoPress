@@ -409,7 +409,7 @@ func (a *App) packageModuleRoutes(g *echo.Group) {
 	g.POST("/modules/upload", func(c *echo.Context) error {
 		file, err := c.FormFile("module_zip")
 		if err != nil {
-			return a.moduleUploadPage(c, 400, "Выберите ZIP-архив модуля.")
+			return a.moduleUploadPage(c, 400, "Select a module ZIP archive.")
 		}
 		r, err := file.Open()
 		if err != nil {
@@ -440,7 +440,7 @@ func (a *App) packageModuleRoutes(g *echo.Group) {
 		}
 		message := ""
 		if c.QueryParam("saved") == "1" {
-			message = "Настройки модуля сохранены."
+			message = "Module settings saved."
 		}
 		return a.modulePackageEditor(c, 200, p, message)
 	})
@@ -469,7 +469,7 @@ func (a *App) packageModuleRoutes(g *echo.Group) {
 		}
 		settings, err := moduleSettings(info, values)
 		if err != nil {
-			return a.modulePackageEditor(c, 400, p, "Проверьте обязательные поля и адреса ссылок.")
+			return a.modulePackageEditor(c, 400, p, "Check required fields and link URLs.")
 		}
 		raw, _ := json.Marshal(settings)
 		p.Settings = string(raw)

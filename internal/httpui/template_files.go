@@ -52,26 +52,26 @@ func (a *App) changeTemplateFile(id, name, revision, content, newName, operation
 		return name, store.ErrConflict
 	}
 	if content != string(old.Data) {
-		return name, errors.New("Сначала сохраните изменения файла.")
+		return name, errors.New("Save the file changes first.")
 	}
 	if operation != "delete" {
 		if !editableTemplateFile(newName) || !fs.ValidPath(newName) || (!strings.Contains(newName, "/") && !service.ValidPageTemplate(newName) && newName != "home.html" && newName != "single.html" && newName != "archive.html" && newName != "search.html" && newName != "404.html" && newName != "header.html" && newName != "footer.html") {
 			return name, service.ErrInvalid
 		}
 		if _, exists := files[newName]; exists {
-			return name, errors.New("Файл с таким именем уже существует.")
+			return name, errors.New("A file with this name already exists.")
 		}
 	}
 	if operation != "create" {
 		if name == "layout.html" || name == "page.html" || templateFileReferenced(files, name) {
-			return name, errors.New("Файл используется шаблоном. Сначала измените ссылки на него.")
+			return name, errors.New("The template references this file. Update its references first.")
 		}
 		used, e := a.Service.Store.PageTemplateUsed(name)
 		if e != nil {
 			return name, e
 		}
 		if used {
-			return name, errors.New("Файл используется материалом или его историей.")
+			return name, errors.New("Content or its history uses this file.")
 		}
 	}
 	switch operation {
@@ -221,7 +221,7 @@ func (a *App) exportTemplate(c *echo.Context) error {
 	}
 	raw, err := templateZIP(files)
 	if err != nil {
-		return echo.NewHTTPError(400, "Экспорт превышает ограничения ZIP. Проверьте размер файлов.")
+		return echo.NewHTTPError(400, "The export exceeds ZIP limits. Check the file sizes.")
 	}
 	c.Response().Header().Set("Content-Disposition", `attachment; filename="gopress-template.zip"`)
 	return c.Blob(200, "application/zip", raw)

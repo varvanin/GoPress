@@ -101,7 +101,7 @@ templ FormEditor(site, csrf string, f store.Form, message string) {
 			}
 		}
 		if message!="" {
-			<p class={ templ.KV("notice",true), templ.KV("notice-error",message!="Форма сохранена.") } role="status">{ i18n.T(ctx, message) }</p>
+			<p class={ templ.KV("notice",true), templ.KV("notice-error",message!="Form saved.") } role="status">{ i18n.T(ctx, message) }</p>
 		}
 		if f.ID>0 {
 			@card.Card(card.Props{Class: "form-embed settings-panel px-4"}) {

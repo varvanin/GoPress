@@ -83,14 +83,14 @@ func (a *App) installTheme(reader io.Reader) (ThemeInfo, error) {
 		return info, err
 	}
 	if len(data) > service.MaxUpload {
-		return info, fmt.Errorf("ZIP не должен превышать 8 MiB")
+		return info, fmt.Errorf("The ZIP must not exceed 8 MiB")
 	}
 	archive, err := zip.NewReader(bytes.NewReader(data), int64(len(data)))
 	if err != nil {
-		return info, fmt.Errorf("Не удалось прочитать ZIP-архив")
+		return info, fmt.Errorf("Could not read the ZIP archive")
 	}
 	if len(archive.File) == 0 || len(archive.File) > 256 {
-		return info, fmt.Errorf("В архиве должно быть от 1 до 256 файлов и папок")
+		return info, fmt.Errorf("The archive must contain between 1 and 256 files and folders")
 	}
 	prefix := ""
 	for _, file := range archive.File {
@@ -116,7 +116,7 @@ func (a *App) installTheme(reader io.Reader) (ThemeInfo, error) {
 	for _, file := range archive.File {
 		name := file.Name
 		if strings.ContainsAny(name, "\\:") || strings.HasPrefix(name, "/") || strings.TrimSuffix(name, "/") != path.Clean(name) {
-			return info, fmt.Errorf("Недопустимый путь в ZIP")
+			return info, fmt.Errorf("Invalid path in ZIP")
 		}
 		if prefix != "" && name == strings.TrimSuffix(prefix, "/")+"/" {
 			continue
@@ -125,15 +125,15 @@ func (a *App) installTheme(reader io.Reader) (ThemeInfo, error) {
 			continue
 		}
 		if !strings.HasPrefix(name, prefix) {
-			return info, fmt.Errorf("Все файлы должны находиться в одной папке шаблона")
+			return info, fmt.Errorf("All files must be inside a single template folder")
 		}
 		name = strings.TrimPrefix(name, prefix)
 		if name == "" || name == ".." || strings.HasPrefix(name, "../") || seen[name] {
-			return info, fmt.Errorf("Недопустимый или повторяющийся путь в ZIP")
+			return info, fmt.Errorf("Invalid or duplicate path in ZIP")
 		}
 		seen[name] = true
 		if file.Mode()&os.ModeSymlink != 0 || (!file.Mode().IsRegular() && !file.FileInfo().IsDir()) {
-			return info, fmt.Errorf("Ссылки и специальные файлы запрещены")
+			return info, fmt.Errorf("Links and special files are not allowed")
 		}
 		if file.FileInfo().IsDir() {
 			continue
@@ -150,10 +150,10 @@ func (a *App) installTheme(reader io.Reader) (ThemeInfo, error) {
 			}
 		}
 		if !allowed {
-			return info, fmt.Errorf("Неподдерживаемый файл: %s", name)
+			return info, fmt.Errorf("Unsupported file: %s", name)
 		}
 		if file.UncompressedSize64 > 8<<20 || total+file.UncompressedSize64 > 32<<20 {
-			return info, fmt.Errorf("Распакованный шаблон не должен превышать 32 MiB; один файл — 8 MiB")
+			return info, fmt.Errorf("The extracted template must not exceed 32 MiB; each file must not exceed 8 MiB")
 		}
 		total += file.UncompressedSize64
 		input, e := file.Open()
@@ -169,7 +169,7 @@ func (a *App) installTheme(reader io.Reader) (ThemeInfo, error) {
 			return info, closeErr
 		}
 		if len(content) > 8<<20 {
-			return info, fmt.Errorf("Файл шаблона слишком большой")
+			return info, fmt.Errorf("Template file is too large")
 		}
 		target := filepath.Join(stage, filepath.FromSlash(name))
 		if err = os.MkdirAll(filepath.Dir(target), 0700); err != nil {
@@ -181,14 +181,14 @@ func (a *App) installTheme(reader io.Reader) (ThemeInfo, error) {
 	}
 	raw, err := os.ReadFile(filepath.Join(stage, "theme.json"))
 	if err != nil {
-		return info, fmt.Errorf("В архиве отсутствует theme.json")
+		return info, fmt.Errorf("The archive is missing theme.json")
 	}
 	if len(raw) > 16384 || json.Unmarshal(raw, &info) != nil || !service.ValidTheme("theme:"+info.ID) || strings.TrimSpace(info.Name) == "" || len(info.Name) > 120 || len(info.Version) > 40 || len(info.Author) > 120 || len(info.Description) > 600 {
-		return info, fmt.Errorf("Проверьте id, name и длину полей в theme.json")
+		return info, fmt.Errorf("Check id, name and field lengths in theme.json")
 	}
 	screenshot, screenshotMIME, err := themeScreenshot(os.DirFS(stage))
 	if err != nil {
-		return info, fmt.Errorf("Добавьте в ZIP изображение screenshot.png, screenshot.jpg или screenshot.svg")
+		return info, fmt.Errorf("Add screenshot.png, screenshot.jpg or screenshot.svg to the ZIP")
 	}
 	if err = validateScreenshot(screenshot, screenshotMIME); err != nil {
 		return info, err
@@ -200,7 +200,7 @@ func (a *App) installTheme(reader io.Reader) (ThemeInfo, error) {
 
 	target := filepath.Join(root, info.ID)
 	if _, err = os.Lstat(target); err == nil {
-		return info, fmt.Errorf("Шаблон с id %s уже установлена. Используйте другой id", info.ID)
+		return info, fmt.Errorf("A template with id %s is already installed. Use a different id", info.ID)
 	} else if !errors.Is(err, os.ErrNotExist) {
 		return info, err
 	}
@@ -227,7 +227,7 @@ func (a *App) themeRoutes(g *echo.Group) {
 		defer a.themeMu.Unlock()
 		file, err := c.FormFile("theme_zip")
 		if err != nil {
-			return a.themeUploadPage(c, 400, "Выберите ZIP-архив шаблона.")
+			return a.themeUploadPage(c, 400, "Select a template ZIP archive.")
 		}
 		reader, err := file.Open()
 		if err != nil {
@@ -252,7 +252,7 @@ func (a *App) themeRoutes(g *echo.Group) {
 			return err
 		}
 		if (!strings.HasPrefix(id, "theme:") && !builtinTemplate(id)) || !service.ValidTheme(id) || active == id {
-			return a.appearancePage(c, 400, "Активный шаблон нельзя удалить.", nil)
+			return a.appearancePage(c, 400, "The active template cannot be deleted.", nil)
 		}
 		if builtinTemplate(id) {
 			marker := a.deletedBuiltinPath(id)
@@ -336,7 +336,7 @@ func (a *App) themeRoutes(g *echo.Group) {
 	g.GET("/themes/starter.zip", func(c *echo.Context) error {
 		var out bytes.Buffer
 		archive := zip.NewWriter(&out)
-		info := ThemeInfo{ID: "my-journal", Name: "Мой журнал", Version: "1.0", Author: "Автор шаблона", Description: "Собственный шаблон на основе GoPress Journal."}
+		info := ThemeInfo{ID: "my-journal", Name: "Мой журнал", Version: "1.0", Author: "Автор шаблона", Description: "A custom template based on GoPress Journal."}
 		raw, _ := json.MarshalIndent(info, "", "  ")
 		preview, err := resources.ReadFile("assets/template-journal.svg")
 		if err != nil {
@@ -464,7 +464,7 @@ func themeScreenshot(source fs.FS) ([]byte, string, error) {
 			return nil, "", closeErr
 		}
 		if len(data) > 8<<20 {
-			return nil, "", fmt.Errorf("Изображение превью превышает 8 MiB")
+			return nil, "", fmt.Errorf("The preview image exceeds 8 MiB")
 		}
 		mime := "image/png"
 		if strings.HasSuffix(name, ".jpg") {
@@ -481,13 +481,13 @@ func validateScreenshot(data []byte, mime string) error {
 	if mime == "image/svg+xml" {
 		var root struct{ XMLName xml.Name }
 		if err := xml.Unmarshal(data, &root); err != nil || root.XMLName.Local != "svg" || root.XMLName.Space != "http://www.w3.org/2000/svg" {
-			return fmt.Errorf("Некорректное SVG-превью")
+			return fmt.Errorf("Invalid SVG preview")
 		}
 		return nil
 	}
 	config, format, err := image.DecodeConfig(bytes.NewReader(data))
 	if err != nil || ((mime == "image/png" && format != "png") || (mime == "image/jpeg" && format != "jpeg")) || config.Width < 1 || config.Height < 1 || int64(config.Width)*int64(config.Height) > 16000000 {
-		return fmt.Errorf("Некорректное изображение превью; используйте PNG/JPEG до 16 миллионов пикселей")
+		return fmt.Errorf("Invalid preview image; use PNG/JPEG up to 16 million pixels")
 	}
 	return nil
 }

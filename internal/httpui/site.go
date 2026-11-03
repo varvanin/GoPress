@@ -34,9 +34,9 @@ func mediaURL(query string, page int) string {
 func (a *App) mediaLibrary(c *echo.Context, status int, message string, posted *store.MediaFile) error {
 	if c.Request().Method == "GET" && message == "" {
 		if c.QueryParam("uploaded") == "1" {
-			message = "Изображение загружено."
+			message = "Image uploaded."
 		} else if c.QueryParam("saved") == "1" {
-			message = "Сведения сохранены."
+			message = "Details saved."
 		}
 	}
 	page, err := mediaPageNumber(c)
@@ -130,7 +130,7 @@ func (a *App) siteRoutes(g *echo.Group) {
 		defer f.Close()
 		name, err := a.Service.Upload(f, c.Request().Context())
 		if err != nil {
-			return a.mediaLibrary(c, 400, "Не удалось загрузить изображение. Нужен PNG или JPEG до 8 MiB и 16 миллионов пикселей.", nil)
+			return a.mediaLibrary(c, 400, "Could not upload the image. Use PNG or JPEG up to 8 MiB and 16 million pixels.", nil)
 		}
 		title := header.Filename
 		if len(title) > 200 {
@@ -159,10 +159,10 @@ func (a *App) siteRoutes(g *echo.Group) {
 		f := store.MediaFile{Name: c.FormValue("name"), Title: c.FormValue("title"), Alt: c.FormValue("alt"), Caption: c.FormValue("caption"), Revision: c.FormValue("revision")}
 		if err := a.Service.SaveMediaDetails(f); err != nil {
 			if errors.Is(err, store.ErrConflict) {
-				return a.mediaLibrary(c, 409, "Сведения изменены в другой вкладке. Скопируйте свои правки и откройте актуальную версию.", &f)
+				return a.mediaLibrary(c, 409, "File details changed in another tab. Copy your edits and open the current version.", &f)
 			}
 			if errors.Is(err, service.ErrInvalid) {
-				return a.mediaLibrary(c, 400, "Проверьте длину названия, alt и подписи.", &f)
+				return a.mediaLibrary(c, 400, "Check the length of the title, alt text and caption.", &f)
 			}
 			return err
 		}
@@ -171,7 +171,7 @@ func (a *App) siteRoutes(g *echo.Group) {
 	g.POST("/media/delete", func(c *echo.Context) error {
 		err := a.Service.DeleteMedia(c.Request().Context(), c.FormValue("name"))
 		if errors.Is(err, store.ErrMediaUsed) {
-			return a.mediaLibrary(c, 409, "Изображение используется в материалах, настройках сайта или модулей. Его нельзя удалить.", nil)
+			return a.mediaLibrary(c, 409, "The image is used in content, site settings or modules and cannot be deleted.", nil)
 		}
 		if err != nil {
 			return err
@@ -181,7 +181,7 @@ func (a *App) siteRoutes(g *echo.Group) {
 	g.GET("/menus", func(c *echo.Context) error {
 		message := ""
 		if c.QueryParam("saved") == "1" {
-			message = "Меню сохранено."
+			message = "Menu saved."
 		}
 		return a.menusPage(c, 200, message, nil)
 	})
@@ -210,10 +210,10 @@ func (a *App) siteRoutes(g *echo.Group) {
 		}
 		err = a.Service.SaveMenu(c.Request().Context(), m)
 		if errors.Is(err, store.ErrConflict) {
-			return a.menusPage(c, 409, "Меню уже изменено. Обновите страницу перед повторным сохранением.", &m)
+			return a.menusPage(c, 409, "The menu has changed. Reload the page before saving again.", &m)
 		}
 		if errors.Is(err, service.ErrInvalid) {
-			return a.menusPage(c, 400, "Проверьте названия и адреса. Подпункт должен идти после основного пункта; допускается до трёх уровней.", &m)
+			return a.menusPage(c, 400, "Check labels and URLs. Submenu items must follow their parent; up to three levels are allowed.", &m)
 		}
 		if err != nil {
 			return err

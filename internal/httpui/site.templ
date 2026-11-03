@@ -92,7 +92,7 @@ templ MediaLibrary(site, baseURL, csrf string, files []store.MediaFile, total, p
 					if used {
 						<p class="library-used">@icon.LockKeyhole(icon.Props{Class: "size-3.5"})<span>{ i18n.T(ctx,"Used in content, site settings or modules. Deletion is unavailable.") }</span></p>
 					} else {
-						<form action="/admin/media/delete" method="post" hx-confirm="Удалить изображение без возможности восстановления?" class="library-delete">
+						<form action="/admin/media/delete" method="post" hx-confirm={ i18n.T(ctx, "Permanently delete this image?") } class="library-delete">
 							<input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="name" value={ selected.Name }/>@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantGhost, Size: button.SizeSm}) {
 	@icon.Icon("trash-2")(icon.Props{})<span>{ i18n.T(ctx,"Delete file") }</span>
 }

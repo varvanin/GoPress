@@ -15,7 +15,7 @@ var sources = map[string]string{}
 type languageKey struct{}
 
 func init() {
-	for _, language := range []string{"ru", "pl", "de", "uk", "it", "es", "cs"} {
+	for _, language := range []string{"ru", "pl", "de", "uk", "it", "es", "cs", "zh", "ko", "ja", "fr", "pt", "tr"} {
 		raw, err := files.ReadFile("locales/" + language + ".json")
 		if err != nil {
 			panic(err)

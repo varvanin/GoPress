@@ -90,5 +90,5 @@ func (a *App) recoverDraft(c *echo.Context) error {
 		target = contentPath(p.Kind) + "/new"
 	}
 	c.Response().Header().Set("HX-Push-Url", languageURL(target, fields.Get("content_language")))
-	return a.editPage(c, p, 200, "Локальный черновик восстановлен в редактор. Проверьте и сохраните его.")
+	return a.editPage(c, p, 200, "Local draft restored in the editor. Review and save it.")
 }

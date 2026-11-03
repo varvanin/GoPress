@@ -25,7 +25,7 @@ export const tableNodes=[
 ];
 export function tableCommands(editor,report){
  const run=command=>()=>command(editor.state,tr=>{
-  if(validTableSizes(tr.doc)){editor.view.dispatch(tr);editor.view.focus();}else report('Таблица: не более 100 строк и 20 столбцов.');
+  if(validTableSizes(tr.doc)){editor.view.dispatch(tr);editor.view.focus();}else report("Table: at most 100 rows and 20 columns.");
  });
  return {
   insertTable:()=>editor.chain().focus().insertContent([{type:'table',content:Array.from({length:3},(_,row)=>({type:'tableRow',content:Array.from({length:3},()=>({type:row===0?'tableHeader':'tableCell',content:[{type:'paragraph'}]}))}))},{type:'paragraph'}]).command(({tr})=>{

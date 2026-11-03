@@ -129,7 +129,7 @@ templ ModuleEditor(site,csrf string,info ModuleInfo,p store.ModulePackage,settin
  }
  }
  if message!="" {
- <p class={ "notice",templ.KV("notice-error",message!="Настройки модуля сохранены.") } role="status">{ i18n.T(ctx,message) }</p>
+ <p class={ "notice",templ.KV("notice-error",message!="Module settings saved.") } role="status">{ i18n.T(ctx,message) }</p>
  }
  <div class="management-workspace"><form id="module-settings" method="post" action="/admin/modules/package/save" data-change-form class="site-settings module-settings">
  <input type="hidden" name="csrf" value={ csrf }/><input type="hidden" name="id" value={ info.ID }/><input type="hidden" name="version" value={ strconv.FormatInt(p.Version,10) }/>

@@ -15,7 +15,7 @@ import (
 )
 
 func TestLanguagesAndCatalogCoverage(t *testing.T) {
-	for _, language := range []string{"ru", "pl", "de", "uk", "it", "es", "cs"} {
+	for _, language := range []string{"ru", "pl", "de", "uk", "it", "es", "cs", "zh", "ko", "ja", "fr", "pt", "tr"} {
 		ctx := WithLanguage(context.Background(), language)
 		if T(ctx, " Settings ") == " Settings " || T(ctx, "My own title") != "My own title" {
 			t.Fatal("translation or fallback", language)
@@ -31,14 +31,14 @@ func TestLanguagesAndCatalogCoverage(t *testing.T) {
 		if len(catalog) != len(catalogs["ru"]) {
 			t.Fatal("catalog keys differ", language)
 		}
-		for key, value := range catalogs["ru"] {
+		for key := range catalogs["ru"] {
 			translated := catalog[key]
-			if value == "" || translated == "" {
+			if translated == "" {
 				t.Fatal("incomplete catalog", language, key)
 			}
 			for _, pattern := range []string{`%[sw]`, `\{[a-z_]+\}`} {
 				r := regexp.MustCompile(pattern)
-				expected, actual := r.FindAllString(value, -1), r.FindAllString(translated, -1)
+				expected, actual := r.FindAllString(key, -1), r.FindAllString(translated, -1)
 				if !reflect.DeepEqual(expected, actual) {
 					t.Fatalf("%s: placeholders changed for %q: %v != %v", language, key, actual, expected)
 				}
@@ -81,7 +81,7 @@ func TestLanguagesAndCatalogCoverage(t *testing.T) {
 				t.Fatal(err)
 			}
 			key = strings.TrimSpace(key)
-			for _, language := range []string{"ru", "pl", "de", "uk", "it", "es", "cs"} {
+			for _, language := range []string{"ru", "pl", "de", "uk", "it", "es", "cs", "zh", "ko", "ja", "fr", "pt", "tr"} {
 				if catalogs[language][key] == "" {
 					t.Errorf("%s: missing %s translation for %q", path, language, key)
 				}

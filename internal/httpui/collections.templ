@@ -75,7 +75,7 @@ templ CollectionEditor(site, csrf string, c store.Collection, message string) {
 			}
 		}
 		if message!="" {
-			<p class={ "notice",templ.KV("notice-error",message!="Изменения сохранены.") } role="status">
+			<p class={ "notice",templ.KV("notice-error",message!="Changes saved.") } role="status">
 				{ i18n.T(ctx,message) }
 			</p>
 		}

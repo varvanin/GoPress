@@ -97,7 +97,7 @@ func (a *App) moduleRoutes(g *echo.Group) {
 		}
 		message := ""
 		if c.QueryParam("saved") == "1" {
-			message = "Группа FAQ сохранена."
+			message = "FAQ group saved."
 		}
 		return a.faqEditor(c, 200, f, message)
 	})
@@ -124,10 +124,10 @@ func (a *App) moduleRoutes(g *echo.Group) {
 		}
 		id, err := a.Service.SaveFAQ(c.Request().Context(), f)
 		if errors.Is(err, service.ErrInvalid) {
-			return a.faqEditor(c, 400, f, "Укажите название и от 1 до 50 вопросов с ответами.")
+			return a.faqEditor(c, 400, f, "Enter a name and 1–50 questions with answers.")
 		}
 		if errors.Is(err, store.ErrConflict) {
-			return a.faqEditor(c, 409, f, "Группа изменена в другой вкладке. Откройте актуальную версию.")
+			return a.faqEditor(c, 409, f, "This group changed in another tab. Open the current version.")
 		}
 		if err != nil {
 			return err

@@ -134,7 +134,7 @@ if adminRole(ctx)!="admin" {
 
 templ AdminMain(site, title, csrf string) {
 	@sidebar.Inset(sidebar.InsetProps{ID: "main", Class: "gp-main", Attributes: templ.Attributes{"tabindex": "-1", "data-section": adminCurrentSection(ctx, title)}}) {
-		if i18n.Source(title)!="Редактирование страницы" && i18n.Source(title)!="Редактирование записи" {
+		if i18n.Source(title)!="Edit page" && i18n.Source(title)!="Edit post" {
 			<header class="gp-topbar">
 				<div class="gp-breadcrumb">
 					@sidebar.Trigger(sidebar.TriggerProps{Target: "gopress-sidebar", Class: "gp-sidebar-trigger", Attributes: templ.Attributes{"aria-label": i18n.T(ctx, "Toggle navigation")}})

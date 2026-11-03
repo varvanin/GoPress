@@ -657,7 +657,7 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 				return templ_7745c5c3_Err
 			}
 			if message != "" {
-				var templ_7745c5c3_Var39 = []any{templ.KV("notice", true), templ.KV("notice-error", message != "Форма сохранена.")}
+				var templ_7745c5c3_Var39 = []any{templ.KV("notice", true), templ.KV("notice-error", message != "Form saved.")}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var39...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -682,7 +682,7 @@ func FormEditor(site, csrf string, f store.Form, message string) templ.Component
 				var templ_7745c5c3_Var41 string
 				templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, message))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 104, Col: 144}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/forms.templ`, Line: 104, Col: 125}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 				if templ_7745c5c3_Err != nil {

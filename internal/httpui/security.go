@@ -86,7 +86,7 @@ func (a *App) securityRoutes(g *echo.Group) {
 			err = a.Service.RevokeSession(c.Request().Context(), current, reference)
 		}
 		if errors.Is(err, store.ErrConflict) {
-			return a.securityPage(c, 409, "Сеанс уже завершён или недоступен.")
+			return a.securityPage(c, 409, "Session already ended or unavailable.")
 		}
 		if err != nil {
 			return err
@@ -107,11 +107,11 @@ func (a *App) recoveryDownload(c *echo.Context, codes []string) error {
 func (a *App) securityError(c *echo.Context, err error) error {
 	switch {
 	case errors.Is(err, service.ErrUnauthorized), errors.Is(err, service.ErrInvalid):
-		return a.securityPage(c, 400, "Проверьте пароль и новый код. Сначала получите ключ настройки.")
+		return a.securityPage(c, 400, "Check the password and fresh code. Download the setup key first.")
 	case errors.Is(err, store.ErrConflict):
-		return a.securityPage(c, 409, "Настройки защиты изменились или код уже использован. Обновите страницу и используйте новый код.")
+		return a.securityPage(c, 409, "Security settings changed or the code was already used. Refresh and use a fresh code.")
 	case errors.Is(err, service.ErrSecondFactorUnavailable):
-		return a.securityPage(c, 400, "Ключ 2FA недоступен. Используйте резервный код или восстановление на сервере.")
+		return a.securityPage(c, 400, "2FA key unavailable. Use a recovery code or server recovery.")
 	default:
 		return err
 	}

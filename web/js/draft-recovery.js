@@ -22,7 +22,7 @@ export function mountDraftRecovery(form,state,signal){
    recovery.elements.snapshot.value=existing.snapshot;
    const same=fields.get('version')===form.elements.version.value;
    panel.querySelector('[data-recovery-restore]').disabled=!same;
-   panel.querySelector('[data-recovery-description]').textContent=t(same?'Копия хранится в этом браузере до семи дней. Восстановление откроет её для проверки.':'Серверная версия изменилась. Скачайте локальную копию для сравнения; автоматическое восстановление отключено.');
+   panel.querySelector('[data-recovery-description]').textContent=t(same?"The copy stays in this browser for up to seven days. Recovery opens it for review.":"The server version changed. Download the local copy to compare; recovery is disabled.");
    panel.hidden=false;
   }
  }

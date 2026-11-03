@@ -28,7 +28,7 @@ export function mountEditorAI(form,editor,state,signal) {
    form.dispatchEvent(new Event('editor:serialize'));
    try{const original=JSON.parse(form.elements.original_translation.value);translation=translationParts(JSON.parse(original.document));title=original.title;text=JSON.stringify(translation.texts);}catch{status.textContent=t('Could not prepare the translation. The original text was preserved.');return;}
   }else if(mode==='seo')text=editor.getText();
-  if(new TextEncoder().encode(text).length>64000){status.textContent=t(mode==='generate'?'Контекст слишком большой. Отключите учёт текста материала.':'Текст слишком большой для одного запроса.');return;}
+  if(new TextEncoder().encode(text).length>64000){status.textContent=t(mode==='generate'?"The context is too large. Disable existing text context.":"The text is too long for one request.");return;}
   const candidate={mode,language:language(),doc:editor.state.doc,title:form.elements.title.value,selection:selection&&{from:selection.from,to:selection.to},translation,seo:mode==='seo'?{title:form.elements.seo_title.value,description:form.elements.seo_description.value}:null};
   request=new AbortController();busy=true;generate.disabled=true;status.textContent=t('AI is writing…');
   try {
@@ -41,7 +41,7 @@ export function mountEditorAI(form,editor,state,signal) {
     try{candidate.fields=parseAIFields(mode,data.text,translation?.texts.length);}catch{throw new Error(t('AI returned an invalid result. No changes were applied.'));}
     output.value=candidate.fields.title+'\n\n'+(mode==='seo'?candidate.fields.description:candidate.fields.texts.join('\n\n'));
    }else output.value=data.text;
-   proposal=candidate;result.hidden=false;insert.textContent=t(mode==='generate'?'Вставить в конец текста':'Применить результат');
+   proposal=candidate;result.hidden=false;insert.textContent=t(mode==='generate'?"Append to text":"Apply result");
    status.textContent=t('Review the text before inserting it.');
   }catch(error){if(!signal.aborted)status.textContent=error.name==='AbortError'?t('Request cancelled.'):error.message;}
   finally {busy=false;if(!signal.aborted)generate.disabled=false;}

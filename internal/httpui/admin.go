@@ -129,7 +129,7 @@ func adminSection(title string) string {
 		if title == item.title {
 			return item.path
 		}
-		for _, language := range []string{"ru", "pl", "de", "uk", "it", "es", "cs"} {
+		for _, language := range []string{"ru", "pl", "de", "uk", "it", "es", "cs", "zh", "ko", "ja", "fr", "pt", "tr"} {
 			if i18n.Catalog(language)[item.title] == title {
 				return item.path
 			}
@@ -395,13 +395,13 @@ func (a *App) adminRoutes(g *echo.Group) {
 		message := ""
 		switch c.QueryParam("done") {
 		case "saved":
-			message = "Черновик сохранён. Публичная версия не изменилась."
+			message = "Draft saved. The published version is unchanged."
 		case "published":
-			message = "Материал опубликован."
+			message = "Content published."
 		case "scheduled":
-			message = "Публикация выбранной версии запланирована. Позднейшие правки черновика не изменят запланированный снимок."
+			message = "The selected revision is scheduled. Later draft edits will not change that scheduled revision."
 		case "restored":
-			message = "Версия восстановлена в черновик. Публичная версия не изменилась."
+			message = "Revision restored to draft. The published version is unchanged."
 		}
 		return a.editPage(c, p, 200, message)
 	})
@@ -457,12 +457,12 @@ func (a *App) adminRoutes(g *echo.Group) {
 		}
 		saved, err := a.Service.Save(c.Request().Context(), p, intent == "publish")
 		if err != nil {
-			status, message := http.StatusBadRequest, "Проверьте заголовок, адрес, изображение и содержимое страницы."
+			status, message := http.StatusBadRequest, "Check the title, URL, image and page content."
 			switch {
 			case errors.Is(err, store.ErrConflict):
-				status, message = 409, "Страница изменена в другом окне. Ваши правки остались здесь. Откройте актуальную версию в новой вкладке и сравните изменения."
+				status, message = 409, "The page changed in another tab. Your edits are still here. Open the current version in a new tab and compare changes."
 			case strings.Contains(err.Error(), "constraint failed"):
-				status, message = 409, "Этот адрес уже занят. Выберите другой адрес страницы."
+				status, message = 409, "This URL is already taken. Choose another page URL."
 			case errors.Is(err, service.ErrInvalid):
 			default:
 				return err
@@ -477,7 +477,7 @@ func (a *App) adminRoutes(g *echo.Group) {
 		}
 		if intent == "review" {
 			if err = a.Service.RequestReview(c.Request().Context(), saved.ID, saved.Version); err != nil {
-				return a.editPage(c, saved, 409, "Черновик сохранён, но версия для проверки изменилась. Отправьте повторно.")
+				return a.editPage(c, saved, 409, "Draft saved, but the review version changed. Submit again.")
 			}
 			return c.Redirect(303, "/admin/posts/review")
 		}

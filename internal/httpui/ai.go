@@ -30,7 +30,7 @@ func (a *App) aiRoutes(g *echo.Group) {
 	g.GET("/ai", func(c *echo.Context) error {
 		message := ""
 		if c.QueryParam("saved") == "1" {
-			message = "Настройки сохранены."
+			message = "Settings saved."
 		}
 		return a.aiPage(c, 200, message, nil)
 	})
@@ -39,10 +39,10 @@ func (a *App) aiRoutes(g *echo.Group) {
 		err := a.Service.SaveAISettings(c.Request().Context(), value, c.FormValue("clear_key") == "1")
 		value.Key = ""
 		if errors.Is(err, store.ErrConflict) {
-			return a.aiPage(c, 409, "Настройки ИИ изменены в другой вкладке. Проверьте актуальные данные.", &value)
+			return a.aiPage(c, 409, "AI settings changed in another tab. Review the current values.", &value)
 		}
 		if errors.Is(err, service.ErrInvalid) {
-			return a.aiPage(c, 400, "Проверьте API-ключ и идентификатор модели.", &value)
+			return a.aiPage(c, 400, "Check the API key and model ID.", &value)
 		}
 		if err != nil {
 			return err

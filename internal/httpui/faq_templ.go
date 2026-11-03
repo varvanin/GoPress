@@ -439,7 +439,7 @@ func FAQEditor(site, csrf string, f store.FAQGroup, message string) templ.Compon
 				return templ_7745c5c3_Err
 			}
 			if message != "" {
-				var templ_7745c5c3_Var27 = []any{templ.KV("notice", true), templ.KV("notice-error", message != "Группа FAQ сохранена.")}
+				var templ_7745c5c3_Var27 = []any{templ.KV("notice", true), templ.KV("notice-error", message != "FAQ group saved.")}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var27...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -464,7 +464,7 @@ func FAQEditor(site, csrf string, f store.FAQGroup, message string) templ.Compon
 				var templ_7745c5c3_Var29 string
 				templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(ctx, message))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/faq.templ`, Line: 56, Col: 148}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/httpui/faq.templ`, Line: 56, Col: 128}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 				if templ_7745c5c3_Err != nil {

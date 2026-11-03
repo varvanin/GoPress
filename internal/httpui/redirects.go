@@ -42,7 +42,7 @@ func (a *App) redirectRoutes(g *echo.Group) {
 			err = a.Service.SaveRedirect(c.Request().Context(), slug, id)
 		}
 		if errors.Is(err, store.ErrConflict) || errors.Is(err, service.ErrInvalid) {
-			return a.redirectsPage(c, 409, "Проверьте адрес: он уже занят или цель недоступна.", slug, id)
+			return a.redirectsPage(c, 409, "Check the path: it is occupied or the target is unavailable.", slug, id)
 		}
 		if err != nil {
 			return err
