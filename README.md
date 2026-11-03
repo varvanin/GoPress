@@ -25,9 +25,9 @@ make build
 ./bin/gopress serve --data ./data --addr 127.0.0.1:8080
 ```
 
-Open `http://127.0.0.1:8080/install`. Enter the random installation token printed in this process's console, a site name, the base URL `http://127.0.0.1:8080`, an IANA timezone such as `Europe/Warsaw`, your email and a password of 12–72 bytes. Then sign in at `/login`.
+Open the installation link printed when GoPress starts. It unlocks setup automatically; no code needs to be copied. Enter your site name, administrator email and a long password (12–72 bytes), then choose **Create site**. The site address and time zone are filled from your browser; review them under **Additional settings**, especially behind a reverse proxy. Then sign in at `/login`. For a remote server, use its public origin with the same `/install#setup=…` part of the printed link. Keep this link private until setup is complete.
 
-There is no fixed administrator account. Installation is transactional and cannot be repeated. Restarting an incomplete installation produces a new token; completed installations do not expose another token. An existing corrupt or unsupported database is never treated as a fresh site.
+There is no fixed administrator account. Installation is transactional and cannot be repeated. Restarting an incomplete installation produces a new link; completed installations do not expose another link. The browser removes the setup secret from the address bar and exchanges it for a temporary HttpOnly cookie. Successful installation clears that cookie and blocks setup and link-unlock requests. An existing corrupt or unsupported database is never treated as a fresh site.
 
 The base URL is an origin without a path, query or fragment. Use the same origin for installation and sign-in. HTTPS enables Secure cookies. Proxy headers are trusted only when explicitly configured; see [operations](docs/OPERATIONS.md).
 

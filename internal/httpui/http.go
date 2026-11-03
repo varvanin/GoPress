@@ -91,7 +91,7 @@ func New(v *service.Service) *App {
 			requestID := service.Token()[:16]
 			h.Set("X-Request-ID", requestID)
 			switch c.Request().URL.Path {
-			case "/install", "/login", "/logout":
+			case "/install", "/install/unlock", "/login", "/logout":
 				h.Set("Cache-Control", "no-store")
 				h.Set("X-Robots-Tag", "noindex, nofollow")
 			}
@@ -166,6 +166,7 @@ func New(v *service.Service) *App {
 	e.GET("/theme-assets/:theme/*", a.themeAsset)
 	e.GET("/builtin-assets/:theme/*", a.themeAsset)
 	e.POST("/install", a.install, a.csrf)
+	e.POST("/install/unlock", a.unlockInstallation, a.csrf)
 	e.GET("/login", a.loginForm)
 	e.POST("/login", a.login, a.csrf)
 	e.POST("/logout", func(c *echo.Context) error {
@@ -456,7 +457,7 @@ func (a *App) csrf(next echo.HandlerFunc) echo.HandlerFunc {
 		origin := c.Request().Header.Get("Origin")
 		if origin != "" {
 			expected := "http://" + c.Request().Host
-			if c.Request().TLS != nil {
+			if c.Request().TLS != nil || c.Request().Header.Get("X-Forwarded-Proto") == "https" {
 				expected = "https://" + c.Request().Host
 			}
 			if site, e := a.Service.Store.Site(); e == nil {
@@ -533,7 +534,8 @@ func (a *App) installForm(c *echo.Context) error {
 		return err
 	}
 	c.Response().Header().Set("Content-Type", "text/html; charset=utf-8")
-	return System("Установить GoPress", a.csrfToken(c), true).Render(c.Request().Context(), c.Response())
+	token := a.installationToken(c)
+	return a.renderInstallation(c, 200, installationForm{Timezone: "UTC", Unlocked: a.Service.InstallToken != "" && service.Equal(token, a.Service.InstallToken)})
 }
 func (a *App) loginForm(c *echo.Context) error {
 	c.Response().Header().Set("Cache-Control", "no-store")
@@ -543,14 +545,7 @@ func (a *App) loginForm(c *echo.Context) error {
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return err
 	}
-	return System("Войти", a.csrfToken(c), false).Render(i18n.WithLanguage(c.Request().Context(), settings.Language), c.Response())
-}
-func (a *App) install(c *echo.Context) error {
-	err := a.Service.Install(c.Request().Context(), c.FormValue("token"), store.Site{Title: c.FormValue("title"), BaseURL: c.FormValue("base_url"), Timezone: c.FormValue("timezone")}, c.FormValue("email"), c.FormValue("password"))
-	if err != nil {
-		return err
-	}
-	return c.Redirect(303, "/login")
+	return System("Sign in", a.csrfToken(c)).Render(i18n.WithLanguage(c.Request().Context(), settings.Language), c.Response())
 }
 func (a *App) login(c *echo.Context) error {
 	token, err := a.Service.Login(c.RealIP(), c.FormValue("email"), c.FormValue("password"), service.LoginOptions{Code: c.FormValue("code"), UserAgent: c.Request().UserAgent()})

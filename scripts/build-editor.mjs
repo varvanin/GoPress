@@ -3,6 +3,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 
 await build({entryPoints:['web/js/admin-theme.js'],bundle:true,format:'iife',minify:true,outfile:'internal/httpui/assets/admin-theme.js'});
 
+await build({entryPoints:['web/js/install.js'],bundle:true,format:'iife',minify:true,outfile:'internal/httpui/assets/install.js'});
+
 const result = await build({
   entryPoints: ['web/js/editor.js'], bundle: true, format: 'esm', minify: true,
   legalComments: 'eof', metafile: true, outfile: 'internal/httpui/assets/editor.bundle.js',

@@ -39,11 +39,11 @@ async function startSite(directory){
   assert.equal(result.status,0,result.stderr);containerRunning=true;
  }else{
   server=spawn('./bin/gopress',['serve','--data',directory,'--addr','127.0.0.1:'+port],{stdio:['ignore','ignore','pipe'],env:environment});
-  server.stderr.on('data',chunk=>{logs+=chunk.toString();const match=logs.match(/installation token[^:]*: ([a-f0-9]{64})/);if(match)token=match[1];});
+  server.stderr.on('data',chunk=>{logs+=chunk.toString();const match=logs.match(/installation link: [^\s]*#setup=([a-f0-9]{64})/);if(match)token=match[1];});
   server.on('error',error=>{logs+=error.message;});
  }
  await until(async()=>{if(server&&(server.exitCode!==null||server.signalCode!==null))throw new Error('Server exited');return (await fetch(base+'/readyz',{signal:AbortSignal.timeout(3000)})).ok;},'site readiness');
- if(docker){const output=spawnSync('docker',['logs',container],{encoding:'utf8'});const match=(output.stdout+output.stderr).match(/installation token[^:]*: ([a-f0-9]{64})/);if(match)token=match[1];}
+ if(docker){const output=spawnSync('docker',['logs',container],{encoding:'utf8'});const match=(output.stdout+output.stderr).match(/installation link: [^\s]*#setup=([a-f0-9]{64})/);if(match)token=match[1];}
 }
 async function stopSite(){
  if(docker&&containerRunning){
@@ -76,7 +76,7 @@ const field=(html,name)=>{const match=html.match(new RegExp('name="'+name+'"[^>]
 try{
  if(docker){const result=spawnSync('docker',['volume','create',volume],{encoding:'utf8'});assert.equal(result.status,0,result.stderr);}
  await startSite(data);
- await until(()=>token,'installation token');
+ await until(()=>token,'installation link');
  const admin=new BrowserHTTP(),anon=new BrowserHTTP();
  assert.equal((await admin.request('/install')).status,200);
  const installation=new URLSearchParams({token,title:'Smoke site',base_url:base,timezone:'UTC',email,password});

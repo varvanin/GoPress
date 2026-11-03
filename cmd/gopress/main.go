@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -170,9 +171,9 @@ func run(args []string) error {
 		if err != nil {
 			return err
 		}
-		// The one-time token is deliberately emitted only to the local process console.
+		// The setup secret stays in the URL fragment, outside HTTP requests and access logs.
 		if v.InstallToken != "" {
-			fmt.Fprintf(os.Stderr, "GoPress installation token (enter in /install): %s\n", v.InstallToken)
+			fmt.Fprintf(os.Stderr, "GoPress installation link: %s\n", installationLink(*addr, v.InstallToken))
 		}
 		app := httpui.New(v)
 		if err = app.ConfigureProxies(os.Getenv("GOPRESS_TRUSTED_PROXIES")); err != nil {
@@ -221,4 +222,15 @@ func env(key, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+func installationLink(address, token string) string {
+	host, port, err := net.SplitHostPort(address)
+	if err != nil {
+		return ""
+	}
+	if ip := net.ParseIP(host); host == "" || ip != nil && ip.IsUnspecified() {
+		host = "127.0.0.1"
+	}
+	return (&url.URL{Scheme: "http", Host: net.JoinHostPort(host, port), Path: "/install", Fragment: "setup=" + token}).String()
 }

@@ -450,6 +450,16 @@
 .auth-recovery-link { display:block;width:fit-content;margin:20px auto 0;font-size:12px;color:var(--muted-foreground);text-decoration:none; }
 .auth-recovery-link:hover { color:var(--foreground); }
 .auth-card .notice { margin-bottom:20px; }
+.auth-shell:has(.installation) { max-width:560px; }
+.installation-section { display:grid;gap:20px;min-width:0;padding:0;border:0; }
+.installation-section+.installation-section { border-top:1px solid var(--border);padding-top:20px; }
+.installation-section legend { float:left;width:100%;font-size:13px;font-weight:500;margin-bottom:0; }
+.installation-details { border-top:1px solid var(--border);padding-top:20px;font-size:12px; }
+.installation-details summary { cursor:pointer;color:var(--muted-foreground); }
+.installation-settings { display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;padding-top:20px; }
+.installation-intro { font-size:13px;line-height:1.7;margin-bottom:12px; }
+@media(max-width:480px){.installation-settings{grid-template-columns:minmax(0,1fr)}}
+
 @media(max-width:480px){.auth-simple{padding:28px 16px}.auth-card{padding:24px}.auth-shell{gap:24px}}
 
 @media(max-width:600px){.page-heading-actions{width:100%}.library-toolbar{gap:12px}.library-upload{width:100%;padding:24px 14px}.menu-row-actions{justify-content:flex-end}}

@@ -88,3 +88,18 @@ func TestOfflineSecondFactorReset(t *testing.T) {
 		t.Fatal(profile, err)
 	}
 }
+
+func TestInstallationLinkUsesAFragment(t *testing.T) {
+	for address, want := range map[string]string{
+		"127.0.0.1:8080":    "http://127.0.0.1:8080/install#setup=secret",
+		"0.0.0.0:8080":      "http://127.0.0.1:8080/install#setup=secret",
+		":8080":             "http://127.0.0.1:8080/install#setup=secret",
+		"[::]:8080":         "http://127.0.0.1:8080/install#setup=secret",
+		"[::1]:8080":        "http://[::1]:8080/install#setup=secret",
+		"example.test:8080": "http://example.test:8080/install#setup=secret",
+	} {
+		if got := installationLink(address, "secret"); got != want {
+			t.Fatalf("%s: %s != %s", address, got, want)
+		}
+	}
+}
