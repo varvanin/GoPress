@@ -6,7 +6,7 @@
     "build": "npm run build:css && npm run build:editor",
     "build:css": "tailwindcss -i web/styles/admin.css -o internal/httpui/assets/admin.css --minify",
     "build:editor": "node scripts/build-editor.mjs",
-    "test": "node --test web/js/*.test.js"
+    "test": "node --test web/js/*.test.js scripts/*.test.mjs"
   },
   "dependencies": {
     "@codemirror/lang-css": "6.3.1",

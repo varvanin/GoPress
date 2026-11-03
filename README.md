@@ -10,6 +10,12 @@ GoPress is a self-hosted CMS for one site per installation, built with Go, Echo,
 [Open the English admin preview](docs/admin-preview.html). The preview uses an isolated demonstration site, not production data.
 <!-- admin-preview:end -->
 
+## Install a release binary
+
+Download the Linux binary matching your server from GitHub Releases: `gopress-<version>-linux-amd64` or `gopress-<version>-linux-arm64`. Verify it against the release's `SHA256SUMS-<version>`, rename it to `gopress`, and make it executable with `chmod +x gopress`. Run `./gopress serve --data ./data --addr 127.0.0.1:8080`, then follow the installation steps below. No source checkout, Go, Node.js or prebuilt database is needed. A new data directory creates a fresh database; an existing directory retains its site.
+
+Release downloads contain standalone binaries and verification/update metadata. Source code and development documents remain in the repository. Linux builds still require deployment acceptance before being advertised as verified releases.
+
 ## Quick start
 
 Development uses Go 1.27.1 and Node.js 24.14.1/npm. The compiled binary embeds the admin, public templates, CSS/JavaScript, developer references, license notices and timezone database. An installed site does not need Go or Node.js.
