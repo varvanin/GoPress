@@ -213,6 +213,7 @@
   "Copy": "Kopyala",
   "Copy created. Changes will appear on the site after you activate it.": "Kopya oluşturuldu. Siteyi etkinleştirdikten sonra değişiklikler sitede görünecektir.",
   "Could not add the language. Try again.": "Dil eklenemedi. Tekrar deneyin.",
+  "Could not change the language. Try again.": "Dil değiştirilemedi. Tekrar deneyin.",
   "Could not check for updates. Check the release source and signing key.": "Güncellemeler kontrol edilemedi. Sürüm kaynağını ve imzalama anahtarını kontrol edin.",
   "Could not complete the action. Your edits are still on screen; check your connection or reload the current content version.": "İşlem tamamlanamadı. Düzenlemeleriniz hâlâ ekranda; bağlantınızı kontrol edin veya mevcut içerik sürümünü yeniden yükleyin.",
   "Could not format the code. The original text was preserved.": "Kod biçimlendirilemedi. Orijinal metin korunmuştur.",

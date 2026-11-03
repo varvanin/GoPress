@@ -451,6 +451,8 @@
 .auth-recovery-link:hover { color:var(--foreground); }
 .auth-card .notice { margin-bottom:20px; }
 .auth-shell:has(.installation) { max-width:560px; }
+.installation-language { margin-bottom:var(--admin-section-gap); }
+.installation .auth-form-description { margin-top:0; }
 .installation-section { display:grid;gap:20px;min-width:0;padding:0;border:0; }
 .installation-section+.installation-section { border-top:1px solid var(--border);padding-top:20px; }
 .installation-section legend { float:left;width:100%;font-size:13px;font-weight:500;margin-bottom:0; }

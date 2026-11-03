@@ -22,10 +22,10 @@ Development uses Go 1.27.1 and Node.js 24.14.1/npm. The compiled binary embeds t
 
 ```sh
 make build
-./bin/gopress serve --data ./data --addr 127.0.0.1:8080
+./gopress serve --data ./data --addr 127.0.0.1:8080
 ```
 
-Open the installation link printed when GoPress starts. It unlocks setup automatically; no code needs to be copied. Enter your site name, administrator email and a long password (12–72 bytes), then choose **Create site**. The site address and time zone are filled from your browser; review them under **Additional settings**, especially behind a reverse proxy. Then sign in at `/login`. For a remote server, use its public origin with the same `/install#setup=…` part of the printed link. Keep this link private until setup is complete.
+Open the installation link printed when GoPress starts. It unlocks setup automatically; no code needs to be copied. Choose the interface language; the installer switches immediately and saves that language for the admin and sign-in screens. Enter your site name, administrator email and a long password (12–72 bytes), then choose **Create site**. The site address and time zone are filled from your browser; review them under **Additional settings**, especially behind a reverse proxy. Then sign in at `/login`. For a remote server, use its public origin with the same `/install#setup=…` part of the printed link. Keep this link private until setup is complete.
 
 There is no fixed administrator account. Installation is transactional and cannot be repeated. Restarting an incomplete installation produces a new link; completed installations do not expose another link. The browser removes the setup secret from the address bar and exchanges it for a temporary HttpOnly cookie. Successful installation clears that cookie and blocks setup and link-unlock requests. An existing corrupt or unsupported database is never treated as a fresh site.
 
@@ -84,7 +84,7 @@ With the local server stopped, add demonstration content to an installed site:
 
 ```sh
 go run scripts/seed-demo.go --data ./data
-./bin/gopress serve --data ./data --addr 127.0.0.1:8080
+./gopress serve --data ./data --addr 127.0.0.1:8080
 ```
 
 This publishes six pages (including nested pages) and eight articles, adds two drafts, a post scheduled one week ahead and a trashed post, and creates three original PNG/JPEG illustrations. It adds categories, tags and navigation links while preserving existing materials, accounts, settings and menu items. One published article also has a newer private working revision for publication-isolation testing. Sample URLs use a `demo-` prefix; contact details are illustrative.
@@ -164,7 +164,7 @@ export GOPRESS_SMTP_PORT=587
 export GOPRESS_SMTP_FROM=website@example.com
 export GOPRESS_SMTP_USER=website@example.com
 export GOPRESS_SMTP_PASSWORD='your-smtp-password'
-./bin/gopress serve
+./gopress serve
 ```
 
 Port 587 requires STARTTLS; port 465 uses TLS from connection start. Certificates are verified. Omit username/password for a relay that does not require authentication. Each form has its own recipient. Restore SMTP configuration separately after moving a site.
@@ -177,10 +177,10 @@ For offline directory backups, stop the server first. Parent directories must ex
 
 ```sh
 mkdir -p ../gopress-backups
-./bin/gopress backup create --data ./data --output ../gopress-backups/site-001
-./bin/gopress backup verify --source ../gopress-backups/site-001
-./bin/gopress backup restore --source ../gopress-backups/site-001 --data ./restored-data
-./bin/gopress serve --data ./restored-data --addr 127.0.0.1:8080
+./gopress backup create --data ./data --output ../gopress-backups/site-001
+./gopress backup verify --source ../gopress-backups/site-001
+./gopress backup restore --source ../gopress-backups/site-001 --data ./restored-data
+./gopress serve --data ./restored-data --addr 127.0.0.1:8080
 ```
 
 Tools → Backups supports a daily schedule in the site timezone and retention of 1–30 automatic copies, preserving manual copies. It pauses in maintenance, retries failed eligible jobs hourly up to three times per day, and records actual results in the overview. Keep an independent off-host copy; see the [operations guide](docs/OPERATIONS.md).

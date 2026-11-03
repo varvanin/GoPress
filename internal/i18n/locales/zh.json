@@ -213,6 +213,7 @@
   "Copy": "复制",
   "Copy created. Changes will appear on the site after you activate it.": "已创建副本。激活后，更改将显示在网站上。",
   "Could not add the language. Try again.": "无法添加语言。再试一次。",
+  "Could not change the language. Try again.": "无法更改语言，请重试。",
   "Could not check for updates. Check the release source and signing key.": "无法检查更新。检查发布源和签名密钥。",
   "Could not complete the action. Your edits are still on screen; check your connection or reload the current content version.": "无法完成该操作。您的编辑仍然显示在屏幕上；检查您的连接或重新加载当前内容版本。",
   "Could not format the code. The original text was preserved.": "无法格式化代码。原文被保留。",

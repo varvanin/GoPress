@@ -213,6 +213,7 @@
   "Copy": "Kopieren",
   "Copy created. Changes will appear on the site after you activate it.": "Kopie erstellt. Änderungen erscheinen nach der Aktivierung auf der Website.",
   "Could not add the language. Try again.": "Die Sprache konnte nicht hinzugefügt werden. Versuchen Sie es erneut.",
+  "Could not change the language. Try again.": "Die Sprache konnte nicht geändert werden. Versuchen Sie es erneut.",
   "Could not check for updates. Check the release source and signing key.": "Updates konnten nicht geprüft werden. Prüfen Sie Release-Quelle und Signaturschlüssel.",
   "Could not complete the action. Your edits are still on screen; check your connection or reload the current content version.": "Aktion fehlgeschlagen. Ihre Änderungen bleiben sichtbar; prüfen Sie die Verbindung oder laden Sie die aktuelle Inhaltsversion.",
   "Could not format the code. The original text was preserved.": "Der Code konnte nicht formatiert werden. Der ursprüngliche Text wurde beibehalten.",

@@ -213,6 +213,7 @@
   "Copy": "Копіювати",
   "Copy created. Changes will appear on the site after you activate it.": "Копію створено. Зміни з'являться на сайті після її активації.",
   "Could not add the language. Try again.": "Не вдалося додати мову. Спробуйте ще раз.",
+  "Could not change the language. Try again.": "Не вдалося змінити мову. Спробуйте ще раз.",
   "Could not check for updates. Check the release source and signing key.": "Не вдалося перевірити оновлення. Перевірте джерело випусків і ключ підпису.",
   "Could not complete the action. Your edits are still on screen; check your connection or reload the current content version.": "Не вдалося виконати дію. Правки залишилися на екрані; перевірте з'єднання або оновіть версію матеріалу.",
   "Could not format the code. The original text was preserved.": "Не вдалося відформатувати код. Початковий текст збережено.",

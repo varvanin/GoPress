@@ -20,6 +20,7 @@ import (
 	"unicode/utf8"
 
 	"golang.org/x/crypto/bcrypt"
+	"gopress/internal/i18n"
 	"gopress/internal/store"
 )
 
@@ -84,9 +85,12 @@ func Token() string {
 }
 func Hash(s string) string   { v := sha256.Sum256([]byte(s)); return hex.EncodeToString(v[:]) }
 func Equal(a, b string) bool { return subtle.ConstantTimeCompare([]byte(a), []byte(b)) == 1 }
-func (v *Service) Install(ctx context.Context, token string, site store.Site, email, password string) error {
+func (v *Service) Install(ctx context.Context, token string, site store.Site, email, password string, language ...string) error {
 	if v.InstallToken == "" || !Equal(token, v.InstallToken) {
 		return ErrUnauthorized
+	}
+	if len(language) > 0 && !i18n.Supported(language[0]) {
+		return ErrInvalid
 	}
 	site.Title = strings.TrimSpace(site.Title)
 	email = strings.ToLower(strings.TrimSpace(email))
@@ -106,7 +110,7 @@ func (v *Service) Install(ctx context.Context, token string, site store.Site, em
 	if err != nil {
 		return err
 	}
-	if err = v.Store.Install(ctx, site, email, hash); err != nil {
+	if err = v.Store.Install(ctx, site, email, hash, language...); err != nil {
 		return err
 	}
 	v.installed.Store(true)

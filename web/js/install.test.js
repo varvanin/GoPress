@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {initializeInstallation} from './install.js';
+import {initializeInstallation,initializeInstallationLanguage} from './install.js';
 
 function environment(hash=''){
  const calls=[],error={hidden:true},address={value:''},zone={value:'UTC'};
@@ -48,4 +48,41 @@ test('following a setup link from the locked page also unlocks without a reload'
  v.env.location.hash='#setup='+'c'.repeat(64);
  await listeners.hashchange();
  assert.deepEqual(v.calls.map(call=>call[0]),['clean','fetch','replace']);
+});
+
+test('setup keeps the chosen language when exchanging an installation link',async()=>{
+ const v=environment('#setup='+'a'.repeat(64));v.env.location.search='?language=fr';
+ await initializeInstallation(v.env);
+ assert.equal(v.calls.at(-1)[1],'/install?language=fr');
+});
+
+function languageEnvironment(){
+ const v=environment(),listeners={},nodes=[{dataset:{installationCopy:'Site name'},textContent:'Site name'}];
+ const language={value:'en',addEventListener:(name,fn)=>listeners[name]=fn};
+ const heading={textContent:''},placeholder={dataset:{installationPlaceholder:'My site'},placeholder:''},trigger={setAttribute:()=>{}};
+ v.env.document.documentElement={lang:'en',dataset:{adminTheme:'dark'}};
+ v.env.document.getElementById=id=>({'auth-title':heading,'installation-language':trigger}[id]);
+ v.env.document.querySelector=()=>v.error;
+ v.env.document.querySelectorAll=selector=>({'[data-installation-copy]':nodes,'[data-installation-placeholder]':[placeholder],'[data-admin-theme-toggle]':[]}[selector]);
+ v.error.hidden=true;
+ v.env.fetch=async()=>({ok:true,json:async()=>({'Site name':'Nom du site','Install GoPress':'Installation de GoPress','My site':'Mon site'})});
+ initializeInstallationLanguage({...v.env,fetch:(...args)=>v.env.fetch(...args)},language);
+ return {...v,language,change:()=>listeners.change(),nodes,heading,placeholder};
+}
+test('interface language changes text and URL without replacing form fields',async()=>{
+ const v=languageEnvironment();v.language.value='fr';await v.change();
+ assert.equal(v.nodes[0].textContent,'Nom du site');assert.equal(v.placeholder.placeholder,'Mon site');
+ assert.equal(v.env.document.documentElement.lang,'fr');assert.equal(v.heading.textContent,'Installation de GoPress');
+ assert.equal(v.env.document.title,'Installation de GoPress · GoPress');
+ assert.equal(v.calls.at(-1)[1],'/install?language=fr');assert.equal(v.error.hidden,true);
+ v.language.value='en';v.env.fetch=async()=>({ok:true,json:async()=>null});await v.change();
+ assert.equal(v.nodes[0].textContent,'Site name');assert.equal(v.env.document.documentElement.lang,'en');
+});
+test('failed language requests restore the applied language and ignore stale responses',async()=>{
+ const v=languageEnvironment();v.env.fetch=async()=>({ok:false});v.language.value='fr';await v.change();
+ assert.equal(v.language.value,'en');assert.equal(v.error.hidden,false);
+ let finish;v.env.fetch=()=>new Promise(resolve=>finish=resolve);
+ v.language.value='fr';const pending=v.change();v.language.value='en';await v.change();
+ finish({ok:true,json:async()=>({'Site name':'Nom du site'})});await pending;
+ assert.equal(v.env.document.documentElement.lang,'en');assert.equal(v.nodes[0].textContent,'Site name');
 });

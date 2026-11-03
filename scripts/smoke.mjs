@@ -27,7 +27,7 @@ let server,chrome,chromeSocket,logs='',token='',containerRunning=false;
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function until(check,description,timeout=15000){const end=Date.now()+timeout;let last;while(Date.now()<end){try{const result=await check();if(result)return result;}catch(error){last=error;}await delay(100);}throw new Error('Timed out: '+description+(last?' ('+last.message+')':''));}
 function cli(args,success=true){
- const result=docker?spawnSync('docker',['run','--rm','--mount',`type=volume,source=${volume},target=/data`,'gopress:ci',...args],{encoding:'utf8',timeout:60000}):spawnSync('./bin/gopress',args,{encoding:'utf8',timeout:60000,env:environment});
+ const result=docker?spawnSync('docker',['run','--rm','--mount',`type=volume,source=${volume},target=/data`,'gopress:ci',...args],{encoding:'utf8',timeout:60000}):spawnSync('./gopress',args,{encoding:'utf8',timeout:60000,env:environment});
  assert(!result.error&&!result.signal,'CLI could not finish: '+args[0]);
  if(success)assert.equal(result.status,0,result.stderr);else assert.notEqual(result.status,0,'CLI unexpectedly accepted: '+args[0]);
  return result;
@@ -38,7 +38,7 @@ async function startSite(directory){
   const result=spawnSync('docker',['run','--rm','-d','--name',container,'--mount',`type=volume,source=${volume},target=/data`,'-p',`127.0.0.1:${port}:8080`,'gopress:ci','serve','--data',directory,'--addr','0.0.0.0:8080'],{encoding:'utf8',timeout:30000});
   assert.equal(result.status,0,result.stderr);containerRunning=true;
  }else{
-  server=spawn('./bin/gopress',['serve','--data',directory,'--addr','127.0.0.1:'+port],{stdio:['ignore','ignore','pipe'],env:environment});
+  server=spawn('./gopress',['serve','--data',directory,'--addr','127.0.0.1:'+port],{stdio:['ignore','ignore','pipe'],env:environment});
   server.stderr.on('data',chunk=>{logs+=chunk.toString();const match=logs.match(/installation link: [^\s]*#setup=([a-f0-9]{64})/);if(match)token=match[1];});
   server.on('error',error=>{logs+=error.message;});
  }

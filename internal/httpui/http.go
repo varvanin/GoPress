@@ -163,6 +163,7 @@ func New(v *service.Service) *App {
 	assets, _ := fs.Sub(resources, "assets")
 	e.GET("/assets/*", echo.WrapHandler(http.StripPrefix("/assets/", http.FileServer(http.FS(assets)))))
 	e.GET("/install", a.installForm)
+	e.GET("/install/translations", a.installationTranslations)
 	e.GET("/theme-assets/:theme/*", a.themeAsset)
 	e.GET("/builtin-assets/:theme/*", a.themeAsset)
 	e.POST("/install", a.install, a.csrf)
@@ -535,7 +536,7 @@ func (a *App) installForm(c *echo.Context) error {
 	}
 	c.Response().Header().Set("Content-Type", "text/html; charset=utf-8")
 	token := a.installationToken(c)
-	return a.renderInstallation(c, 200, installationForm{Timezone: "UTC", Unlocked: a.Service.InstallToken != "" && service.Equal(token, a.Service.InstallToken)})
+	return a.renderInstallation(c, 200, installationForm{Timezone: "UTC", Language: c.QueryParam("language"), Unlocked: a.Service.InstallToken != "" && service.Equal(token, a.Service.InstallToken)})
 }
 func (a *App) loginForm(c *echo.Context) error {
 	c.Response().Header().Set("Cache-Control", "no-store")

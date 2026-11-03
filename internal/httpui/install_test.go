@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"gopress/internal/i18n"
 	"gopress/internal/service"
 )
 
@@ -15,8 +16,17 @@ func TestInstallationLinkUnlocksSetupAndIsDisabledAfterInstall(t *testing.T) {
 	defer s.Close()
 	b := &browser{app: app, cookies: map[string]*http.Cookie{}}
 	token := app.Service.InstallToken
-	page := b.request("GET", "/install", "", "", false)
+	page := b.request("GET", "/install?language=fr", "", "", false)
 	status(t, page, 200)
+	if !strings.Contains(page.Body.String(), `lang="fr"`) {
+		t.Fatal("installer did not use the selected language")
+	}
+	catalog := b.request("GET", "/install/translations?language=fr", "", "", false)
+	status(t, catalog, 200)
+	if !strings.Contains(catalog.Body.String(), i18n.Catalog("fr")["Settings"]) {
+		t.Fatal("missing installer translations")
+	}
+	status(t, b.request("GET", "/install/translations?language=xx", "", "", false), 400)
 	if strings.Contains(page.Body.String(), token) || strings.Contains(page.Body.String(), `name="token"`) || strings.Contains(page.Body.String(), `name="password"`) {
 		t.Fatal("locked installer leaked credentials or exposed setup")
 	}
@@ -26,7 +36,7 @@ func TestInstallationLinkUnlocksSetupAndIsDisabledAfterInstall(t *testing.T) {
 	unlock := url.Values{"token": {token}}
 	status(t, b.request("POST", "/install/unlock", unlock.Encode(), "application/x-www-form-urlencoded", false), 403)
 	status(t, b.request("POST", "/install/unlock", "token=invalid", "application/x-www-form-urlencoded", true), 401)
-	fields := url.Values{"title": {"My new site"}, "base_url": {"https://example.com"}, "timezone": {"UTC"}, "email": {"owner@example.com"}, "password": {"correct horse battery staple"}}
+	fields := url.Values{"title": {"My new site"}, "base_url": {"https://example.com"}, "timezone": {"UTC"}, "email": {"owner@example.com"}, "password": {"correct horse battery staple"}, "language": {"fr"}}
 	status(t, b.request("POST", "/install", fields.Encode(), "application/x-www-form-urlencoded", true), 401)
 	status(t, b.request("POST", "/install/unlock", unlock.Encode(), "application/x-www-form-urlencoded", true), 204)
 	grant := b.cookies["installation"]
@@ -41,6 +51,9 @@ func TestInstallationLinkUnlocksSetupAndIsDisabledAfterInstall(t *testing.T) {
 	fields.Set("timezone", "invalid")
 	failed := b.request("POST", "/install", fields.Encode(), "application/x-www-form-urlencoded", true)
 	status(t, failed, 400)
+	if !strings.Contains(failed.Body.String(), `lang="fr"`) {
+		t.Fatal("validation discarded language")
+	}
 	for _, value := range []string{"My new site", "https://example.com", "owner@example.com", `value="invalid"`} {
 		if !strings.Contains(failed.Body.String(), value) {
 			t.Fatal("validation discarded input", value)
@@ -55,7 +68,17 @@ func TestInstallationLinkUnlocksSetupAndIsDisabledAfterInstall(t *testing.T) {
 	if done.Header().Get("Location") != "/login" || b.cookies["installation"].MaxAge != -1 {
 		t.Fatal("temporary installation access was not cleared")
 	}
+	settings, err := s.Settings()
+	if err != nil || settings.Language != "fr" {
+		t.Fatal("installation did not save interface language", settings, err)
+	}
+	login := b.request("GET", "/login", "", "", false)
+	status(t, login, 200)
+	if !strings.Contains(login.Body.String(), `lang="fr"`) {
+		t.Fatal("login did not use installation language")
+	}
 	b.cookies["installation"] = grant
+	status(t, b.request("GET", "/install/translations?language=fr", "", "", false), 409)
 	status(t, b.request("GET", "/install", "", "", false), 409)
 	status(t, b.request("POST", "/install/unlock", unlock.Encode(), "application/x-www-form-urlencoded", true), 409)
 	status(t, b.request("POST", "/install", fields.Encode(), "application/x-www-form-urlencoded", true), 409)

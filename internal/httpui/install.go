@@ -5,13 +5,14 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v5"
+	"gopress/internal/i18n"
 	"gopress/internal/service"
 	"gopress/internal/store"
 )
 
 type installationForm struct {
-	Title, BaseURL, Timezone, Email, Message string
-	Unlocked                                 bool
+	Title, BaseURL, Timezone, Email, Language, Message string
+	Unlocked                                           bool
 }
 
 func (a *App) unlockInstallation(c *echo.Context) error {
@@ -43,6 +44,10 @@ func (a *App) renderInstallation(c *echo.Context, status int, value installation
 	c.Response().Header().Set("Cache-Control", "no-store")
 	c.Response().Header().Set("X-Robots-Tag", "noindex, nofollow")
 	c.Response().Header().Set("Content-Type", "text/html; charset=utf-8")
+	if !i18n.Supported(value.Language) {
+		value.Language = "en"
+	}
+	c.SetRequest(c.Request().WithContext(i18n.WithLanguage(c.Request().Context(), value.Language)))
 	csrf := a.csrfToken(c)
 	c.Response().WriteHeader(status)
 	return Installation(csrf, value).Render(c.Request().Context(), c.Response())
@@ -53,8 +58,11 @@ func (a *App) install(c *echo.Context) error {
 		return store.ErrInstalled
 	}
 	token := a.installationToken(c)
-	value := installationForm{Title: c.FormValue("title"), BaseURL: c.FormValue("base_url"), Timezone: c.FormValue("timezone"), Email: c.FormValue("email"), Unlocked: true}
-	err := a.Service.Install(c.Request().Context(), token, store.Site{Title: value.Title, BaseURL: value.BaseURL, Timezone: value.Timezone}, value.Email, c.FormValue("password"))
+	value := installationForm{Title: c.FormValue("title"), BaseURL: c.FormValue("base_url"), Timezone: c.FormValue("timezone"), Email: c.FormValue("email"), Language: c.FormValue("language"), Unlocked: true}
+	if value.Language == "" {
+		value.Language = "ru"
+	}
+	err := a.Service.Install(c.Request().Context(), token, store.Site{Title: value.Title, BaseURL: value.BaseURL, Timezone: value.Timezone}, value.Email, c.FormValue("password"), value.Language)
 	if errors.Is(err, service.ErrInvalid) {
 		value.Message = "Check the site details, email and password. Use a password of 12–72 bytes."
 		return a.renderInstallation(c, http.StatusBadRequest, value)
@@ -64,4 +72,16 @@ func (a *App) install(c *echo.Context) error {
 	}
 	a.cookie(c, "installation", "", -1)
 	return c.Redirect(http.StatusSeeOther, "/login")
+}
+
+func (a *App) installationTranslations(c *echo.Context) error {
+	if a.Service.Installed() {
+		return store.ErrInstalled
+	}
+	language := c.QueryParam("language")
+	if !i18n.Supported(language) {
+		return service.ErrInvalid
+	}
+	c.Response().Header().Set("Cache-Control", "no-store")
+	return c.JSON(http.StatusOK, i18n.Catalog(language))
 }

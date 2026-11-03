@@ -142,7 +142,7 @@ p_docs = [
     text(350, 360, '# Клонируйте репозиторий или скачайте бинарник', 13, fill='#64748b', font='monospace'),
     text(350, 388, '$ git clone https://github.com/gopress/gopress.git', 13, fill='#38bdf8', font='monospace'),
     text(350, 416, '$ cd gopress && make build', 13, fill='#e2e8f0', font='monospace'),
-    text(350, 444, '$ ./bin/gopress serve', 13, fill='#4ade80', font='monospace'),
+    text(350, 444, '$ ./gopress serve', 13, fill='#4ade80', font='monospace'),
     # Section 2
     text(330, 496, '2. Доступ к панели администратора', 20, fill='#0f172a', weight='700'),
     text(330, 526, 'Откройте в браузере http://localhost:8080/admin для перехода к первичной установке.', 15, fill='#475569'),

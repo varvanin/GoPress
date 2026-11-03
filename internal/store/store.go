@@ -285,7 +285,7 @@ func (s *Store) Site() (Site, error) {
 	err := s.DB.QueryRow("SELECT title,base_url,timezone FROM installation WHERE id=1").Scan(&v.Title, &v.BaseURL, &v.Timezone)
 	return v, err
 }
-func (s *Store) Install(ctx context.Context, site Site, email string, hash []byte) error {
+func (s *Store) Install(ctx context.Context, site Site, email string, hash []byte, language ...string) error {
 	tx, err := s.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -297,6 +297,11 @@ func (s *Store) Install(ctx context.Context, site Site, email string, hash []byt
 	}
 	if n != 0 {
 		return ErrInstalled
+	}
+	if len(language) > 0 {
+		if _, err = tx.ExecContext(ctx, "UPDATE settings SET value=json_set(value,'$.language',?) WHERE id=1", language[0]); err != nil {
+			return err
+		}
 	}
 	if _, err = tx.ExecContext(ctx, "INSERT INTO users(id,email,password_hash) VALUES(1,?,?)", email, hash); err != nil {
 		return err

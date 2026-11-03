@@ -213,6 +213,7 @@
   "Copy": "복사",
   "Copy created. Changes will appear on the site after you activate it.": "사본이 생성되었습니다. 사이트를 활성화하면 변경 사항이 사이트에 나타납니다.",
   "Could not add the language. Try again.": "언어를 추가할 수 없습니다. 다시 시도해 보세요.",
+  "Could not change the language. Try again.": "언어를 변경하지 못했습니다. 다시 시도하세요.",
   "Could not check for updates. Check the release source and signing key.": "업데이트를 확인할 수 없습니다. 릴리스 소스와 서명 키를 확인하세요.",
   "Could not complete the action. Your edits are still on screen; check your connection or reload the current content version.": "작업을 완료할 수 없습니다. 편집 내용은 여전히 ​​화면에 표시됩니다. 연결을 확인하거나 현재 콘텐츠 버전을 다시 로드하세요.",
   "Could not format the code. The original text was preserved.": "코드 형식을 지정할 수 없습니다. 원본 텍스트는 보존되었습니다.",

@@ -8,38 +8,48 @@ templ Installation(csrf string, value installationForm) {
  @AuthLayout("Install GoPress") {
   <div class="installation" data-installation>
    <input type="hidden" id="installation-csrf" value={ csrf }/>
-   <p class="notice notice-error" role="alert" data-installation-error hidden>{ i18n.T(ctx,"The installation link is invalid or expired. Open the latest link from the server console.") }</p>
+   <div class="field installation-language">
+    <label for="installation-language">@InstallationText("Interface language")</label>
+    @AdminSelect("installation-language","language",value.Language,i18n.T(ctx,"Interface language"),materialLanguages(),templ.Attributes{"form":"installation-form"})
+   </div>
+   <p class="notice notice-error" role="alert" data-installation-language-error hidden>@InstallationText("Could not change the language. Try again.")</p>
+   <p class="notice notice-error" role="alert" data-installation-error hidden>@InstallationText("The installation link is invalid or expired. Open the latest link from the server console.")</p>
    if value.Unlocked {
-    <p class="auth-form-description">{ i18n.T(ctx,"Enter site details and create an administrator.") }</p>
+    <p class="auth-form-description">@InstallationText("Enter site details and create an administrator.")</p>
     if value.Message != "" {
-     <p class="notice notice-error" role="alert">{ i18n.T(ctx,value.Message) }</p>
+     <p class="notice notice-error" role="alert">@InstallationText(value.Message)</p>
     }
-    <form method="post" action="/install" class="auth-form installation-form">
+    <form method="post" action="/install" id="installation-form" class="auth-form installation-form">
      <input type="hidden" name="csrf" value={ csrf }/>
      <fieldset class="installation-section">
-      <legend>{ i18n.T(ctx,"Site") }</legend>
-      <div class="field"><label for="title">{ i18n.T(ctx,"Site name") }</label>@input.Input(input.Props{ID:"title",Name:"title",Value:value.Title,Required:true,Placeholder:i18n.T(ctx,"My site"),Attributes:templ.Attributes{"maxlength":"200","autocomplete":"organization"}})</div>
+      <legend>@InstallationText("Site")</legend>
+      <div class="field"><label for="title">@InstallationText("Site name")</label>@input.Input(input.Props{ID:"title",Name:"title",Value:value.Title,Required:true,Placeholder:i18n.T(ctx,"My site"),Attributes:templ.Attributes{"maxlength":"200","autocomplete":"organization","data-installation-placeholder":"My site"}})</div>
      </fieldset>
      <fieldset class="installation-section">
-      <legend>{ i18n.T(ctx,"Administrator") }</legend>
-      <div class="field"><label for="email">{ i18n.T(ctx,"Administrator email") }</label>@input.Input(input.Props{ID:"email",Name:"email",Type:"email",Value:value.Email,Required:true,Placeholder:"name@example.com",Attributes:templ.Attributes{"autocomplete":"username"}})</div>
-      <div class="field"><label for="password">{ i18n.T(ctx,"Password") }</label>@input.Input(input.Props{ID:"password",Name:"password",Type:"password",Required:true,Attributes:templ.Attributes{"autocomplete":"new-password","minlength":"12","aria-describedby":"installation-password-help"}})<p class="field-help" id="installation-password-help">{ i18n.T(ctx,"Use a long password. You will use it to sign in.") }</p></div>
+      <legend>@InstallationText("Administrator")</legend>
+      <div class="field"><label for="email">@InstallationText("Administrator email")</label>@input.Input(input.Props{ID:"email",Name:"email",Type:"email",Value:value.Email,Required:true,Placeholder:"name@example.com",Attributes:templ.Attributes{"autocomplete":"username"}})</div>
+      <div class="field"><label for="password">@InstallationText("Password")</label>@input.Input(input.Props{ID:"password",Name:"password",Type:"password",Required:true,Attributes:templ.Attributes{"autocomplete":"new-password","minlength":"12","aria-describedby":"installation-password-help"}})<p class="field-help" id="installation-password-help">@InstallationText("Use a long password. You will use it to sign in.")</p></div>
      </fieldset>
      <details class="installation-details" open?={ value.Message != "" }>
-      <summary>{ i18n.T(ctx,"Additional settings") }</summary>
+      <summary>@InstallationText("Additional settings")</summary>
       <div class="installation-settings">
-       <div class="field"><label for="base_url">{ i18n.T(ctx,"Primary URL") }</label>@input.Input(input.Props{ID:"base_url",Name:"base_url",Type:"url",Value:value.BaseURL,Required:true,Placeholder:"https://example.com",Attributes:templ.Attributes{"autocomplete":"url"}})</div>
-       <div class="field"><label for="timezone">{ i18n.T(ctx,"Time zone") }</label>@input.Input(input.Props{ID:"timezone",Name:"timezone",Value:value.Timezone,Required:true,Attributes:templ.Attributes{"data-detect-timezone":value.Message=="","maxlength":"100"}})</div>
+       <div class="field"><label for="base_url">@InstallationText("Primary URL")</label>@input.Input(input.Props{ID:"base_url",Name:"base_url",Type:"url",Value:value.BaseURL,Required:true,Placeholder:"https://example.com",Attributes:templ.Attributes{"autocomplete":"url"}})</div>
+       <div class="field"><label for="timezone">@InstallationText("Time zone")</label>@input.Input(input.Props{ID:"timezone",Name:"timezone",Value:value.Timezone,Required:true,Attributes:templ.Attributes{"data-detect-timezone":value.Message=="","maxlength":"100"}})</div>
       </div>
      </details>
-     @button.Button(button.Props{Type:button.TypeSubmit,Size:button.SizeSm,Class:"w-full"}) { <span>{ i18n.T(ctx,"Create site") }</span> }
+     @button.Button(button.Props{Type:button.TypeSubmit,Size:button.SizeSm,Class:"w-full"}) { <span>@InstallationText("Create site")</span> }
     </form>
    } else {
-    <p class="installation-intro">{ i18n.T(ctx,"Open the installation link printed when GoPress starts.") }</p>
-    <p class="field-help">{ i18n.T(ctx,"The link verifies that you own this installation. No code entry is needed.") }</p>
+    <p class="installation-intro">@InstallationText("Open the installation link printed when GoPress starts.")</p>
+    <p class="field-help">@InstallationText("The link verifies that you own this installation. No code entry is needed.")</p>
    }
-   <noscript><p class="notice">{ i18n.T(ctx,"Enable JavaScript to open the installation link.") }</p></noscript>
+   <noscript><p class="notice">@InstallationText("Enable JavaScript to open the installation link.")</p></noscript>
   </div>
+  <script src="/assets/components.bundle.js" defer></script>
   <script src="/assets/install.js" defer></script>
  }
+}
+
+templ InstallationText(source string) {
+ <span data-installation-copy={ source }>{ i18n.T(ctx,source) }</span>
 }

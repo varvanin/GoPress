@@ -15,7 +15,7 @@ release: assets generate
 	$(MAKE) build
 
 build:
-	go build -trimpath -o bin/gopress ./cmd/gopress
+	go build -trimpath -o gopress ./cmd/gopress
 
 test:
 	go test ./...
@@ -27,4 +27,4 @@ check:
 	go test -race ./...
 
 run: build
-	./bin/gopress serve
+	./gopress serve
