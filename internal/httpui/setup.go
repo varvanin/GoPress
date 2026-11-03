@@ -41,6 +41,6 @@ func (a *App) setupPage(c *echo.Context) error {
 	if err != nil {
 		return err
 	}
-	steps := []SetupStep{{"Название и адрес сайта", "/admin/settings", site.Title != "" && site.BaseURL != ""}, {"Выбран доступный шаблон", "/admin/themes", templateErr == nil}, {"Опубликован первый материал", "/admin/pages", data.Pages.Published+data.Posts.Published > 0}, {"Главная страница содержит публикации", "/admin/settings?tab=home", homeReady}, {"Есть резервная копия", "/admin/tools", len(backups) > 0}}
+	steps := []SetupStep{{"Site name and address", "/admin/settings", site.Title != "" && site.BaseURL != ""}, {"Available template selected", "/admin/themes", templateErr == nil}, {"First content published", "/admin/pages", data.Pages.Published+data.Posts.Published > 0}, {"Homepage has published content", "/admin/settings?tab=home", homeReady}, {"Backup exists", "/admin/tools", len(backups) > 0}}
 	return htmlComponent(c, 200, SetupPage(site.Title, a.csrfToken(c), steps))
 }

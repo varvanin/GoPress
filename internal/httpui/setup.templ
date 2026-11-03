@@ -1,24 +1,49 @@
 package httpui
+
 import "gopress/internal/i18n"
 import "gopress/internal/ui/components/icon"
 import "gopress/internal/ui/components/card"
-templ SetupPage(site,csrf string,steps []SetupStep){
- @AdminLayout(site,i18n.T(ctx,"Overview"),csrf){
- @AdminPageHeader(i18n.T(ctx,"Getting started"),-1){}
- @card.Card(card.Props{Class:"settings-panel"}){
- <ul class="security-sessions">
- for _,step:=range steps {
- <li><a class="context-link" href={ templ.SafeURL(step.URL) }>{ i18n.T(ctx,step.Label) }</a>
- if step.Done {
- <span class="field-help">@icon.Check(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Done") }</span></span>
- } else {
- <span class="field-help">{ i18n.T(ctx,"Incomplete") }</span>
- }
- </li>
- }
- </ul>
- <p class="field-help">{ i18n.T(ctx,"Statuses reflect site data. Configure menus, email and two-factor authentication as needed.") }</p>
- <nav class="seo-resource-links"><a href="/admin/menus">{ i18n.T(ctx,"Menus") }</a><a href="/admin/settings?tab=mail">{ i18n.T(ctx,"Email") }</a><a href="/admin/account/security">{ i18n.T(ctx,"Security and sessions") }</a></nav>
- }
+import "gopress/internal/ui/components/badge"
+import "gopress/internal/ui/components/button"
+
+templ SetupPage(site, csrf string, steps []SetupStep) {
+ @AdminLayout(site,i18n.T(ctx,"Overview"),csrf) {
+  @AdminPageHeader(i18n.T(ctx,"Getting started"),-1) {}
+  <div class="management-workspace setup-workspace">
+   @card.Card(card.Props{Class:"settings-panel setup-panel"}) {
+    <ul class="setup-checklist" id="setup-checklist">
+     for _,step:=range steps {
+      <li>
+       <a class="setup-step" href={ templ.SafeURL(step.URL) }>
+        <span class="setup-step-label">{ i18n.T(ctx,step.Label) }</span>
+        @badge.Badge(badge.Props{Variant:badge.VariantOutline,Class:"setup-status"}) {
+         if step.Done {
+          @icon.Check(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Done") }</span>
+         } else {
+          <span>{ i18n.T(ctx,"Incomplete") }</span>
+         }
+        }
+        @icon.ChevronRight(icon.Props{Class:"setup-step-arrow size-4"})
+       </a>
+      </li>
+     }
+    </ul>
+   }
+   <aside class="management-context">
+    <h2>{ i18n.T(ctx,"Site features") }</h2>
+    <p>{ i18n.T(ctx,"Statuses reflect site data. Configure menus, email and two-factor authentication as needed.") }</p>
+    <nav class="setup-resource-links">
+     @button.Button(button.Props{Href:"/admin/menus",Variant:button.VariantOutline,Size:button.SizeSm}) {
+      @icon.Icon("list-tree")(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Menus") }</span>
+     }
+     @button.Button(button.Props{Href:"/admin/settings?tab=mail",Variant:button.VariantOutline,Size:button.SizeSm}) {
+      @icon.Icon("mail")(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Email") }</span>
+     }
+     @button.Button(button.Props{Href:"/admin/account/security",Variant:button.VariantOutline,Size:button.SizeSm}) {
+      @icon.LockKeyhole(icon.Props{Class:"size-4"})<span>{ i18n.T(ctx,"Security and sessions") }</span>
+     }
+    </nav>
+   </aside>
+  </div>
  }
 }

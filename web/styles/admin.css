@@ -1019,3 +1019,14 @@ html[data-admin-theme=light] .gp-admin .template-file-delete-btn:hover{backgroun
 .review-form { display:grid; gap:12px; }
 .review-form-actions { display:flex; align-items:center; gap:8px; }
 html[data-admin-theme=light] .gp-admin .context-link { color:#2679bd; }
+
+/* Setup uses the shared management layout and neutral status badges. */
+.gp-admin .management-workspace .setup-panel { display:block;padding:0; }
+.setup-checklist>li+li { border-top:1px solid var(--border); }
+.setup-step { display:grid;grid-template-columns:minmax(0,1fr) max-content 16px;align-items:center;gap:16px;padding:20px 24px;font-size:13px;line-height:1.65; }
+.setup-step:hover { background:var(--muted); }
+.setup-step-label { min-width:0;overflow-wrap:anywhere; }
+.setup-status { gap:6px;color:var(--muted-foreground);font-size:11px;font-weight:400; }
+.setup-step-arrow { color:var(--muted-foreground); }
+.setup-resource-links { display:flex;flex-wrap:wrap;gap:8px; }
+@media(max-width:600px){.setup-step{grid-template-columns:minmax(0,1fr) 16px;gap:10px 12px;padding:16px 18px}.setup-status{grid-column:1;justify-self:start}.setup-step-arrow{grid-column:2;grid-row:1/3}}
