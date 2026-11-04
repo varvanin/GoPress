@@ -464,7 +464,7 @@ func (a *App) templateEditorRoutes(g *echo.Group) {
 			message := err.Error()
 			if errors.Is(err, store.ErrConflict) {
 				status = 409
-				message = "File changed in another tab. Copy your edits and open the current version."
+				message = "The file changed in another tab. Copy your edits and open the current version."
 			}
 			return a.templateEditor(c, status, message, content, true)
 		}

@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"gopress/internal/i18n"
 	"gopress/internal/store"
 )
 
@@ -78,13 +79,14 @@ func TestBlogTermsAutosaveScheduleAndPublicFilters(t *testing.T) {
 	}
 	editor := adminHTML(b, "GET", fmt.Sprintf("/admin/pages/%d/edit", p.ID), nil, true, false, false)
 	status(t, editor, 200)
-	for _, marker := range []string{`data-editor-command="underline"`, `data-editor-command="alignCenter"`, `data-editor-command="search"`, "editor-menu-popup", "Категории и теги", "schedule-form"} {
+	uiContext := i18n.WithLanguage(ctx, "ru")
+	for _, marker := range []string{`data-editor-command="underline"`, `data-editor-command="alignCenter"`, `data-editor-command="search"`, "editor-menu-popup", i18n.T(uiContext, "Categories and tags"), "schedule-form"} {
 		if !strings.Contains(editor.Body.String(), marker) {
 			t.Fatalf("editor missing %s", marker)
 		}
 	}
 	body := editor.Body.String()
-	order := []string{"editor-commandbar", `id="page-title"`, "editor-document", `role="toolbar"`, `id="rich-editor"`, `class="editor-settings"`, `data-editor-panel="Публикация"`, `data-editor-panel="Категории и теги"`}
+	order := []string{"editor-commandbar", `id="page-title"`, "editor-document", `role="toolbar"`, `id="rich-editor"`, `class="editor-settings"`, `data-editor-panel="` + i18n.T(uiContext, "Publication") + `"`, `data-editor-panel="` + i18n.T(uiContext, "Categories and tags") + `"`}
 	if strings.Count(body, `id="admin-nav-status"`) != 1 || strings.Contains(body, `class="gp-topbar"`) {
 		t.Fatal("editor must have one command bar and one request status")
 	}

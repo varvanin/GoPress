@@ -32,21 +32,21 @@ func auditActor(ctx context.Context, e store.AuditEvent) string {
 }
 func auditAction(ctx context.Context, action string) string {
 	labels := map[string]string{
-		"user.2fa_enabled": "Enable 2FA", "user.2fa_disabled": "Disable 2FA", "user.2fa_reset": "Restore access without 2FA", "user.recovery_codes_rotated": "Replace recovery codes", "user.session_revoked": "Session terminated", "user.sessions_revoked": "Other sessions terminated",
-		"content.schedule_failed":        "Scheduled publication failed: check the parent and URL",
+		"user.2fa_enabled": "Enable 2FA", "user.2fa_disabled": "Disable 2FA", "user.2fa_reset": "Offline 2FA reset", "user.recovery_codes_rotated": "Recovery codes replaced", "user.session_revoked": "Session ended", "user.sessions_revoked": "Other sessions ended",
+		"content.schedule_failed":        "Scheduled publication failed: check the parent and content URL",
 		"POST /admin/themes/editor/save": "Template file edited", "POST /admin/themes/editor/copy": "Template copy created",
-		"POST /admin/modules/upload": "Module installed", "POST /admin/modules/package/save": "Module settings saved", "POST /admin/modules/package/toggle": "Module toggled", "POST /admin/modules/package/delete": "Module deleted",
-		"POST /admin/modules/faq/toggle": "FAQ module configured", "POST /admin/modules/faq/save": "FAQ group saved", "POST /admin/modules/faq/delete": "FAQ group deleted",
-		"user.login": "Admin login", "user.login_failed": "Failed login", "user.save": "User updated", "user.password": "Password changed", "user.reset": "Password recovered", "cli.reset_password": "Password recovered via CLI", "user.reset_requested": "Recovery link sent", "user.reset_delivery_failed": "Recovery link delivery failed",
-		"content.move": "Page addresses changed", "content.scheduled": "Scheduled publication", "content.create": "Content created", "content.update": "Content saved", "content.publish": "Content published", "content.trash": "Moved to trash", "content.restore": "Content restored", "content.delete": "Content permanently deleted", "content.unpublish": "Content unpublished", "content.cancel_schedule": "Schedule cancelled", "forms.delete_entries": "Submissions deleted", "forms.export": "Submissions exported",
-		"POST /admin/tools/backups/create": "Backup created", "POST /admin/tools/backups/restore": "Site restored", "POST /admin/tools/backups/verify": "Backup verified", "POST /admin/tools/backups/delete": "Backup deleted", "POST /admin/tools/backups/import": "Backup imported", "POST /admin/tools/maintenance": "Maintenance mode changed", "POST /admin/tools/retention": "Log retention period changed", "POST /admin/themes": "Template activated", "POST /admin/appearance": "Template activated", "POST /admin/themes/upload": "Template installed", "POST /admin/themes/delete": "Template deleted", "POST /admin/pages/:id/schedule": "Publication scheduled", "POST /admin/forms/save": "Form saved", "POST /admin/forms/:form/delete": "Form deleted", "POST /admin/logout": "Admin logout",
+		"POST /admin/modules/upload": "Module installation", "POST /admin/modules/package/save": "Module settings saved", "POST /admin/modules/package/toggle": "Module enabled or disabled", "POST /admin/modules/package/delete": "Module deletion",
+		"POST /admin/modules/faq/toggle": "FAQ module settings", "POST /admin/modules/faq/save": "FAQ group saved.", "POST /admin/modules/faq/delete": "Delete FAQ group",
+		"user.login": "Admin sign-in", "user.login_failed": "Failed sign-in", "user.save": "User changes", "user.password": "Password change", "user.reset": "Password recovery", "cli.reset_password": "Password recovery via CLI", "user.reset_requested": "Recovery link sent", "user.reset_delivery_failed": "Recovery email failed",
+		"content.move": "Page addresses changed", "content.scheduled": "Scheduled publication", "content.create": "Content creation", "content.update": "Content saved", "content.publish": "Content publication", "content.trash": "Moved to trash", "content.restore": "Content restoration", "content.delete": "Permanent content deletion", "content.unpublish": "Content unpublished", "content.cancel_schedule": "Scheduled publication cancelled", "forms.delete_entries": "Submissions deleted", "forms.export": "Submissions exported",
+		"POST /admin/tools/backups/create": "Backup creation", "POST /admin/tools/backups/restore": "Site restoration", "POST /admin/tools/backups/verify": "Backup verification", "POST /admin/tools/backups/delete": "Backup deletion", "POST /admin/tools/backups/import": "Backup import", "POST /admin/tools/maintenance": "Maintenance mode changes", "POST /admin/tools/retention": "Audit retention changes", "POST /admin/themes": "Template activation", "POST /admin/appearance": "Template activation", "POST /admin/themes/upload": "Template installation", "POST /admin/themes/delete": "Template deletion", "POST /admin/pages/:id/schedule": "Publication scheduled", "POST /admin/forms/save": "Form saved", "POST /admin/forms/:form/delete": "Form deletion", "POST /admin/logout": "Admin sign-out",
 	}
 	if label, ok := labels[action]; ok {
-		return label
+		return i18n.T(ctx, label)
 	}
-	for _, item := range []struct{ prefix, label string }{{"POST /admin/settings/", "Site settings changed"}, {"POST /admin/media", "Media library changed"}, {"POST /admin/menus", "Menu saved"}, {"POST /admin/posts/terms", "Categories and tags changed"}, {"POST /admin/seo", "SEO changed"}, {"POST /admin/forms/", "Form changed"}} {
+	for _, item := range []struct{ prefix, label string }{{"POST /admin/settings/", "Site settings changes"}, {"POST /admin/media", "Media library changes"}, {"POST /admin/menus", "Menu saved"}, {"POST /admin/posts/terms", "Category and tag changes"}, {"POST /admin/seo", "SEO changes"}, {"POST /admin/forms/", "Form changes"}} {
 		if strings.HasPrefix(action, item.prefix) {
-			return item.label
+			return i18n.T(ctx, item.label)
 		}
 	}
 	return i18n.T(ctx, "Admin action")

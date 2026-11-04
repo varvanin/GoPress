@@ -2,6 +2,7 @@ package httpui
 
 import (
 	"context"
+	"gopress/internal/i18n"
 	"gopress/internal/store"
 	"strings"
 	"testing"
@@ -57,14 +58,14 @@ func TestManagementNavigationToolsAndReadableAudit(t *testing.T) {
 }
 
 func TestAuditLegacyObjectsRemainReadable(t *testing.T) {
-	ctx := context.Background()
+	ctx := i18n.WithLanguage(context.Background(), "ru")
 	for _, item := range []struct {
 		event store.AuditEvent
 		want  string
 	}{
-		{store.AuditEvent{Action: "user.password", Object: "1"}, "Пользователь #1"},
-		{store.AuditEvent{Action: "content.move", Object: "42"}, "Материал #42"},
-		{store.AuditEvent{Action: "forms.export", Object: "7"}, "Форма #7"},
+		{store.AuditEvent{Action: "user.password", Object: "1"}, i18n.T(ctx, "User") + " #1"},
+		{store.AuditEvent{Action: "content.move", Object: "42"}, i18n.T(ctx, "Content") + " #42"},
+		{store.AuditEvent{Action: "forms.export", Object: "7"}, i18n.T(ctx, "Form") + " #7"},
 		{store.AuditEvent{Action: "content.delete", Object: `{"id":2,"title":"Deleted title","kind":"page"}`}, "Deleted title · #2"},
 	} {
 		if got := auditObject(ctx, item.event); got != item.want {
@@ -73,5 +74,24 @@ func TestAuditLegacyObjectsRemainReadable(t *testing.T) {
 	}
 	if got := auditDate(ctx, 1, "UTC"); got != "01.01.1970 00:00:01 UTC" {
 		t.Fatal(got)
+	}
+}
+
+func TestAuditActionsUseSelectedLanguage(t *testing.T) {
+	for _, language := range []string{"en", "ru", "pl", "de", "uk", "it", "es", "cs", "zh", "ko", "ja", "fr", "pt", "tr"} {
+		ctx := i18n.WithLanguage(context.Background(), language)
+		for action, source := range map[string]string{
+			"content.create":               "Content creation",
+			"POST /admin/settings/general": "Site settings changes",
+			"user.2fa_enabled":             "Enable 2FA",
+			"unknown.action":               "Admin action",
+		} {
+			if language != "en" && i18n.Catalog(language)[source] == "" {
+				t.Fatal("missing audit translation", language, source)
+			}
+			if got := auditAction(ctx, action); got != i18n.T(ctx, source) {
+				t.Fatal("untranslated audit action", language, action, got)
+			}
+		}
 	}
 }

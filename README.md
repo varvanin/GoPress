@@ -56,7 +56,7 @@ make check
 - `npm run build:css` builds Tailwind; `npm run build:editor` bundles the editors, admin runtime and dependency license notices.
 - `npm run build` builds both frontend parts. Dependencies are pinned by `package-lock.json`.
 - `make release` builds assets, generates templ and compiles Go. `make build` compiles using the existing embedded assets.
-- `make check` checks formatting, frontend tests, `go vet` and Go race tests. Node tests are not browser acceptance.
+- `make check` checks formatting, frontend tests, `go vet` and Go race tests with a 20-minute per-package timeout. Node tests are not browser acceptance.
 
 After rebuilding, stop the old process yourself and restart it with the same `--data` directory. Refreshing a browser cannot replace CSS/JS/templ embedded in an already running binary.
 

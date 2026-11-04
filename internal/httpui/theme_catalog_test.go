@@ -3,7 +3,6 @@ package httpui
 import (
 	"context"
 	"encoding/json"
-	"gopress/internal/i18n"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -111,10 +110,24 @@ func TestThemeUploadHasDedicatedPage(t *testing.T) {
 }
 
 func TestTemplateTerminologyInEnglish(t *testing.T) {
-	ctx := i18n.WithLanguage(context.Background(), "en")
-	for source, want := range map[string]string{"Шаблоны": "Templates", "Шаблон": "Template", "Активный шаблон:": "Active template:", "Загрузить свой шаблон": "Upload your template"} {
-		if got := i18n.T(ctx, source); got != want {
-			t.Fatalf("%s: %s", source, got)
+	s, app, b := seoApp(t)
+	settings, err := s.Settings()
+	if err != nil {
+		t.Fatal(err)
+	}
+	settings.Language = "en"
+	if err = app.Service.SaveSettings(context.Background(), settings); err != nil {
+		t.Fatal(err)
+	}
+	response := b.request("GET", "/admin/themes", "", "", false)
+	status(t, response, 200)
+	body := response.Body.String()
+	for _, label := range []string{"Templates", "Active template:", "Upload your template"} {
+		if !strings.Contains(body, label) {
+			t.Fatal("missing English template terminology", label)
 		}
+	}
+	if strings.Contains(body, ">Themes<") {
+		t.Fatal("legacy English Themes label")
 	}
 }
