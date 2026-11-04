@@ -10,7 +10,7 @@ RUN npm run build
 
 FROM golang:1.27.1 AS build
 ARG RELEASE_VERSION=0.2.0-dev
-ARG UPDATE_PUBLIC_KEY
+ARG UPDATE_PUBLIC_KEY=dwuS2ZAQgHHSDNN/Kvsx9CEXH8Rsiw3EyVTaJPOmmM0=
 ARG IMAGE_REPOSITORY=ghcr.io/varvanin/gopress
 ARG UPDATE_FEED=https://github.com/varvanin/GoPress/releases/latest/download/update.json
 WORKDIR /src

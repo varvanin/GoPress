@@ -11,6 +11,9 @@ The application does not update from arbitrary tags, shell scripts or unsigned c
    ```
 
    The command prints only the public key. The new private-key file has mode 0600 and cannot overwrite an existing file. Store an independent protected copy. Losing it prevents signing updates trusted by current installations.
+
+   The matching public key is embedded by default in `internal/version/version.go` and the Dockerfile. Native release binaries inherit this default; Docker builds may override it with `UPDATE_PUBLIC_KEY`. Keep both defaults paired with the publisher’s signing key.
+
 2. Put the base64 private-key file contents in the repository Actions secret `GOPRESS_RELEASE_PRIVATE_KEY`. Do not print it into logs or commit it. Release jobs derive the public key and embed only that public key in the image.
 3. Enable Actions package publication and ensure both the repository releases and `ghcr.io/OWNER/REPOSITORY` package are public if updates must be accessible without registry credentials. GitHub may initially create a private package; set its visibility explicitly before advertising the release.
 4. Protect release tags, the release workflow and production publishing permissions. The signing key is a release authority; changing an image digest without authorization must not produce a trusted release.

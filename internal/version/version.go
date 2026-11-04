@@ -2,8 +2,8 @@ package version
 
 var Current = "0.2.0-dev"
 
-// Release builds set the public trust anchor; private signing keys never enter images.
-var UpdatePublicKey = ""
+// Public release trust anchor; private signing keys never enter builds.
+var UpdatePublicKey = "dwuS2ZAQgHHSDNN/Kvsx9CEXH8Rsiw3EyVTaJPOmmM0="
 var UpdateFeed = "https://github.com/varvanin/GoPress/releases/latest/download/update.json"
 var ImageRepository = "ghcr.io/varvanin/gopress"
 

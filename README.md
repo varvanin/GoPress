@@ -211,7 +211,7 @@ GOPRESS_DOKPLOY_API_KEY=YOUR_DOKPLOY_API_KEY
 GOPRESS_DOKPLOY_APPLICATION_ID=YOUR_APPLICATION_ID
 ```
 
-Official release images embed the release feed and public signing key. For a bootstrap build or a private release channel, the operator may set `GOPRESS_UPDATE_PUBLIC_KEY` (base64 Ed25519 public key) and `GOPRESS_UPDATE_FEED` (HTTPS URL of `update.json`, with a detached base64 signature at `update.json.sig`). The feed is consulted only on administrator request and is never allowed to nominate an image outside the image repository compiled into that build. Never put the private release signing key in a site, Docker build argument or container environment.
+GoPress binaries and Docker images embed the release feed and public signing key, so the official update source does not require manual key configuration. For a bootstrap build or a private release channel, the operator may set `GOPRESS_UPDATE_PUBLIC_KEY` (base64 Ed25519 public key) and `GOPRESS_UPDATE_FEED` (HTTPS URL of `update.json`, with a detached base64 signature at `update.json.sig`). The feed is consulted only on administrator request and is never allowed to nominate an image outside the image repository compiled into that build. Never put the private release signing key in a site, Docker build argument or container environment.
 
 The update job rechecks the signed release, checks the Dokploy target and persistent storage, freezes writes, creates and verifies a backup, and requests deployment of an immutable image digest. It enforces `stop-first`, one replicated task, paused deployment failures, disabled automatic rollback and a local readiness probe. Site secrets stay in Dokploy's environment; no Docker socket or root access is given to GoPress. Brief downtime is expected.
 
